@@ -1,0 +1,224 @@
+body {
+  /* margin: 0;
+  background: #151616;
+  font-family: roboto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+:root {
+  --bg: #242526;
+  --bg-accent: #484a4d;
+  --text-color: #dadce1;
+  --nav-size: 56px;
+  --border: 1px solid rgba(0, 0, 0, 0.15);
+  --border-radius: 4px;
+  --speed: 500ms;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  /* color: var(--text-color);
+  text-decoration: none; */
+}
+
+/* Top Navigation Bar */
+
+/* <nav> */
+.top-navbar {
+  height: var(--nav-size);
+  /* background-color: var(--bg); */
+  background-color: #f8f9fa !important;
+  padding: 0 1rem;
+  /* border-bottom: var(--border); */
+}
+
+/* <ul> */
+.top-navbar-nav {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.top-navbar-link,
+.top-navbar-link:hover,
+.top-navbar-link:visited,
+.top-navbar-link:active {
+  color: #333;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 15px;
+}
+
+.top-navbar-divider {
+  color: #aaa;
+  margin-left: 15px;
+  font-weight: lighter;
+}
+
+.top-navbar-links {
+  /* width: 100%; */
+  display: flex;
+  margin-left: auto !important;
+  /* align-self: flex-end; */
+}
+
+.top-navbar-brand {
+  /* display: inline-block;
+  align-self: flex-start;
+  flex: 0 1 auto;
+  width: 100px;
+  height: 100px;
+  margin-right: auto; */
+}
+
+.top-navbar-search-web {
+  /* margin-left: auto; */
+  display: inline-flex;
+}
+
+.top-navbar-search-mobile {
+  display: inline-flex !important;
+  position: absolute;
+  right: 110px;
+}
+
+/* <li> */
+.top-nav-item {
+  /* width: calc(var(--nav-size) * 0.8); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon Button */
+.icon-button {
+  --button-size: calc(var(--nav-size) * 0.7);
+  min-width: var(--button-size);
+  height: var(--button-size);
+  /* background-color: #484a4d; */
+  /* border-radius: 50%; */
+  padding: 5px;
+  margin: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* transition: filter 300ms; */
+}
+
+.icon-button:nth-child(2) {
+  width: 50px;
+}
+
+.icon-button:hover {
+  /* filter: brightness(1.2); */
+}
+
+.icon-button svg {
+  /* fill: var(--text-color); */
+  fill: #333;
+  width: 20px;
+  height: 20px;
+}
+
+.icon-button svg:nth-child(2) {
+  /* fill: var(--text-color); */
+  fill: #333;
+  width: 10px;
+  height: 13px;
+  font-size: 0.2em;
+  margin-left: 6px;
+}
+
+/* Dropdown Menu */
+
+.dropdown {
+  position: absolute;
+  top: 58px;
+  width: auto;
+  transform: translateX(-45%);
+  /* background-color: var(--bg); */
+  background-color: #fff;
+  border: var(--border);
+  border-radius: var(--border-radius);
+  padding: 0rem;
+  overflow: hidden;
+  /* transition: height var(--speed) ease; */
+}
+
+/* .dropdown::before {
+  content: " ";
+  position: absolute;
+  bottom: 98%;
+  right: 4%;
+  margin-left: -5px;
+  width: 12px;
+  height: 12px;
+  background-color: #fff;
+  transform: rotate(45deg);
+  z-index: 500 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-left: 1px solid rgba(0, 0, 0, 0.15);
+} */
+
+.top-menu {
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.top-menu-item {
+  width: 180px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  /* border-radius: var(--border-radius); */
+  /* transition: background var(--speed); */
+  padding: 4px 20px;
+  color: #333;
+  text-decoration: none;
+}
+
+.top-menu-item:hover,
+.top-menu-item:visited,
+.top-menu-item:active {
+  display: inline-block !important;
+  background-color: #ddd;
+  text-decoration: none;
+  color: #333;
+  cursor: pointer;
+}
+
+.top-menu-item:nth-child(1) {
+  /* background-color: transparent; */
+}
+
+.top-menu-item .icon-button {
+  margin-right: 0.5rem;
+}
+
+.top-menu-item .icon-button:hover {
+  /* filter: none; */
+}
+
+.top-menu-item:hover {
+  /* background-color: #525357; */
+}
+
+.icon-right {
+  margin-left: auto;
+}

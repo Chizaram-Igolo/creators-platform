@@ -1,0 +1,159 @@
+:root {
+  --primary: #efb6b2;
+  --secondary: #4e4e4e;
+  --error: #ff4a4a;
+}
+
+.img-form {
+  position: relative;
+}
+
+.img-grid {
+  /* margin: 20px auto; */
+  display: grid;
+  grid-template-columns: 1fr;
+  /* grid-gap: 40px; */
+}
+
+.img-wrap {
+  overflow: hidden;
+  height: 0px;
+  width: 160px;
+  max-width: 160px;
+  height: 160px;
+  /* padding: 50% 0; */
+  /* padding controls height, will always be perfectly square regardless of width */
+  position: relative;
+  border: 0px solid #999;
+}
+
+.img-wrap img {
+  min-width: 100%;
+  min-height: 100%;
+  max-width: 150%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.file-div {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 32px;
+  border: none;
+  border-radius: 0;
+  font-size: 15px;
+  display: flex;
+  z-index: 200;
+  border: 1px solid;
+}
+
+.img-grid label {
+  display: inline-block;
+  position: absolute;
+  top: 120px;
+  left: 100px;
+  /* right: 0px; */
+  width: 42px;
+  height: 42px;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 50%;
+  line-height: 30px;
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  text-align: center;
+  padding-top: 0px;
+}
+
+.img-grid label input {
+  position: absolute;
+  height: 0;
+  width: 0;
+  opacity: 0;
+}
+
+.img-grid label:hover {
+  color: white;
+  cursor: pointer;
+}
+
+.img-form label span {
+  display: inline-block;
+  position: relative;
+  top: 0px;
+  margin-top: -10px;
+  margin-left: auto;
+}
+
+.file-div input {
+  position: absolute;
+  opacity: 0;
+  right: 0;
+  top: 0;
+}
+/* 
+.profile-head h5 {
+  color: #333;
+}
+.profile-head h6 {
+  color: #0062cc;
+}
+.profile-edit-btn {
+  border: none;
+  border-radius: 1.5rem;
+  width: 70%;
+  padding: 2%;
+  font-weight: 600;
+  color: #6c757d;
+  cursor: pointer;
+}
+.proile-rating {
+  font-size: 12px;
+  color: #818182;
+  margin-top: 5%;
+}
+.proile-rating span {
+  color: #495057;
+  font-size: 15px;
+  font-weight: 600;
+}
+.profile-head .nav-tabs {
+  margin-bottom: 5%;
+}
+.profile-head .nav-tabs .nav-link {
+  font-weight: 600;
+  border: none;
+}
+.profile-head .nav-tabs .nav-link.active {
+  border: none;
+  border-bottom: 2px solid #0062cc;
+}
+.profile-work {
+  padding: 14%;
+  margin-top: -15%;
+}
+.profile-work p {
+  font-size: 12px;
+  color: #818182;
+  font-weight: 600;
+  margin-top: 10%;
+}
+.profile-work a {
+  text-decoration: none;
+  color: #495057;
+  font-weight: 600;
+  font-size: 14px;
+}
+.profile-work ul {
+  list-style: none;
+}
+.profile-tab label {
+  font-weight: 600;
+}
+.profile-tab p {
+  font-weight: 600;
+  color: #0062cc;
+} */
