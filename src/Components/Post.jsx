@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Moment from "react-moment";
+
 // import FbImageLibrary from "react-fb-image-grid";
 // import Button from "react-bootstrap/Button";
 import { Comments, ImageGrid } from ".";
@@ -19,7 +21,7 @@ const images = [
   // "https://wallpaperbrowse.com/media/images/3848765-wallpaper-images-download.jpg",
 ];
 
-export default function Post({ text, comments, hasImages }) {
+export default function Post({ text, comments, hasImages, createdAt }) {
   const [showComments, setShowComments] = useState(false);
 
   return (
@@ -36,7 +38,9 @@ export default function Post({ text, comments, hasImages }) {
             />
             <div className="d-flex flex-column flex-wrap ml-2">
               <span className="font-weight-bold cooper">Thomson ben</span>
-              <span className="text-black-50 time">40 minutes ago</span>
+              <span className="text-black-50 time">
+                <Moment fromNow>{createdAt.toDate()}</Moment>
+              </span>
             </div>
           </div>
           <div className="feed-icon px-2">

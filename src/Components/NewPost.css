@@ -1,0 +1,114 @@
+.grow-wrap {
+  position: relative;
+  height: auto;
+  margin-bottom: 0;
+}
+
+.animated {
+  -webkit-transition: height 1s;
+  -moz-transition: height 1s;
+  transition: height 1s;
+}
+
+.new-post-textarea {
+  overflow: hidden;
+  resize: none;
+  padding-bottom: 1.5em;
+}
+
+.text-area {
+  height: 58px;
+  border: 1px solid #ccc;
+  display: inline-block;
+  white-space: pre-line;
+}
+
+.text-area:hover {
+  cursor: text;
+}
+
+.icon-example:after {
+  content: url(http://www.stat.ncsu.edu/dept-icons/camera-icon.gif);
+  position: absolute;
+  z-index: 9999;
+  right: 3px;
+  bottom: 6px;
+}
+
+.hidden {
+  display: none;
+}
+
+.post-buttons-container {
+  position: relative;
+}
+
+.camera-icon-btn {
+  display: inline-block;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  margin-bottom: 0px;
+}
+
+.post-buttons-1,
+.post-buttons-2,
+.post-buttons-3 {
+  border-radius: 0px;
+  font-size: 1.15em;
+}
+
+.post-buttons-1 {
+  border-bottom-left-radius: 4px;
+}
+
+.post-buttons-3 {
+  border-bottom-right-radius: 4px;
+}
+
+label input {
+  height: 0;
+  width: 0;
+  opacity: 0;
+}
+
+.multi-preview {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 0px 0px 5px;
+  row-gap: 10px;
+  border: 1px solid #ced4da;
+  border-top: none;
+  /* bottom: 10px; */
+}
+
+.multi-preview .preview-img-div {
+  max-width: calc(10% - 10px);
+  max-height: 50px;
+  overflow: hidden;
+  border: 3px solid #ced4da;
+  border-radius: 2px;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+@media only screen and (max-device-width: 480px) {
+  .multi-preview .preview-img-div {
+    max-width: calc(20% - 10px);
+  }
+}
+
+.multi-preview .preview-img-div img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 5px;
+  background-color: #007bff;
+  margin-top: 0px;
+}

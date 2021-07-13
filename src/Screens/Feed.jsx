@@ -22,15 +22,13 @@ function Feed(props) {
   // const { user } = useAuth();
   const { docs } = useFirestore("posts");
 
-  docs.map((doc) => console.log(doc.post));
-
   const [loading, setLoading] = useState(true);
   const history = useHistory();
 
   useEffect(() => {
     const loadInterval = setInterval(() => {
       setLoading(false);
-    }, 1000);
+    }, 200);
 
     return () => clearInterval(loadInterval);
   }, []);
@@ -84,6 +82,7 @@ function Feed(props) {
                             // hasImages={true}
                             key={doc.id}
                             hasComments={false}
+                            createdAt={doc.createdAt}
                             comments
                           />
                         );
