@@ -191,7 +191,8 @@ class ImageGrid extends Component {
   renderCountOverlay(more) {
     const { images } = this.props;
     const { countFrom } = this.state;
-    const extra = images.length - (countFrom && countFrom > 5 ? 5 : countFrom);
+    const extra =
+      images.length - (countFrom && countFrom > 5 ? 4 : countFrom - 1);
 
     return [
       more && <div key="count" className="cover"></div>,

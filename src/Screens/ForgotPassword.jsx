@@ -9,7 +9,8 @@ import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
 
-// import FirebaseAuth from "../firebaseAuth";
+import { ErrorDisplay } from "../Components";
+
 import { useAuth } from "../contexts/AuthContext";
 
 import "./Signin.css";
@@ -45,19 +46,7 @@ function ForgotPassword(props) {
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Reset Password</h3>
 
-              {error && (
-                <>
-                  <Alert
-                    variant="light"
-                    className="form-alert text-danger border border-danger"
-                  >
-                    <Form.Text className="text-danger status-message">
-                      {error}
-                    </Form.Text>
-                  </Alert>
-                  <br />
-                </>
-              )}
+              <ErrorDisplay error={error} />
 
               {message && (
                 <>
@@ -81,7 +70,7 @@ function ForgotPassword(props) {
                   <Form.Control
                     type="email"
                     required
-                    isInvalid={error.length > 0}
+                    // isInvalid={error.length > 0}
                     ref={emailRef}
                     placeholder="Email Address"
                   />

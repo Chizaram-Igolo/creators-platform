@@ -1,5 +1,5 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 // Router that checks if the user is logged in.
@@ -11,7 +11,14 @@ function PrivateRoute({ location, ...rest }) {
   if (user) {
     return <Route location={location} {...rest} />;
   } else {
-    return <Route location={location} {...rest} />;
+    return (
+      <Redirect
+        to={{
+          pathname: "/signin",
+          state: { from: location },
+        }}
+      />
+    );
   }
 }
 

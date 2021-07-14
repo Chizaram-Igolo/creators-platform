@@ -1,18 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import useStorage from "../hooks/useStorage";
 
-export default function ProgressBar({ file, setFile }) {
-  const { url, progress } = useStorage(file);
-
-  console.log(progress);
-
-  useEffect(() => {
-    if (url) {
-      setFile(null);
-    }
-  }, [url, setFile]);
-
+export default function ProgressBar({ progress }) {
   return (
     <motion.div
       className="progress-bar"

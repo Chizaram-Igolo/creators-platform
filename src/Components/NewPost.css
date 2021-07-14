@@ -5,20 +5,21 @@
 }
 
 .animated {
-  -webkit-transition: height 1s;
-  -moz-transition: height 1s;
-  transition: height 1s;
+  -webkit-transition: height 0.4s;
+  -moz-transition: height 0.4s;
+  transition: height 0.4s;
 }
 
 .new-post-textarea {
   overflow: hidden;
   resize: none;
   padding-bottom: 1.5em;
+  /* height: 54px !important; */
 }
 
 .text-area {
   height: 58px;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   display: inline-block;
   white-space: pre-line;
 }
@@ -45,10 +46,11 @@
 
 .camera-icon-btn {
   display: inline-block;
-  position: absolute;
+  position: relative;
   bottom: 0px;
   right: 0px;
   margin-bottom: 0px;
+  /* height: 40px; */
 }
 
 .post-buttons-1,
@@ -64,6 +66,8 @@
 
 .post-buttons-3 {
   border-bottom-right-radius: 4px;
+  position: absolute;
+  bottom: -1px;
 }
 
 label input {
@@ -77,10 +81,10 @@ label input {
   flex-direction: row;
   flex-wrap: wrap;
   max-width: 100%;
-  padding: 0px 0px 5px;
-  row-gap: 10px;
+  padding: 0px 0px 0px;
+  row-gap: 0px;
   border: 1px solid #ced4da;
-  border-top: none;
+  border-top: 0px solid !important;
   /* bottom: 10px; */
 }
 
@@ -92,6 +96,7 @@ label input {
   border-radius: 2px;
   margin-right: 5px;
   margin-left: 5px;
+  margin-bottom: 10px;
 }
 
 @media only screen and (max-device-width: 480px) {

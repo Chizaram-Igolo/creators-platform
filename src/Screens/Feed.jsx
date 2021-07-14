@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+
 import useFirestore from "../hooks/useFireStore";
-// import { useAuth } from "../contexts/AuthContext";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 
-import {
-  Skeleton,
-  Post,
-  SideBar,
-  RestrictedPost,
-  NewPost,
-} from "../Components";
+import { ErrorDisplay } from "../Components";
+
+import { Skeleton, Post, SideBar, NewPost } from "../Components";
 
 import "./Feed.css";
 
 function Feed(props) {
   // const { user } = useAuth();
-  const { docs } = useFirestore("posts");
+  const { docs, error } = useFirestore("posts");
 
   const [loading, setLoading] = useState(true);
   const history = useHistory();
@@ -65,6 +61,8 @@ function Feed(props) {
               <div className="d-flex justify-content-center row">
                 <div className="col-md-12 px-2">
                   <div className="feed">
+                    <ErrorDisplay error={error} />
+
                     <div className="flex-row justify-content-between align-items-center pb-2">
                       <div className="feed-text px-2">
                         <NewPost />
@@ -78,17 +76,16 @@ function Feed(props) {
                       docs.map((doc) => {
                         return (
                           <Post
-                            text={doc.post}
-                            // hasImages={true}
                             key={doc.id}
-                            hasComments={false}
+                            text={doc.post ? doc.post : null}
                             createdAt={doc.createdAt}
-                            comments
+                            comments={doc.comments ? doc.comments : null}
+                            images={doc.images ? doc.images : null}
                           />
                         );
                       })}
 
-                    <RestrictedPost />
+                    {/* <RestrictedPost /> */}
                   </div>
                 </div>
               </div>

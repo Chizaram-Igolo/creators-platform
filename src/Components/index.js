@@ -1,6 +1,7 @@
 export { default as Header } from "./Header";
 export { default as NavBar } from "./NavBar";
 export { default as SideBar } from "./SideBar";
+export { default as SearchBar } from "./SearchBar";
 export { default as Tab } from "./Tab";
 export { default as Skeleton } from "./Skeleton";
 export { default as Post } from "./Post";
@@ -9,5 +10,6 @@ export { default as ImageGrid } from "./ImageGrid";
 export { default as RestrictedPost } from "./RestrictedPost";
 export { default as NewPost } from "./NewPost";
 export { default as ProgressBar } from "./ProgressBar";
+export { default as ErrorDisplay } from "./ErrorDisplay";
 export { default as UploadPostImages } from "./UploadPostImages";
 export { default as PrivateRoute } from "./PrivateRoute";

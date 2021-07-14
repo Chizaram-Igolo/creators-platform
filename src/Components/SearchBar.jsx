@@ -6,7 +6,7 @@ const SearchbarDropdown = (props) => {
   const ulRef = useRef();
   const inputRef = useRef();
   useEffect(() => {
-    if (document.getElementById("results")) {
+    if (document.getElementById("results") !== null) {
       inputRef.current.addEventListener("click", (event) => {
         event.stopPropagation();
         // ulRef.current.style.display = "flex";

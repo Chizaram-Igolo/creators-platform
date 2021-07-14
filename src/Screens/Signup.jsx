@@ -1,12 +1,15 @@
 import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
+
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
+
+import { ErrorDisplay } from "../Components";
+
 import { useAuth } from "../contexts/AuthContext";
 
 import "./Signin.css";
@@ -16,7 +19,7 @@ function Signup() {
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
   const { signup } = useAuth();
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [confirmPassError, setConfirmPassError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
@@ -30,7 +33,7 @@ function Signup() {
     }
 
     try {
-      setError("");
+      setError(null);
       setLoading(true);
       await signup(emailRef.current.value, passwordRef.current.value);
       history.push("/feed");
@@ -54,17 +57,9 @@ function Signup() {
             )} */}
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Sign Up</h3>
-              {error && (
-                <>
-                  <Alert
-                    variant="light"
-                    className="form-alert text-danger border border-danger"
-                  >
-                    <Form.Text className="text-danger">{error}</Form.Text>
-                  </Alert>
-                  <br />
-                </>
-              )}
+
+              <ErrorDisplay error={error} />
+
               <p>Start earning with other creators today!</p>
               <Form.Group controlId="formBasicEmail">
                 {/* <Form.Label>Email address</Form.Label> */}

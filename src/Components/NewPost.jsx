@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
-import { projectFirestore, timestamp } from "../firebase/config";
+import {
+  projectFirestore,
+  projectStorage,
+  timestamp,
+} from "../firebase/config";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -13,99 +17,172 @@ import { ProgressBar } from ".";
 import "./NewPost.css";
 
 export default function NewPost() {
-  const postRef = useRef();
+  const [postText, setPostText] = useState("");
 
   const [error, setError] = useState("");
 
-  const [fileObj, setFileObj] = useState([]);
   const [fileArray, setFileArray] = useState([]);
-  const [files, setFiles] = useState(null);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [file, setFile] = useState(null);
+  const [urls, setUrls] = useState([]);
+  const [progress, setProgress] = useState(0);
 
   const imageTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-  const [chosenEmoji, setChosenEmoji] = useState(null);
-
-  const onEmojiClick = (event, emojiObject) => {
-    setChosenEmoji(emojiObject);
-
+  const onEmojiClick = (e, emojiObject) => {
+    e.preventDefault();
     const textArea = document.querySelector("textarea");
     textArea.value += emojiObject.emoji;
-    console.log(chosenEmoji);
-    console.log(textArea.innerText);
   };
 
-  //   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    postRef.current.addEventListener("input", (event) => {
-      const textArea = document.querySelector("textarea");
+    const textArea = document.querySelector("textarea");
+
+    textArea.addEventListener("input", (event) => {
       textArea.style.height = "";
       textArea.style.height = textArea.scrollHeight + "px";
-    });
-
-    postRef.current.addEventListener("focus", (event) => {
-      const postButtonsContainer = document.getElementById(
-        "postButtonsContainer"
-      );
-      postButtonsContainer.style.display = "block";
     });
 
     const postButtonsContainer = document.getElementById(
       "postButtonsContainer"
     );
 
+    textArea.addEventListener("focus", (event) => {
+      postButtonsContainer.style.display = "block";
+    });
+
     postButtonsContainer.addEventListener("blur", (event) => {
       postButtonsContainer.style.display = "none";
     });
   }, []);
 
-  async function handleSubmitPost(e) {
+  function handleClickUploadBtn(e, element) {
+    // if (e.target != element) {
+    //   e.stopPropagation();
+    //   return;
+    // }
+    document.getElementById("imageUpload").click();
+  }
+
+  function handleUploadPost() {
+    const collectionRef = projectFirestore.collection("posts");
+    const post = postText.trim();
+    const createdAt = timestamp();
+    const images = urls;
+
+    collectionRef
+      .add({ post, createdAt, images: images })
+      .catch((err) => setError(err.message));
+
+    // Clear state
+    setFileArray([]);
+    setUrls([]);
+    setImages([]);
+    setPostText("");
+    setLoading(false);
+    document.getElementById("postText").style.height = "54px";
+    document.getElementById("postForm").reset();
+  }
+
+  const handleUpload = (e) => {
     setError("");
     e.preventDefault();
 
-    if (postRef.current.value && postRef.current.value.trim() !== "") {
-      // references
-      const collectionRef = projectFirestore.collection("posts");
+    setLoading(true);
 
-      const post = postRef.current.value;
-      const comments = [];
-      const createdAt = timestamp();
-      collectionRef
-        .add({ post, createdAt, comments })
-        .catch((err) => setError(err.message));
+    const promises = [];
+
+    // If Images were upload (with or no post text).
+    if (images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        const uploadTask = projectStorage
+          .ref(`images/${images[i].name}`)
+          .put(images[i]);
+        promises.push(uploadTask);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+            setProgress(progress);
+          },
+          (error) => {
+            setError(error);
+          },
+          async () => {
+            await projectStorage
+              .ref("images")
+              .child(images[i].name)
+              .getDownloadURL()
+              .then((url) => {
+                urls.push(url);
+                if (urls.length === images.length && urls.length > 0) {
+                  handleUploadPost();
+                }
+              });
+          }
+        );
+      }
+
+      Promise.all(promises)
+        .then(() => {})
+        .catch((err) => console.log(err));
     }
 
-    console.log(files);
-    setFileArray([]);
-  }
+    // If only post text.
+    if (images.length <= 0 && postText.trim() !== "") {
+      handleUploadPost();
+    }
+  };
+
+  //   function handlePostSubmit(e) {
+  //     setError("");
+  //     e.preventDefault();
+
+  //     if (
+  //       (postRef.current.value && postRef.current.value.trim() !== "") ||
+  //       fileArray !== []
+  //     ) {
+  //       // references
+  //       const collectionRef = projectFirestore.collection("posts");
+  //       const post = postRef.current.value;
+  //       const createdAt = timestamp();
+  //       const images = urls;
+  //       collectionRef
+  //         .add({ post, createdAt, images })
+  //         .catch((err) => setError(err.message));
+  //     }
+
+  // console.log(files);
+  // setFileArray([]);
+  //   }
 
   function uploadMultipleFiles(e) {
-    // fileObj.push(e.target.files);
-    // for (let i = 0; i < fileObj[0].length; i++) {
-    //   fileArray.push(URL.createObjectURL(fileObj[0][i]));
-    // }
-    // setFiles({ file: fileArray });
-    // setFileObj([]);
+    for (let i = 0; i < e.target.files.length; i++) {
+      const newImage = e.target.files[i];
 
-    let selected = e.target.files[0];
-
-    if (selected && imageTypes.includes(selected.type)) {
-      setFile(selected);
-      setError("");
-    } else {
-      setFile(null);
-      setError("Please select an image file (png or jpg)");
+      if (newImage && imageTypes.includes(newImage.type)) {
+        newImage["id"] = Math.random();
+        setFileArray((prevState) => [
+          ...prevState,
+          URL.createObjectURL(newImage),
+        ]);
+        images.push(newImage);
+        // setImages((prevState) => [...prevState, newImage]);
+        setError("");
+      } else {
+        setError("Please select an image file (png or jpg)");
+        return;
+      }
     }
-
-    console.log(selected);
   }
 
   return (
     <>
-      <Form onSubmit={handleSubmitPost}>
-        <Form.Group controlId="exampleForm.ControlTextarea1 mb-0 pb-0">
+      <Form onSubmit={handleUpload} id="postForm">
+        <Form.Group controlId="exampleForm.ControlTextarea1" className="mb-0">
           {error && (
             <>
               <Alert
@@ -123,21 +200,22 @@ export default function NewPost() {
             <Form.Control
               as="textarea"
               placeholder="Enter in content you want to share."
-              ref={postRef}
               rows={1}
               role="textarea"
+              id="postText"
               className="shadow-none animated new-post-textarea rounded-0 border-bottom-0"
+              onChange={(e) => setPostText(e.target.value)}
+              value={postText}
             />
 
             <div className="form-group multi-preview mb-0" id="multiPreview">
               {(fileArray || []).map((url) => (
-                <div className="preview-img-div">
-                  <img src={url} alt="..." key={url} />
+                <div className="preview-img-div" key={url}>
+                  <img src={url} alt="..." />
                 </div>
               ))}
             </div>
 
-            {/* <div class="text-area icon-example w-100 rounded"></div> */}
             <Container
               className="post-buttons-container hidden mb-0"
               id="postButtonsContainer"
@@ -151,7 +229,6 @@ export default function NewPost() {
                       data-view-component="true"
                       className="btn-sm text-reset text-decoration-none shadow-none w-100 post-buttons-1"
                     >
-                      {/* <MoodSmile size={24} strokeWidth={2} color={"white"} /> */}
                       🙂
                     </Button>
                   </div>
@@ -164,11 +241,6 @@ export default function NewPost() {
                       data-view-component="true"
                       className="btn-sm text-reset text-decoration-none shadow-none w-100 post-buttons-2"
                     >
-                      {/* <DeviceComputerCamera
-                        size={24}
-                        strokeWidth={2}
-                        color={"white"}
-                      /> */}
                       📹
                     </Button>
                   </div>
@@ -179,17 +251,18 @@ export default function NewPost() {
                       <input
                         type="file"
                         className="form-control"
+                        id="imageUpload"
                         onChange={uploadMultipleFiles}
                         multiple
                       />
 
-                      <span
+                      <Button
                         data-view-component="true"
                         className="btn btn-light btn-sm text-reset text-decoration-none shadow-none w-100 post-buttons-3"
+                        onClick={handleClickUploadBtn}
                       >
-                        {/* <Camera size={24} strokeWidth={2} color={"white"} /> */}
                         📷
-                      </span>
+                      </Button>
                     </label>
                   </div>
                 </Col>
@@ -197,7 +270,7 @@ export default function NewPost() {
             </Container>
           </div>
         </Form.Group>
-        {file && <ProgressBar file={file} setFile={setFile} />}
+        {loading && <ProgressBar progress={progress} />}
         <div className="hidden">
           <Picker
             onEmojiClick={onEmojiClick}
@@ -206,16 +279,23 @@ export default function NewPost() {
             groupNames={{ smileys_people: "PEOPLE" }}
             native
           />
-          {/* {chosenEmoji && <EmojiData chosenEmoji={chosenEmoji} />} */}
         </div>
         <Button
-          disabled={false}
+          disabled={postText.length === 0 && images.length === 0}
           variant="primary"
           type="submit"
           block={true.toString()}
-          className=""
+          className="mt-2 inline-block"
         >
-          {false ? "Loading" : "Submit"}
+          {loading ? (
+            <div className="box">
+              <div className="card1"></div>
+              <div className="card2"></div>
+              <div className="card3"></div>
+            </div>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </Form>
     </>

@@ -6,10 +6,10 @@ import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
 
-// import FirebaseAuth from "../firebaseAuth";
+import { ErrorDisplay } from "../Components";
+
 import { useAuth } from "../contexts/AuthContext";
 
 import "./Signin.css";
@@ -18,7 +18,7 @@ function Signin(props) {
   const emailRef = useRef();
   const passwordRef = useRef();
   const { signin } = useAuth();
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
@@ -26,7 +26,7 @@ function Signin(props) {
     e.preventDefault();
 
     try {
-      setError("");
+      setError(null);
       setLoading(true);
       await signin(emailRef.current.value, passwordRef.current.value);
       history.push("/feed");
@@ -45,23 +45,12 @@ function Signin(props) {
           <Col xs={10} md={8} lg={6} xl={5}>
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Welcome back</h3>
-              {error && (
-                <>
-                  <Alert
-                    variant="light"
-                    className="form-alert text-danger border border-danger auto-height"
-                  >
-                    <Form.Text className="text-danger status-message">
-                      {error}
-                    </Form.Text>
-                  </Alert>
-                  <br />
-                </>
-              )}
+
+              <ErrorDisplay error={error} />
+
               <p>Start earning with other creators today!</p>
               <Form.Group controlId="formBasicEmail">
                 {/* <Form.Label>Email address</Form.Label> */}
-
                 <InputGroup hasValidation>
                   <Form.Control
                     type="email"

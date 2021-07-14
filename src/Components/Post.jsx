@@ -8,20 +8,7 @@ import { Comments, ImageGrid } from ".";
 import img1 from "../assets/img1.jpeg";
 import "../Screens/Feed.css";
 
-const images = [
-  "https://images.pexels.com/photos/6192010/pexels-photo-6192010.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-  "https://images.pexels.com/photos/1633578/pexels-photo-1633578.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-  "https://images.pexels.com/photos/159644/art-supplies-brushes-rulers-scissors-159644.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-  "https://images.pexels.com/photos/248797/pexels-photo-248797.jpeg?auto=compress&cs=tinysrgb&h=350",
-  "https://www.gettyimages.ie/gi-resources/images/Homepage/Hero/UK/CMS_Creative_164657191_Kingfisher.jpg",
-
-  "https://cdn.pixabay.com/photo/2016/10/27/22/53/heart-1776746_960_720.jpg",
-  // "https://images.pexels.com/photos/257840/pexels-photo-257840.jpeg?auto=compress&cs=tinysrgb&h=350",
-  // "https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto=compress&cs=tinysrgb&h=350",
-  // "https://wallpaperbrowse.com/media/images/3848765-wallpaper-images-download.jpg",
-];
-
-export default function Post({ text, comments, hasImages, createdAt }) {
+export default function Post(props) {
   const [showComments, setShowComments] = useState(false);
 
   return (
@@ -39,7 +26,9 @@ export default function Post({ text, comments, hasImages, createdAt }) {
             <div className="d-flex flex-column flex-wrap ml-2">
               <span className="font-weight-bold cooper">Thomson ben</span>
               <span className="text-black-50 time">
-                <Moment fromNow>{createdAt.toDate()}</Moment>
+                <Moment fromNow>
+                  {props.createdAt !== null && props.createdAt.toDate()}
+                </Moment>
               </span>
             </div>
           </div>
@@ -49,7 +38,7 @@ export default function Post({ text, comments, hasImages, createdAt }) {
         </div>
       </div>
       <div className="p-2">
-        <p className="post-p">{text}</p>
+        <p className="post-p">{props.text}</p>
       </div>
 
       {/* {props.images && (
@@ -58,9 +47,9 @@ export default function Post({ text, comments, hasImages, createdAt }) {
         </div>
       )} */}
 
-      {hasImages && (
+      {props.images !== null && (
         <div className="feed-image pb-2 px-3">
-          <ImageGrid images={images} />
+          <ImageGrid images={props.images} />
         </div>
       )}
 
@@ -70,13 +59,12 @@ export default function Post({ text, comments, hasImages, createdAt }) {
         <small className="fa fa-share">Share</small>
       </div>
 
-      {comments && (
+      {props.comments !== null && (
         <Link onClick={() => setShowComments(!showComments)} block size="sm">
           <p className="text-center">See comments</p>
+          {showComments && <Comments />}
         </Link>
       )}
-
-      {comments && showComments && <Comments />}
     </div>
   );
 }

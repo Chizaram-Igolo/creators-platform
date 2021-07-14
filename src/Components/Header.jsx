@@ -1,24 +1,19 @@
+import React, { useState, useEffect, useRef } from "react";
 import "./Header.css";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { ReactComponent as BellIcon } from "../assets/icons/bell.svg";
 import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";
 
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
-import SearchBar from "./SearchBar";
+import { useAuth } from "../contexts/AuthContext";
 
-import React, { useState, useEffect, useRef } from "react";
-
-import { useHistory } from "react-router-dom";
-// import { useAuth } from "../contexts/AuthContext";
-
+import { SearchBar, ErrorDisplay } from ".";
 import img1 from "../assets/img1.jpeg";
 
 import { globalVars } from "../../src/global_vars";
 import BookData from "../../src/Data.json";
-
-import { useAuth } from "../contexts/AuthContext";
 
 function App() {
   const history = useHistory();
@@ -182,8 +177,7 @@ function DropdownMenu(props) {
       await props.signout();
       history.push("/signin");
     } catch {
-      setError("failed to log out");
-      console.log(error);
+      setError("Failed to log out");
     }
   }
 
@@ -214,40 +208,46 @@ function DropdownMenu(props) {
 
   return (
     <>
-      <div className="dropdown-arrow-head"></div>
+      {/* <div className="dropdown-arrow-head"></div> */}
 
       {props.user && (
-        <div
-          className="dropdown"
-          style={{ height: menuHeight }}
-          ref={dropdownRef}
-        >
-          <div className="top-menu">
-            <DropdownItem route="/profile">
-              <p className="color-text-secondary mb-0">
-                Signed in as
-                <br />
-                <strong className="strong-signed-in-name">
-                  Chizaram-Igolo
-                </strong>
-                {/* <span class="d-block ">Never used</span> */}
-              </p>
-            </DropdownItem>
-            <NavDropdown.Divider />
-            <DropdownItem route="/profile">Your profile</DropdownItem>
-            <DropdownItem route="/feed">Your feed</DropdownItem>
-            <DropdownItem route="/subscriptions">
-              Your subscriptions
-            </DropdownItem>
-            <DropdownItem route="/posts">Your posts</DropdownItem>
-            <DropdownItem route="/comments">Your comments</DropdownItem>
-            <NavDropdown.Divider />
-            <DropdownItem route="/help">Help</DropdownItem>
-            <DropdownItem route="/settings">Settings</DropdownItem>
-            <NavDropdown.Divider />
-            <DropdownItem handleSignout={handleSignout}>Sign out</DropdownItem>
+        <>
+          <div
+            className="dropdown"
+            style={{ height: menuHeight }}
+            ref={dropdownRef}
+          >
+            <div className="top-menu">
+              <DropdownItem route="/profile">
+                <p className="color-text-secondary mb-0">
+                  Signed in as
+                  <br />
+                  <strong className="strong-signed-in-name">
+                    Chizaram-Igolo
+                  </strong>
+                  {/* <span class="d-block ">Never used</span> */}
+                </p>
+              </DropdownItem>
+              <NavDropdown.Divider />
+              <DropdownItem route="/profile">Your profile</DropdownItem>
+              <DropdownItem route="/feed">Your feed</DropdownItem>
+              <DropdownItem route="/subscriptions">
+                Your subscriptions
+              </DropdownItem>
+              <DropdownItem route="/posts">Your posts</DropdownItem>
+              <DropdownItem route="/comments">Your comments</DropdownItem>
+              <NavDropdown.Divider />
+              <DropdownItem route="/help">Help</DropdownItem>
+              <DropdownItem route="/settings">Settings</DropdownItem>
+              <NavDropdown.Divider />
+              <DropdownItem handleSignout={handleSignout}>
+                Sign out
+              </DropdownItem>
+            </div>
           </div>
-        </div>
+
+          <ErrorDisplay error={error} />
+        </>
       )}
     </>
   );
