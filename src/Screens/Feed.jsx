@@ -8,26 +8,14 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 
-import { ErrorDisplay } from "../Components";
-
-import { Skeleton, Post, SideBar, NewPost } from "../Components";
-
+import { Skeleton, Post, SideBar, NewPost, ErrorDisplay } from "../Components";
 import "./Feed.css";
 
 function Feed(props) {
   // const { user } = useAuth();
-  const { docs, error } = useFirestore("posts");
+  const { docs, loading, error } = useFirestore("posts");
 
-  const [loading, setLoading] = useState(true);
   const history = useHistory();
-
-  useEffect(() => {
-    const loadInterval = setInterval(() => {
-      setLoading(false);
-    }, 200);
-
-    return () => clearInterval(loadInterval);
-  }, []);
 
   return (
     <Container>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./SearchBar.css";
+import "./styles/SearchBar.css";
 
 const SearchbarDropdown = (props) => {
   const { options, onInputChange } = props;

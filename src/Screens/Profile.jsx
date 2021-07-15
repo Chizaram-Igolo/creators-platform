@@ -57,7 +57,9 @@ function Profile() {
                 </div>
               </Form>
               <div className="pt-4">
-                <p>mister@yahoo.com</p>
+                <p>{user.email}</p>
+
+                <Link to="/settings">Settings</Link>
               </div>
             </SideBar>
           </Col>

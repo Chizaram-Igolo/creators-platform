@@ -7,7 +7,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-import "./RestrictedPost.css";
+import "./styles/RestrictedPost.css";
 
 export default function RestrictedPost(props) {
   const { user } = useAuth();

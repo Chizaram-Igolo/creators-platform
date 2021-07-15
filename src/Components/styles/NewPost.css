@@ -1,3 +1,16 @@
+#overlay {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 300;
+  /* cursor: pointer; */
+}
 .grow-wrap {
   position: relative;
   height: auto;
@@ -5,9 +18,9 @@
 }
 
 .animated {
-  -webkit-transition: height 0.4s;
-  -moz-transition: height 0.4s;
-  transition: height 0.4s;
+  -webkit-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
 }
 
 .new-post-textarea {
@@ -19,7 +32,6 @@
 
 .text-area {
   height: 58px;
-  /* border: 1px solid #ccc; */
   display: inline-block;
   white-space: pre-line;
 }
@@ -36,12 +48,17 @@
   bottom: 6px;
 }
 
-.hidden {
-  display: none;
+.post-buttons-container {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
 }
 
-.post-buttons-container {
-  position: relative;
+.hidden {
+  display: none;
 }
 
 .camera-icon-btn {
@@ -50,14 +67,20 @@
   bottom: 0px;
   right: 0px;
   margin-bottom: 0px;
+  border: 1px solid purple;
+  width: 50px;
   /* height: 40px; */
 }
 
 .post-buttons-1,
 .post-buttons-2,
-.post-buttons-3 {
+.post-buttons-3,
+.post-buttons-4 {
   border-radius: 0px;
-  font-size: 1.15em;
+  font-size: 1em;
+  display: inline-block !important;
+  width: 60px;
+  height: 40px;
 }
 
 .post-buttons-1 {
@@ -65,12 +88,15 @@
 }
 
 .post-buttons-3 {
+  position: relative;
   border-bottom-right-radius: 4px;
-  position: absolute;
-  bottom: -1px;
 }
 
-label input {
+.submit-btn-div {
+  margin-left: auto;
+}
+
+.image-upload {
   height: 0;
   width: 0;
   opacity: 0;
@@ -89,6 +115,7 @@ label input {
 }
 
 .multi-preview .preview-img-div {
+  position: relative;
   max-width: calc(10% - 10px);
   max-height: 50px;
   overflow: hidden;
@@ -115,5 +142,18 @@ label input {
 .progress-bar {
   height: 5px;
   background-color: #007bff;
-  margin-top: 0px;
+  margin-top: 5px;
+}
+
+.closeThumbnail {
+  /* width: 20px; */
+  /* height: 20px; */
+  /* padding-bottom: 10px; */
+  /* font-size: 1.2em; */
+}
+
+.closeThumbnail:hover,
+.closeThumbnail:active {
+  border-radius: 50%;
+  /* background-color: red; */
 }

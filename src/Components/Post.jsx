@@ -6,7 +6,6 @@ import Moment from "react-moment";
 // import Button from "react-bootstrap/Button";
 import { Comments, ImageGrid } from ".";
 import img1 from "../assets/img1.jpeg";
-import "../Screens/Feed.css";
 
 export default function Post(props) {
   const [showComments, setShowComments] = useState(false);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./Header.css";
+import "./styles/Header.css";
 import { Link, useHistory } from "react-router-dom";
 import { ReactComponent as BellIcon } from "../assets/icons/bell.svg";
 import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";

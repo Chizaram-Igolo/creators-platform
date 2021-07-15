@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Modal from "./Modal";
 import PropTypes from "prop-types";
-import "./ImageGrid.css";
+import "./styles/ImageGrid.css";
 
 class ImageGrid extends Component {
   static defaultProps = {

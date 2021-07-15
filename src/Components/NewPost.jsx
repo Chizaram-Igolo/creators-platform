@@ -1,20 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSmile,
+  faCamera,
+  faVideo,
+  faPaperPlane,
+} from "@fortawesome/free-solid-svg-icons";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import {
   projectFirestore,
   projectStorage,
   timestamp,
 } from "../firebase/config";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 import { ProgressBar } from ".";
 
-import "./NewPost.css";
+import "./styles/NewPost.css";
 
 export default function NewPost() {
   const [postText, setPostText] = useState("");
@@ -24,6 +28,7 @@ export default function NewPost() {
   const [fileArray, setFileArray] = useState([]);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [totalBytes, setTotalBytes] = useState(0);
 
   const [urls, setUrls] = useState([]);
   const [progress, setProgress] = useState(0);
@@ -37,7 +42,8 @@ export default function NewPost() {
   };
 
   useEffect(() => {
-    const textArea = document.querySelector("textarea");
+    const textArea = document.getElementById("postText");
+    const postForm = document.getElementById("postForm");
 
     textArea.addEventListener("input", (event) => {
       textArea.style.height = "";
@@ -48,21 +54,66 @@ export default function NewPost() {
       "postButtonsContainer"
     );
 
-    textArea.addEventListener("focus", (event) => {
-      postButtonsContainer.style.display = "block";
+    document.addEventListener("click", (evt) => {
+      let targetElement = evt.target; // clicked element
+
+      do {
+        if (targetElement == postForm) {
+          // This is a click inside. Do nothing, just return.
+          return;
+        }
+        // Go up the DOM
+        targetElement = targetElement.parentNode;
+      } while (targetElement);
+
+      // This is a click outside.
+      if (textArea.value.trim() === "" && images.length == 0) {
+        postButtonsContainer.style.display = "none";
+
+        console.log(textArea.value);
+        textArea.value = textArea.value.trim();
+        console.log(textArea.value);
+      }
+
+      textArea.style.height = "";
+      textArea.style.height = textArea.scrollHeight + "px";
     });
 
-    postButtonsContainer.addEventListener("blur", (event) => {
-      postButtonsContainer.style.display = "none";
+    textArea.addEventListener("focus", (event) => {
+      //   document.getElementById("overlay").style.display = "block";
+      //   textArea.style.position = "relative";
+      //   textArea.style.width = "100%";
+      //   textArea.style.zIndex = "300";
+
+      postButtonsContainer.style.display = "flex";
+      postButtonsContainer.style.position = "relative";
+
+      //   postButtonsContainer.style.width = "100%";
+      //   postButtonsContainer.style.bottom = "0px";
+      //   postButtonsContainer.style.display = "flex";
+      //   postButtonsContainer.style.zIndex = "300";
+    });
+
+    textArea.addEventListener("blur", (event) => {
+      if (textArea.value.trim() === "") {
+        // document.getElementById("overlay").style.display = "none";
+        // textArea.style.position = "relative";
+        // textArea.style.width = "100%";
+        // textArea.style.zIndex = "100";
+        // postButtonsContainer.style.display = "none";
+      }
     });
   }, []);
 
-  function handleClickUploadBtn(e, element) {
-    // if (e.target != element) {
-    //   e.stopPropagation();
-    //   return;
-    // }
+  function handleClickUploadBtn() {
     document.getElementById("imageUpload").click();
+  }
+
+  function handleRemoveThumbnail(e) {
+    let fA = [...fileArray];
+    fA.splice(fA.indexOf(e.target.id), 1);
+    images.splice(fA.indexOf(e.target.id), 1);
+    setFileArray(fA);
   }
 
   function handleUploadPost() {
@@ -80,12 +131,14 @@ export default function NewPost() {
     setUrls([]);
     setImages([]);
     setPostText("");
+    setTotalBytes(0);
     setLoading(false);
     document.getElementById("postText").style.height = "54px";
     document.getElementById("postForm").reset();
+    document.getElementById("postButtonsContainer").display = "none";
   }
 
-  const handleUpload = (e) => {
+  function handleUpload(e) {
     setError("");
     e.preventDefault();
 
@@ -104,7 +157,7 @@ export default function NewPost() {
           "state_changed",
           (snapshot) => {
             const progress = Math.round(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              (snapshot.bytesTransferred / totalBytes) * 100
             );
             setProgress(progress);
           },
@@ -128,36 +181,14 @@ export default function NewPost() {
 
       Promise.all(promises)
         .then(() => {})
-        .catch((err) => console.log(err));
+        .catch((err) => setError(err));
     }
 
     // If only post text.
     if (images.length <= 0 && postText.trim() !== "") {
       handleUploadPost();
     }
-  };
-
-  //   function handlePostSubmit(e) {
-  //     setError("");
-  //     e.preventDefault();
-
-  //     if (
-  //       (postRef.current.value && postRef.current.value.trim() !== "") ||
-  //       fileArray !== []
-  //     ) {
-  //       // references
-  //       const collectionRef = projectFirestore.collection("posts");
-  //       const post = postRef.current.value;
-  //       const createdAt = timestamp();
-  //       const images = urls;
-  //       collectionRef
-  //         .add({ post, createdAt, images })
-  //         .catch((err) => setError(err.message));
-  //     }
-
-  // console.log(files);
-  // setFileArray([]);
-  //   }
+  }
 
   function uploadMultipleFiles(e) {
     for (let i = 0; i < e.target.files.length; i++) {
@@ -177,12 +208,21 @@ export default function NewPost() {
         return;
       }
     }
+
+    let _totalBytes = images.reduce((accumulator, element) => {
+      return accumulator + element.size;
+    }, 0);
+
+    setTotalBytes(_totalBytes);
+
+    document.getElementById("imageUpload").value = null;
   }
 
   return (
     <>
+      <div id="overlay"></div>
       <Form onSubmit={handleUpload} id="postForm">
-        <Form.Group controlId="exampleForm.ControlTextarea1" className="mb-0">
+        <Form.Group controlId="postText" className="mb-0">
           {error && (
             <>
               <Alert
@@ -202,7 +242,6 @@ export default function NewPost() {
               placeholder="Enter in content you want to share."
               rows={1}
               role="textarea"
-              id="postText"
               className="shadow-none animated new-post-textarea rounded-0 border-bottom-0"
               onChange={(e) => setPostText(e.target.value)}
               value={postText}
@@ -212,62 +251,93 @@ export default function NewPost() {
               {(fileArray || []).map((url) => (
                 <div className="preview-img-div" key={url}>
                   <img src={url} alt="..." />
+                  <button
+                    type="button"
+                    className="close closeThumbnail"
+                    aria-label="Close"
+                    style={{ position: "absolute", top: "-4px", right: "4px" }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      id={url}
+                      onClick={handleRemoveThumbnail}
+                    >
+                      ×
+                    </span>
+                  </button>
                 </div>
               ))}
             </div>
 
-            <Container
-              className="post-buttons-container hidden mb-0"
+            <div
+              className="post-buttons-container mb-0 hidden"
               id="postButtonsContainer"
             >
-              <Row>
-                <Col className="px-0">
-                  <div className="mt-0">
-                    <Button
-                      type="button"
-                      variant="light"
-                      data-view-component="true"
-                      className="btn-sm text-reset text-decoration-none shadow-none w-100 post-buttons-1"
-                    >
-                      🙂
-                    </Button>
-                  </div>
-                </Col>
-                <Col className="px-0">
-                  <div className="mt-0">
-                    <Button
-                      type="button"
-                      variant="light"
-                      data-view-component="true"
-                      className="btn-sm text-reset text-decoration-none shadow-none w-100 post-buttons-2"
-                    >
-                      📹
-                    </Button>
-                  </div>
-                </Col>
-                <Col className="px-0">
-                  <div className="mt-0">
-                    <label className="camera-icon-btn">
-                      <input
-                        type="file"
-                        className="form-control"
-                        id="imageUpload"
-                        onChange={uploadMultipleFiles}
-                        multiple
-                      />
+              <div className="mt-0 ">
+                <Button
+                  type="button"
+                  variant="primary"
+                  data-view-component="true"
+                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-1"
+                >
+                  <FontAwesomeIcon icon={faSmile} color="white" />
+                </Button>
+              </div>
 
-                      <Button
-                        data-view-component="true"
-                        className="btn btn-light btn-sm text-reset text-decoration-none shadow-none w-100 post-buttons-3"
-                        onClick={handleClickUploadBtn}
-                      >
-                        📷
-                      </Button>
-                    </label>
-                  </div>
-                </Col>
-              </Row>
-            </Container>
+              <div className="mt-0">
+                <Button
+                  type="button"
+                  variant="primary"
+                  data-view-component="true"
+                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-2"
+                >
+                  <FontAwesomeIcon icon={faVideo} color="white" />
+                </Button>
+              </div>
+
+              <div className="mt-0">
+                {/* <label className="camera-icon-btn"> */}
+                <input
+                  type="file"
+                  className="image-upload"
+                  id="imageUpload"
+                  onChange={uploadMultipleFiles}
+                  multiple
+                />
+
+                <Button
+                  type="button"
+                  variant="primary"
+                  data-view-component="true"
+                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
+                  onClick={handleClickUploadBtn}
+                >
+                  <FontAwesomeIcon icon={faCamera} color="white" />
+                </Button>
+              </div>
+
+              <div className="mt-0 submit-btn-div">
+                <Button
+                  disabled={
+                    (postText.length === 0 && images.length === 0) || loading
+                  }
+                  variant="primary"
+                  type="submit"
+                  block={true.toString()}
+                  className="inline-block  shadow-none post-buttons-3"
+                >
+                  {loading ? (
+                    <div className="box">
+                      <div className="card1"></div>
+                      <div className="card2"></div>
+                      <div className="card3"></div>
+                    </div>
+                  ) : (
+                    <FontAwesomeIcon icon={faPaperPlane} color="white" />
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         </Form.Group>
         {loading && <ProgressBar progress={progress} />}
@@ -280,23 +350,6 @@ export default function NewPost() {
             native
           />
         </div>
-        <Button
-          disabled={postText.length === 0 && images.length === 0}
-          variant="primary"
-          type="submit"
-          block={true.toString()}
-          className="mt-2 inline-block"
-        >
-          {loading ? (
-            <div className="box">
-              <div className="card1"></div>
-              <div className="card2"></div>
-              <div className="card3"></div>
-            </div>
-          ) : (
-            "Submit"
-          )}
-        </Button>
       </Form>
     </>
   );

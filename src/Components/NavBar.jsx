@@ -11,7 +11,7 @@ import FormControl from "react-bootstrap/FormControl";
 
 import img1 from "../assets/img1.jpeg";
 
-import "./NavBar.css";
+import "./styles/NavBar.css";
 
 import { globalVars } from "../../src/global_vars";
 

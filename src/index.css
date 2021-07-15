@@ -85,20 +85,25 @@ h3 {
 }
 
 .box {
+  /* position: relative;
+  left: 50%; */
+  /* top: -6px; */
+  /* margin-left: -18px; */
   position: relative;
-  left: 50%;
-  top: -6px;
-  margin-left: -18px;
+  height: 12px;
+  width: 30px;
+  margin: 0px auto;
+  /* border: 1px solid red; */
 }
 
 .card1 {
   position: absolute;
   width: 6px;
-  height: 12px;
+  height: 100%;
   background-color: #8266ff;
   background-color: #fff;
   opacity: 0.4;
-  left: -12px;
+  left: 0px;
   border-radius: 0px 0px 0px 0px;
   animation: card1 1120ms infinite;
   animation-delay: 0ms;
@@ -120,10 +125,11 @@ h3 {
 .card2 {
   position: absolute;
   width: 6px;
-  height: 12px;
+  height: 100%;
   background-color: #fc5585;
   background-color: #fff;
   opacity: 0.4;
+  left: calc(50% - 3px);
   border-radius: 0px 0px 0px 0px;
   animation: card2 1120ms infinite;
   animation-delay: 214ms;
@@ -145,11 +151,11 @@ h3 {
 .card3 {
   position: absolute;
   width: 6px;
-  height: 12px;
+  height: 100%;
   background-color: #f7914b;
   background-color: #fff;
   opacity: 0.4;
-  left: 12px;
+  left: calc(100% - 6px);
   border-radius: 0px 0px 0px 0px;
   animation: card2 1120ms infinite;
   animation-delay: 428ms;
