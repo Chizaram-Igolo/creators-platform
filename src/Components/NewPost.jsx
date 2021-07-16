@@ -24,14 +24,14 @@ import Resizer from "react-image-file-resizer";
 
 import $ from "jquery";
 
-const resizeFile = (file) =>
+const imageResizer = (file, size, imageType) =>
   new Promise((resolve) => {
     Resizer.imageFileResizer(
       file,
-      100,
-      100,
-      "PNG",
-      100,
+      size,
+      size,
+      imageType,
+      80,
       0,
       (uri) => {
         resolve(uri);
@@ -66,6 +66,7 @@ export default function NewPost() {
   useEffect(() => {
     const textArea = document.getElementById("postText");
     const postForm = document.getElementById("postForm");
+    const multiPreview = $("#multiPreview");
     const emojiTogglerBtn = document.getElementById("emojiTogglerBtn");
     const emojiPickerDiv = $("#emojiPickerDiv");
 
@@ -99,6 +100,7 @@ export default function NewPost() {
 
       textArea.style.height = "";
       textArea.style.height = textArea.scrollHeight + "px";
+      multiPreview.removeClass("multi-preview-focus");
       emojiPickerDiv.hide();
     });
 
@@ -110,9 +112,14 @@ export default function NewPost() {
 
       postButtonsContainer.style.display = "flex";
       postButtonsContainer.style.position = "relative";
+      multiPreview.addClass("multi-preview-focus");
 
       //   postButtonsContainer.style.display = "flex";
       //   postButtonsContainer.style.zIndex = "300";
+    });
+
+    textArea.addEventListener("blur", (event) => {
+      multiPreview.removeClass("multi-preview-focus");
     });
 
     emojiTogglerBtn.addEventListener("click", (event) => {
@@ -138,6 +145,10 @@ export default function NewPost() {
     const createdAt = timestamp();
     const images = urls;
     const thumbnails = thumbnailUrls;
+
+    // Sort the image and thumbnail urls by their numeric ids to keep the order.
+    images.sort((a, b) => (a.id > b.id ? 1 : -1));
+    thumbnails.sort((a, b) => (a.id > b.id ? 1 : -1));
 
     console.log(images);
     console.log(thumbnails);
@@ -227,25 +238,37 @@ export default function NewPost() {
       const newImage = e.target.files[i];
 
       if (newImage && imageTypes.includes(newImage.type)) {
-        newImage["id"] = Math.random();
-        newImage["typeOfFile"] = "image";
         setFileArray((prevState) => [
           ...prevState,
           URL.createObjectURL(newImage),
         ]);
-        const blob = await resizeFile(newImage);
-        blob["id"] = newImage["id"];
-        blob["typeOfFile"] = "thumbnail";
+
+        let imageType = newImage.type.split("/").slice(-1);
+        if (imageType === "JPG") {
+          imageType = "JPEG";
+        }
+
+        const imageBlob = await imageResizer(newImage, 1400, imageType);
+        imageBlob["id"] = i;
+        imageBlob["typeOfFile"] = "image";
+        imageBlob["name"] = newImage["name"];
+
+        const thumbnailBlob = await imageResizer(newImage, 100, imageType);
+        thumbnailBlob["id"] = imageBlob["id"];
+        thumbnailBlob["typeOfFile"] = "thumbnail";
 
         let fileNameParts = newImage["name"].split(".");
-        blob["name"] =
+        thumbnailBlob["name"] =
           fileNameParts.slice(0, -1).join(".") +
           "_thumbnail" +
           "." +
           fileNameParts.slice(-1);
 
-        images.push(newImage);
-        thumbnails.push(blob);
+        images.push(imageBlob);
+        thumbnails.push(thumbnailBlob);
+
+        // console.log(images);
+        // console.log(thumbnails);
         // setImages((prevState) => [...prevState, newImage]);
         setError("");
       } else {
@@ -292,7 +315,7 @@ export default function NewPost() {
               placeholder="Enter in content you want to share."
               rows={1}
               role="textarea"
-              className="shadow-none animated new-post-textarea rounded-0 border-bottom-0"
+              className="shadow-none animated new-post-textarea border-bottom-0"
               onChange={(e) => setPostText(e.target.value)}
               value={postText}
             />
