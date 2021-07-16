@@ -3,6 +3,7 @@ import { projectFirestore } from "../firebase/config";
 
 export default function useFireStore(collection) {
   const [docs, setDocs] = useState([]);
+  const [latestDoc, setLatestDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -10,7 +11,7 @@ export default function useFireStore(collection) {
     const unsub = projectFirestore
       .collection(collection)
       .orderBy("createdAt", "desc")
-      .limit(5)
+      .limit(2)
       .onSnapshot(
         (snap) => {
           let documents = [];
@@ -20,6 +21,7 @@ export default function useFireStore(collection) {
           });
 
           setDocs(documents);
+          setLatestDoc(documents[documents.length - 1]);
           setLoading(false);
         },
         (error) => {
@@ -28,8 +30,10 @@ export default function useFireStore(collection) {
         }
       );
 
-    return () => unsub();
-  }, [collection]);
+    console.log("inside useEffect");
 
-  return { docs, loading, error };
+    return () => unsub();
+  }, []);
+
+  return { docs, loading, latestDoc, error };
 }

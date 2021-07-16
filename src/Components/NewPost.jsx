@@ -20,6 +20,26 @@ import { ProgressBar } from ".";
 
 import "./styles/NewPost.css";
 
+import Resizer from "react-image-file-resizer";
+
+import $ from "jquery";
+
+const resizeFile = (file) =>
+  new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      100,
+      100,
+      "PNG",
+      100,
+      0,
+      (uri) => {
+        resolve(uri);
+      },
+      "blob"
+    );
+  });
+
 export default function NewPost() {
   const [postText, setPostText] = useState("");
 
@@ -27,10 +47,12 @@ export default function NewPost() {
 
   const [fileArray, setFileArray] = useState([]);
   const [images, setImages] = useState([]);
+  const [thumbnails, setThumbnails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalBytes, setTotalBytes] = useState(0);
 
   const [urls, setUrls] = useState([]);
+  const [thumbnailUrls, setThumbnailUrls] = useState([]);
   const [progress, setProgress] = useState(0);
 
   const imageTypes = ["image/png", "image/jpeg", "image/jpg"];
@@ -44,6 +66,8 @@ export default function NewPost() {
   useEffect(() => {
     const textArea = document.getElementById("postText");
     const postForm = document.getElementById("postForm");
+    const emojiTogglerBtn = document.getElementById("emojiTogglerBtn");
+    const emojiPickerDiv = $("#emojiPickerDiv");
 
     textArea.addEventListener("input", (event) => {
       textArea.style.height = "";
@@ -58,7 +82,7 @@ export default function NewPost() {
       let targetElement = evt.target; // clicked element
 
       do {
-        if (targetElement == postForm) {
+        if (targetElement === postForm) {
           // This is a click inside. Do nothing, just return.
           return;
         }
@@ -67,16 +91,15 @@ export default function NewPost() {
       } while (targetElement);
 
       // This is a click outside.
-      if (textArea.value.trim() === "" && images.length == 0) {
-        postButtonsContainer.style.display = "none";
-
-        console.log(textArea.value);
-        textArea.value = textArea.value.trim();
-        console.log(textArea.value);
+      if (textArea.value.trim() === "" && images.length === 0) {
+        if (postButtonsContainer.style.display === "flex") {
+          postButtonsContainer.style.display = "none";
+        }
       }
 
       textArea.style.height = "";
       textArea.style.height = textArea.scrollHeight + "px";
+      emojiPickerDiv.hide();
     });
 
     textArea.addEventListener("focus", (event) => {
@@ -88,22 +111,14 @@ export default function NewPost() {
       postButtonsContainer.style.display = "flex";
       postButtonsContainer.style.position = "relative";
 
-      //   postButtonsContainer.style.width = "100%";
-      //   postButtonsContainer.style.bottom = "0px";
       //   postButtonsContainer.style.display = "flex";
       //   postButtonsContainer.style.zIndex = "300";
     });
 
-    textArea.addEventListener("blur", (event) => {
-      if (textArea.value.trim() === "") {
-        // document.getElementById("overlay").style.display = "none";
-        // textArea.style.position = "relative";
-        // textArea.style.width = "100%";
-        // textArea.style.zIndex = "100";
-        // postButtonsContainer.style.display = "none";
-      }
+    emojiTogglerBtn.addEventListener("click", (event) => {
+      emojiPickerDiv.toggle();
     });
-  }, []);
+  }, [images.length]);
 
   function handleClickUploadBtn() {
     document.getElementById("imageUpload").click();
@@ -113,6 +128,7 @@ export default function NewPost() {
     let fA = [...fileArray];
     fA.splice(fA.indexOf(e.target.id), 1);
     images.splice(fA.indexOf(e.target.id), 1);
+    thumbnails.splice(fA.indexOf(e.target.id), 1);
     setFileArray(fA);
   }
 
@@ -121,15 +137,21 @@ export default function NewPost() {
     const post = postText.trim();
     const createdAt = timestamp();
     const images = urls;
+    const thumbnails = thumbnailUrls;
+
+    console.log(images);
+    console.log(thumbnails);
 
     collectionRef
-      .add({ post, createdAt, images: images })
-      .catch((err) => setError(err.message));
+      .add({ post, createdAt, images, thumbnails })
+      .catch((err) => console.log("Err:", err));
 
     // Clear state
     setFileArray([]);
     setUrls([]);
+    setThumbnailUrls([]);
     setImages([]);
+    setThumbnails([]);
     setPostText("");
     setTotalBytes(0);
     setLoading(false);
@@ -138,7 +160,7 @@ export default function NewPost() {
     document.getElementById("postButtonsContainer").display = "none";
   }
 
-  function handleUpload(e) {
+  const handleUpload = async (e) => {
     setError("");
     e.preventDefault();
 
@@ -146,12 +168,14 @@ export default function NewPost() {
 
     const promises = [];
 
+    let allImages = images.concat(thumbnails);
+
     // If Images were upload (with or no post text).
-    if (images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
+    if (allImages.length > 0) {
+      for (let i = 0; i < allImages.length; i++) {
         const uploadTask = projectStorage
-          .ref(`images/${images[i].name}`)
-          .put(images[i]);
+          .ref(`images/${allImages[i].name}`)
+          .put(allImages[i]);
         promises.push(uploadTask);
         uploadTask.on(
           "state_changed",
@@ -167,11 +191,19 @@ export default function NewPost() {
           async () => {
             await projectStorage
               .ref("images")
-              .child(images[i].name)
+              .child(allImages[i].name)
               .getDownloadURL()
               .then((url) => {
-                urls.push(url);
-                if (urls.length === images.length && urls.length > 0) {
+                if (allImages[i].typeOfFile === "thumbnail") {
+                  thumbnailUrls.push(url);
+                } else {
+                  urls.push(url);
+                }
+
+                if (
+                  urls.length + thumbnailUrls.length === allImages.length &&
+                  allImages.length > 0
+                ) {
                   handleUploadPost();
                 }
               });
@@ -188,19 +220,32 @@ export default function NewPost() {
     if (images.length <= 0 && postText.trim() !== "") {
       handleUploadPost();
     }
-  }
+  };
 
-  function uploadMultipleFiles(e) {
+  async function uploadMultipleFiles(e) {
     for (let i = 0; i < e.target.files.length; i++) {
       const newImage = e.target.files[i];
 
       if (newImage && imageTypes.includes(newImage.type)) {
         newImage["id"] = Math.random();
+        newImage["typeOfFile"] = "image";
         setFileArray((prevState) => [
           ...prevState,
           URL.createObjectURL(newImage),
         ]);
+        const blob = await resizeFile(newImage);
+        blob["id"] = newImage["id"];
+        blob["typeOfFile"] = "thumbnail";
+
+        let fileNameParts = newImage["name"].split(".");
+        blob["name"] =
+          fileNameParts.slice(0, -1).join(".") +
+          "_thumbnail" +
+          "." +
+          fileNameParts.slice(-1);
+
         images.push(newImage);
+        thumbnails.push(blob);
         // setImages((prevState) => [...prevState, newImage]);
         setError("");
       } else {
@@ -209,10 +254,15 @@ export default function NewPost() {
       }
     }
 
-    let _totalBytes = images.reduce((accumulator, element) => {
+    let _totalBytesImages = images.reduce((accumulator, element) => {
       return accumulator + element.size;
     }, 0);
 
+    let _totalBytesThumbnails = thumbnails.reduce((accumulator, element) => {
+      return accumulator + element.size;
+    }, 0);
+
+    let _totalBytes = _totalBytesImages + _totalBytesThumbnails;
     setTotalBytes(_totalBytes);
 
     document.getElementById("imageUpload").value = null;
@@ -279,6 +329,7 @@ export default function NewPost() {
                   variant="primary"
                   data-view-component="true"
                   className="btn-sm text-reset text-decoration-none shadow-none post-buttons-1"
+                  id="emojiTogglerBtn"
                 >
                   <FontAwesomeIcon icon={faSmile} color="white" />
                 </Button>
@@ -341,7 +392,7 @@ export default function NewPost() {
           </div>
         </Form.Group>
         {loading && <ProgressBar progress={progress} />}
-        <div className="hidden">
+        <div className="emoji-picker-div hidden" id="emojiPickerDiv">
           <Picker
             onEmojiClick={onEmojiClick}
             disableAutoFocus={true}

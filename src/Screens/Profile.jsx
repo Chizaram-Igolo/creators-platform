@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Upload } from "tabler-icons-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../contexts/AuthContext";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
+// import Button from "react-bootstrap/Button";
 
-import { SideBar, Tab } from "../Components";
+import { SideBar, Tab, ErrorDisplay } from "../Components";
 
 import "./Profile.css";
 
@@ -50,8 +51,8 @@ function Profile() {
                   </div>
                   <label>
                     <input type="file" onChange={handleChange} />
-                    <span>
-                      <Upload size={18} strokeWidth={2} color={"white"} />
+                    <span style={{ fontSize: "16px" }}>
+                      <FontAwesomeIcon icon={faUpload} color="white" />
                     </span>
                   </label>
                 </div>
@@ -69,6 +70,7 @@ function Profile() {
               <div className="d-flex justify-content-center row">
                 <div className="col-md-12 px-2">
                   <div className="feed">
+                    <ErrorDisplay error={error} />
                     <div className="bg-white p-2 pt-0 pl-0 pr-1 pb-3  mb-3 no-hor-padding">
                       <Tab />
                       <Tab />

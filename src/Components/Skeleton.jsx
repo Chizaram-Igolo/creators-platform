@@ -27,7 +27,7 @@ export default function Skeleton(props) {
         speed={2}
         width={"100%"}
         height={124}
-        viewBox="0 0 %100 124"
+        viewBox="0 0 100% 124"
         backgroundColor="#f3f3f3"
         foregroundColor="#ecebeb"
         {...props}

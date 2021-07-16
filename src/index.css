@@ -84,6 +84,7 @@ h3 {
   z-index: 300;
 }
 
+/* Button loading. */
 .box {
   /* position: relative;
   left: 50%; */
@@ -171,5 +172,40 @@ h3 {
   57% {
     transform: scale(1);
     opacity: 0.2;
+  }
+}
+
+/* Load more dots. */
+.loading {
+  display: flex;
+  justify-content: center;
+  transition: opacity 0.3s ease-in;
+}
+
+.circle {
+  background-color: #333;
+  border-radius: 50%;
+  margin: 4px;
+  height: 8px;
+  width: 8px;
+  animation: jump 0.5s ease-in infinite;
+}
+
+.circle:nth-of-type(2) {
+  animation-delay: 0.1s;
+}
+
+.circle:nth-of-type(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes jump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
   }
 }

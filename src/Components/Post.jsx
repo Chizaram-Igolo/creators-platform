@@ -48,7 +48,7 @@ export default function Post(props) {
 
       {props.images !== null && (
         <div className="feed-image pb-2 px-3">
-          <ImageGrid images={props.images} />
+          <ImageGrid images={props.images} thumbnails={props.thumbnails} />
         </div>
       )}
 

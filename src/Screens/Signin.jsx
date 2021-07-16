@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { Formik } from "formik";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -9,32 +10,24 @@ import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 
 import { ErrorDisplay } from "../Components";
-
 import { useAuth } from "../contexts/AuthContext";
-
 import "./Signin.css";
 
 function Signin(props) {
   const emailRef = useRef();
   const passwordRef = useRef();
   const { signin } = useAuth();
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const history = useHistory();
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-
+  async function handleSubmit(values) {
     try {
       setError(null);
-      setLoading(true);
-      await signin(emailRef.current.value, passwordRef.current.value);
+      await signin(values.email, values.password);
       history.push("/feed");
     } catch (err) {
       setError(err.message);
     }
-
-    setLoading(false);
   }
 
   return (
@@ -43,84 +36,127 @@ function Signin(props) {
         <Row>
           <Col></Col>
           <Col xs={10} md={8} lg={6} xl={5}>
-            <Form className="vertical-center" onSubmit={handleSubmit}>
-              <h3 className="mb-5 text-center">Welcome back</h3>
+            <Formik
+              initialValues={{ email: "", password: "" }}
+              validate={(values) => {
+                const errors = {};
+                if (!values.email) {
+                  errors.email = "Please enter your username";
+                } else if (
+                  !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+                ) {
+                  errors.email = "Invalid email address";
+                }
 
-              <ErrorDisplay error={error} />
+                if (!values.password) {
+                  errors.password = "Please enter your password";
+                }
 
-              <p>Start earning with other creators today!</p>
-              <Form.Group controlId="formBasicEmail">
-                {/* <Form.Label>Email address</Form.Label> */}
-                <InputGroup hasValidation>
-                  <Form.Control
-                    type="email"
-                    required
-                    // isInvalid={error.length > 0}
-                    ref={emailRef}
-                    placeholder="Email Address"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a username.
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
+                return errors;
+              }}
+              onSubmit={(values, { setSubmitting }) => {
+                handleSubmit(values).then(() => setSubmitting(false));
+              }}
+            >
+              {({
+                values,
+                errors,
+                touched,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                isSubmitting,
+              }) => (
+                <Form className="vertical-center" onSubmit={handleSubmit}>
+                  <h3 className="mb-5 text-center">Welcome back</h3>
 
-              <Form.Group controlId="formBasicPassword">
-                {/* <Form.Label>Password</Form.Label> */}
-                <InputGroup hasValidation>
-                  <Form.Control
-                    type="password"
-                    required
-                    // isInvalid={error.length > 0}
-                    ref={passwordRef}
-                    placeholder="Password"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a password.
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
+                  <ErrorDisplay error={error} />
 
-              <Form.Group controlId="formBasicCheckbox">
-                <Form.Check
-                  className="pointer-on-hover"
-                  type="checkbox"
-                  label="Remember me"
-                  custom
-                />
-              </Form.Group>
+                  <p>Start earning with other creators today!</p>
 
-              <Button
-                disabled={loading}
-                variant="primary"
-                type="submit"
-                block={true.toString()}
-                className="inline-block"
-              >
-                {loading ? (
-                  <div className="box">
-                    <div className="card1"></div>
-                    <div className="card2"></div>
-                    <div className="card3"></div>
-                  </div>
-                ) : (
-                  "Sign in"
-                )}
-              </Button>
+                  <Form.Group controlId="formBasicEmail">
+                    <InputGroup hasValidation>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                        isInvalid={errors.email && touched.email}
+                        ref={emailRef}
+                        placeholder="Email Address"
+                        value={values.email}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.email}
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Form.Group>
 
-              <p className="mt-3 text-center">
-                <Link to="/forgot-password" className="text-decoration-none">
-                  Forgot password?
-                </Link>
-              </p>
+                  <Form.Group controlId="formBasicPassword">
+                    <InputGroup hasValidation>
+                      <Form.Control
+                        type="password"
+                        name="password"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                        isInvalid={errors.password && touched.password}
+                        ref={passwordRef}
+                        placeholder="Password"
+                        value={values.password}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.password}
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Form.Group>
 
-              <p className="mt-3 text-center">
-                Don't have an account?{" "}
-                <Link to="/signup" className="text-decoration-none">
-                  Sign Up
-                </Link>
-              </p>
-            </Form>
+                  <Form.Group controlId="formBasicCheckbox">
+                    <Form.Check
+                      className="pointer-on-hover"
+                      type="checkbox"
+                      label="Remember me"
+                      custom
+                    />
+                  </Form.Group>
+
+                  <Button
+                    disabled={isSubmitting}
+                    variant="primary"
+                    type="submit"
+                    block={true.toString()}
+                    className="inline-block"
+                  >
+                    {isSubmitting ? (
+                      <div className="box">
+                        <div className="card1"></div>
+                        <div className="card2"></div>
+                        <div className="card3"></div>
+                      </div>
+                    ) : (
+                      "Sign in"
+                    )}
+                  </Button>
+
+                  <p className="mt-3 text-center">
+                    <Link
+                      to="/forgot-password"
+                      className="text-decoration-none"
+                    >
+                      Forgot password?
+                    </Link>
+                  </p>
+
+                  <p className="mt-3 text-center">
+                    Don't have an account?{" "}
+                    <Link to="/signup" className="text-decoration-none">
+                      Sign Up
+                    </Link>
+                  </p>
+                </Form>
+              )}
+            </Formik>
           </Col>
           <Col></Col>
         </Row>

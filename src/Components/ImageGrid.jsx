@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import ProgressiveImage from "react-progressive-image-loading";
+
 import Modal from "./Modal";
 import PropTypes from "prop-types";
 import "./styles/ImageGrid.css";
@@ -47,7 +49,7 @@ class ImageGrid extends Component {
   }
 
   renderOne() {
-    const { images } = this.props;
+    const { images, thumbnails } = this.props;
     const { countFrom } = this.state;
     const overlay =
       images.length > countFrom && countFrom === 1
@@ -57,22 +59,28 @@ class ImageGrid extends Component {
     return (
       <Container className="image-grid-container">
         <Row>
-          <Col
-            xs={12}
-            md={12}
-            className={`border height-one background`}
-            onClick={this.openModal.bind(this, 0)}
-            style={{ background: `url(${images[0]})` }}
-          >
-            {overlay}
-          </Col>
+          <ProgressiveImage
+            preview={thumbnails[0]}
+            src={images[0]}
+            render={(src, style) => (
+              <Col
+                xs={12}
+                md={12}
+                className="border height-one background"
+                onClick={this.openModal.bind(this, 0)}
+                style={Object.assign(style, { background: `url(${src})` })}
+              >
+                {overlay}
+              </Col>
+            )}
+          />
         </Row>
       </Container>
     );
   }
 
   renderTwo() {
-    const { images } = this.props;
+    const { images, thumbnails } = this.props;
     const { countFrom } = this.state;
     const overlay =
       images.length > countFrom && [2, 3].includes(+countFrom)
@@ -85,35 +93,44 @@ class ImageGrid extends Component {
     return (
       <Container className="image-grid-container">
         <Row>
-          <Col
-            xs={6}
-            md={6}
-            className="border height-two background"
-            onClick={this.openModal.bind(this, conditionalRender ? 1 : 0)}
-            style={{
-              background: `url(${conditionalRender ? images[1] : images[0]})`,
-            }}
-          >
-            {this.renderOverlay()}
-          </Col>
-          <Col
-            xs={6}
-            md={6}
-            className="border height-two background"
-            onClick={this.openModal.bind(this, conditionalRender ? 2 : 1)}
-            style={{
-              background: `url(${conditionalRender ? images[2] : images[1]})`,
-            }}
-          >
-            {overlay}
-          </Col>
+          <ProgressiveImage
+            preview={conditionalRender ? thumbnails[1] : thumbnails[0]}
+            src={conditionalRender ? images[1] : images[0]}
+            render={(src, style) => (
+              <Col
+                xs={6}
+                md={6}
+                className="border height-two background"
+                onClick={this.openModal.bind(this, conditionalRender ? 1 : 0)}
+                style={Object.assign(style, { background: `url(${src})` })}
+              >
+                {this.renderOverlay()}
+              </Col>
+            )}
+          />
+
+          <ProgressiveImage
+            preview={conditionalRender ? thumbnails[2] : thumbnails[1]}
+            src={conditionalRender ? images[2] : images[1]}
+            render={(src, style) => (
+              <Col
+                xs={6}
+                md={6}
+                className="border height-two background"
+                onClick={this.openModal.bind(this, conditionalRender ? 2 : 1)}
+                style={Object.assign(style, { background: `url(${src})` })}
+              >
+                {overlay}
+              </Col>
+            )}
+          />
         </Row>
       </Container>
     );
   }
 
   renderThree(more) {
-    const { images } = this.props;
+    const { images, thumbnails } = this.props;
     const { countFrom } = this.state;
     const conditionalRender =
       images.length === 4 || (images.length > +countFrom && +countFrom === 4);
@@ -127,39 +144,53 @@ class ImageGrid extends Component {
     return (
       <Container className="image-grid-container">
         <Row>
-          <Col
-            xs={6}
-            md={4}
-            className="border height-three background"
-            onClick={this.openModal.bind(this, conditionalRender ? 1 : 2)}
-            style={{
-              background: `url(${conditionalRender ? images[1] : images[2]})`,
-            }}
-          >
-            {this.renderOverlay(conditionalRender ? 1 : 2)}
-          </Col>
-          <Col
-            xs={6}
-            md={4}
-            className="border height-three background"
-            onClick={this.openModal.bind(this, conditionalRender ? 2 : 3)}
-            style={{
-              background: `url(${conditionalRender ? images[2] : images[3]})`,
-            }}
-          >
-            {this.renderOverlay(conditionalRender ? 2 : 3)}
-          </Col>
-          <Col
-            xs={6}
-            md={4}
-            className="border height-three background"
-            onClick={this.openModal.bind(this, conditionalRender ? 3 : 4)}
-            style={{
-              background: `url(${conditionalRender ? images[3] : images[4]})`,
-            }}
-          >
-            {overlay}
-          </Col>
+          <ProgressiveImage
+            preview={conditionalRender ? thumbnails[1] : thumbnails[2]}
+            src={conditionalRender ? images[1] : images[2]}
+            render={(src, style) => (
+              <Col
+                xs={6}
+                md={4}
+                className="border height-three background"
+                onClick={this.openModal.bind(this, conditionalRender ? 1 : 2)}
+                style={Object.assign(style, { background: `url(${src})` })}
+              >
+                {this.renderOverlay(conditionalRender ? 1 : 2)}
+              </Col>
+            )}
+          />
+
+          <ProgressiveImage
+            preview={conditionalRender ? thumbnails[2] : thumbnails[3]}
+            src={conditionalRender ? images[2] : images[3]}
+            render={(src, style) => (
+              <Col
+                xs={6}
+                md={4}
+                className="border height-three background"
+                onClick={this.openModal.bind(this, conditionalRender ? 2 : 3)}
+                style={Object.assign(style, { background: `url(${src})` })}
+              >
+                {this.renderOverlay(conditionalRender ? 2 : 3)}
+              </Col>
+            )}
+          />
+
+          <ProgressiveImage
+            preview={conditionalRender ? thumbnails[3] : thumbnails[4]}
+            src={conditionalRender ? images[3] : images[4]}
+            render={(src, style) => (
+              <Col
+                xs={6}
+                md={4}
+                className="border height-three background"
+                onClick={this.openModal.bind(this, conditionalRender ? 3 : 4)}
+                style={Object.assign(style, { background: `url(${src})` })}
+              >
+                {overlay}
+              </Col>
+            )}
+          />
         </Row>
       </Container>
     );
