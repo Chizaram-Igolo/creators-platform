@@ -34,16 +34,6 @@
   /* height: 54px !important; */
 }
 
-.text-area {
-  height: 58px;
-  display: inline-block;
-  white-space: pre-line;
-}
-
-.text-area:hover {
-  cursor: text;
-}
-
 .icon-example:after {
   content: url(http://www.stat.ncsu.edu/dept-icons/camera-icon.gif);
   position: absolute;
@@ -100,7 +90,8 @@
   margin-left: auto;
 }
 
-.image-upload {
+.image-upload,
+.video-upload {
   height: 0;
   width: 0;
   opacity: 0;

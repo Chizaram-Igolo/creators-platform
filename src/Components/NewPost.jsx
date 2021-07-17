@@ -15,10 +15,15 @@ import {
 } from "../firebase/config";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 import Resizer from "react-image-file-resizer";
 import $ from "jquery";
 
-import { ProgressBar } from ".";
+import { ProgressBar, Toast } from ".";
+import {
+  uploadMultipleImages,
+  uploadMultipleVideos,
+} from "./utiltities/uploadMedia";
 import "./styles/NewPost.css";
 
 const imageResizer = (file, size, imageType) =>
@@ -50,7 +55,10 @@ export default function NewPost({ handleChangeError }) {
   const [thumbnailUrls, setThumbnailUrls] = useState([]);
   const [progress, setProgress] = useState(0);
 
-  const imageTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const { addToast } = useToasts();
 
@@ -66,6 +74,8 @@ export default function NewPost({ handleChangeError }) {
     const multiPreview = $("#multiPreview");
     const emojiTogglerBtn = $("#emojiTogglerBtn");
     const emojiPickerDiv = $("#emojiPickerDiv");
+    const imageUpload = $("#imageUpload");
+    const videoUpload = $("#videoUpload");
 
     textArea.addEventListener("input", (event) => {
       textArea.style.height = "";
@@ -113,14 +123,85 @@ export default function NewPost({ handleChangeError }) {
       multiPreview.removeClass("multi-preview-focus");
     });
 
-    emojiTogglerBtn.click(function () {
+    emojiTogglerBtn.on("click", function () {
       emojiPickerDiv.toggle();
     });
-  }, []);
 
-  function handleClickUploadBtn() {
-    document.getElementById("imageUpload").click();
-  }
+    // This timeout, started on mousedown, triggers the beginning of a hold
+    var holdStarter = null;
+
+    // This is how many milliseconds to wait before recognizing a hold
+    var holdDelay = 500;
+
+    // This flag indicates the user is currently holding the mouse down
+    var holdActive = false;
+
+    // MouseDown
+    $("#imageUploadBtn").on("mousedown", onMouseDown1);
+    function onMouseDown1() {
+      // Do not take any immediate action - just set the holdStarter
+      //  to wait for the predetermined delay, and then begin a hold
+      holdStarter = setTimeout(function () {
+        holdStarter = null;
+        holdActive = true;
+      }, holdDelay);
+    }
+
+    // MouseUp
+    $("#imageUploadBtn").on("mouseup", onMouseUp1);
+    function onMouseUp1() {
+      // If the mouse is released immediately (i.e., a click), before the
+      //  holdStarter runs, then cancel the holdStarter and do the click
+      if (holdStarter) {
+        clearTimeout(holdStarter);
+        // run click-only operation here
+        // $(".status").text("Clicked!");
+        imageUpload.trigger("click");
+      }
+      // Otherwise, if the mouse was being held, end the hold
+      else if (holdActive) {
+        holdActive = false;
+        handleShow();
+      }
+    }
+
+    // MouseDown
+    $("#videoUploadBtn").on("mousedown", onMouseDown2);
+    function onMouseDown2() {
+      // Do not take any immediate action - just set the holdStarter
+      //  to wait for the predetermined delay, and then begin a hold
+      holdStarter = setTimeout(function () {
+        holdStarter = null;
+        holdActive = true;
+      }, holdDelay);
+    }
+
+    // MouseUp
+    $("#videoUploadBtn").on("mouseup", onMouseUp2);
+    function onMouseUp2() {
+      // If the mouse is released immediately (i.e., a click), before the
+      //  holdStarter runs, then cancel the holdStarter and do the click
+      if (holdStarter) {
+        clearTimeout(holdStarter);
+        // run click-only operation here
+        // $(".status").text("Clicked!");
+        videoUpload.trigger("click");
+      }
+      // Otherwise, if the mouse was being held, end the hold
+      else if (holdActive) {
+        holdActive = false;
+        handleShow();
+      }
+    }
+
+    // OnClick
+    // not using onclick at all - onmousedown and onmouseup take care of everything
+
+    // Optional add-on: if mouse moves out, then release hold
+    // $("#imageUploadBtn").on("mouseout", function () {
+    //   onMouseUp();
+    // });
+  }, []);
 
   function handleRemoveThumbnail(e) {
     let fA = [...fileArray];
@@ -147,7 +228,7 @@ export default function NewPost({ handleChangeError }) {
     collectionRef
       .add({ post, createdAt, images: _images, thumbnails: _thumbnails })
       .catch((err) => {
-        addToast(err.message, {
+        addToast(<Toast heading="We're sorry" body={err.message} />, {
           appearance: "error",
           autoDismiss: false,
         });
@@ -155,7 +236,7 @@ export default function NewPost({ handleChangeError }) {
         return;
       });
 
-    addToast("Your post was uploaded.", {
+    addToast(<Toast body="Your post was uploaded." />, {
       appearance: "success",
       autoDismiss: true,
     });
@@ -203,8 +284,8 @@ export default function NewPost({ handleChangeError }) {
 
             setProgress(progress);
           },
-          (error) => {
-            addToast(error.message, {
+          (err) => {
+            addToast(<Toast heading="We're sorry" body={err.message} />, {
               appearance: "error",
               autoDismiss: false,
             });
@@ -235,7 +316,7 @@ export default function NewPost({ handleChangeError }) {
       Promise.all(promises)
         .then(() => {})
         .catch((err) =>
-          addToast(err.message, {
+          addToast(<Toast heading="We're sorry" body={err.message} />, {
             appearance: "error",
             autoDismiss: false,
           })
@@ -248,63 +329,34 @@ export default function NewPost({ handleChangeError }) {
     }
   };
 
-  async function uploadMultipleFiles(e) {
-    for (let i = 0; i < e.target.files.length; i++) {
-      const newImage = e.target.files[i];
+  function handleUploadMultipleImages(e) {
+    let imageUploadInput = document.getElementById("imageUpload");
 
-      if (newImage && imageTypes.includes(newImage.type)) {
-        setFileArray((prevState) => [
-          ...prevState,
-          URL.createObjectURL(newImage),
-        ]);
+    uploadMultipleImages(
+      e,
+      images,
+      thumbnails,
+      setFileArray,
+      imageResizer,
+      setTotalBytes,
+      addToast,
+      imageUploadInput
+    );
+  }
 
-        let imageType = newImage.type.split("/").slice(-1);
-        if (imageType === "JPG") {
-          imageType = "JPEG";
-        }
+  function handleUploadMultipleVideos(e) {
+    let imageUploadInput = document.getElementById("imageUpload");
 
-        const imageBlob = await imageResizer(newImage, 1400, imageType);
-        imageBlob["id"] = i;
-        imageBlob["typeOfFile"] = "image";
-        imageBlob["name"] = newImage["name"];
-
-        const thumbnailBlob = await imageResizer(newImage, 100, imageType);
-        thumbnailBlob["id"] = imageBlob["id"];
-        thumbnailBlob["typeOfFile"] = "thumbnail";
-
-        let fileNameParts = newImage["name"].split(".");
-        thumbnailBlob["name"] =
-          fileNameParts.slice(0, -1).join(".") +
-          "_thumbnail" +
-          "." +
-          fileNameParts.slice(-1);
-
-        images.push(imageBlob);
-        thumbnails.push(thumbnailBlob);
-
-        // setImages((prevState) => [...prevState, newImage]);
-      } else {
-        addToast("Please select an image file (png or jpeg)", {
-          appearance: "error",
-          autoDismiss: true,
-        });
-
-        return;
-      }
-    }
-
-    let _totalBytesImages = images.reduce((accumulator, element) => {
-      return accumulator + element.size;
-    }, 0);
-
-    let _totalBytesThumbnails = thumbnails.reduce((accumulator, element) => {
-      return accumulator + element.size;
-    }, 0);
-
-    let _totalBytes = _totalBytesImages + _totalBytesThumbnails;
-    setTotalBytes(_totalBytes);
-
-    // document.getElementById("imageUpload").value = null;
+    uploadMultipleVideos(
+      e,
+      images,
+      thumbnails,
+      setFileArray,
+      imageResizer,
+      setTotalBytes,
+      addToast,
+      imageUploadInput
+    );
   }
 
   return (
@@ -366,11 +418,19 @@ export default function NewPost({ handleChangeError }) {
               </div>
 
               <div className="mt-0">
+                <input
+                  type="file"
+                  className="video-upload"
+                  id="videoUpload"
+                  onChange={handleUploadMultipleVideos}
+                  multiple
+                />
                 <Button
                   type="button"
                   variant="primary"
                   data-view-component="true"
                   className="btn-sm text-reset text-decoration-none shadow-none post-buttons-2"
+                  id="videoUploadBtn"
                 >
                   <FontAwesomeIcon icon={faVideo} color="white" />
                 </Button>
@@ -382,7 +442,7 @@ export default function NewPost({ handleChangeError }) {
                   type="file"
                   className="image-upload"
                   id="imageUpload"
-                  onChange={uploadMultipleFiles}
+                  onChange={handleUploadMultipleImages}
                   multiple
                 />
 
@@ -391,7 +451,7 @@ export default function NewPost({ handleChangeError }) {
                   variant="primary"
                   data-view-component="true"
                   className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
-                  onClick={handleClickUploadBtn}
+                  id="imageUploadBtn"
                 >
                   <FontAwesomeIcon icon={faCamera} color="white" />
                 </Button>
@@ -432,6 +492,21 @@ export default function NewPost({ handleChangeError }) {
           />
         </div>
       </Form>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Modal heading</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleClose}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

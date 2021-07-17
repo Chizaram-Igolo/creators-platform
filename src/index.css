@@ -209,3 +209,8 @@ h3 {
     transform: translateY(-10px);
   }
 }
+
+.toast-head,
+.toast-body {
+  font-size: 1.1em;
+}

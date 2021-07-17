@@ -11,7 +11,14 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 
-import { Skeleton, Post, SideBar, NewPost, AlertBox } from "../Components";
+import {
+  Skeleton,
+  Post,
+  SideBar,
+  NewPost,
+  AlertBox,
+  Toast,
+} from "../Components";
 import "./styles/Feed.css";
 
 class Feed extends Component {
@@ -44,20 +51,31 @@ class Feed extends Component {
       .collection("posts")
       .orderBy("createdAt", "desc")
       .limit(5)
-      .onSnapshot(function (snap) {
-        var latestDoc = snap.docs[snap.docs.length - 1];
-        const docs = [];
+      .onSnapshot(
+        function (snap) {
+          var latestDoc = snap.docs[snap.docs.length - 1];
+          const docs = [];
 
-        snap.forEach(function (doc) {
-          docs.push({ ...doc.data(), id: doc.id });
-        });
+          snap.forEach(function (doc) {
+            docs.push({ ...doc.data(), id: doc.id });
+          });
 
-        set.setState({ docs, latestDoc, loading: false });
+          set.setState({ docs, latestDoc, loading: false });
 
-        if (docs.length === 0) {
-          set.setState({ hasMore: false });
+          if (docs.length === 0) {
+            set.setState({ hasMore: false });
+          }
+        },
+        (err) => {
+          this.props.addToast(
+            <Toast heading="We're sorry" body={err.message} />,
+            {
+              appearance: "error",
+              autoDismiss: false,
+            }
+          );
         }
-      });
+      );
   }
 
   componentDidMount() {
@@ -91,8 +109,14 @@ class Feed extends Component {
             hasMore: snap.docs.length === 0 ? false : true,
           });
         },
-        (error) => {
-          // setError(error);
+        (err) => {
+          this.props.addToast(
+            <Toast heading="We're sorry" body={err.message} />,
+            {
+              appearance: "error",
+              autoDismiss: false,
+            }
+          );
         }
       );
 
