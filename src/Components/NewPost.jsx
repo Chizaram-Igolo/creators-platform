@@ -5,6 +5,8 @@ import {
   faSmile,
   faCamera,
   faVideo,
+  faMicrophone,
+  faPaperclip,
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
@@ -228,11 +230,19 @@ export default function NewPost({ handleChangeError }) {
     collectionRef
       .add({ post, createdAt, images: _images, thumbnails: _thumbnails })
       .catch((err) => {
-        addToast(<Toast heading="We're sorry" body={err.message} />, {
-          appearance: "error",
-          autoDismiss: false,
-        });
+        addToast(
+          <Toast
+            heading="We're sorry"
+            body="We couldn't complete the current operation due to a faulty connection. Please try again."
+          />,
+          {
+            appearance: "error",
+            autoDismiss: false,
+          }
+        );
 
+        setProgress(0);
+        setLoading(false);
         return;
       });
 
@@ -285,10 +295,20 @@ export default function NewPost({ handleChangeError }) {
             setProgress(progress);
           },
           (err) => {
-            addToast(<Toast heading="We're sorry" body={err.message} />, {
-              appearance: "error",
-              autoDismiss: false,
-            });
+            addToast(
+              <Toast
+                heading="We're sorry"
+                body="We couldn't complete the current operation due to a faulty connection. Please try again."
+              />,
+              {
+                appearance: "error",
+                autoDismiss: false,
+              }
+            );
+
+            setProgress(0);
+            setLoading(false);
+            return;
           },
           async () => {
             await projectStorage
@@ -315,12 +335,22 @@ export default function NewPost({ handleChangeError }) {
 
       Promise.all(promises)
         .then(() => {})
-        .catch((err) =>
-          addToast(<Toast heading="We're sorry" body={err.message} />, {
-            appearance: "error",
-            autoDismiss: false,
-          })
-        );
+        .catch((err) => {
+          addToast(
+            <Toast
+              heading="We're sorry"
+              body="We couldn't complete the current operation due to a faulty connection. Please try again."
+            />,
+            {
+              appearance: "error",
+              autoDismiss: true,
+            }
+          );
+
+          setProgress(0);
+          setLoading(false);
+          return;
+        });
     }
 
     // If only post text.
@@ -454,6 +484,48 @@ export default function NewPost({ handleChangeError }) {
                   id="imageUploadBtn"
                 >
                   <FontAwesomeIcon icon={faCamera} color="white" />
+                </Button>
+              </div>
+
+              <div className="mt-0">
+                {/* <label className="camera-icon-btn"> */}
+                <input
+                  type="file"
+                  className="image-upload"
+                  id="imageUpload"
+                  onChange={handleUploadMultipleImages}
+                  multiple
+                />
+
+                <Button
+                  type="button"
+                  variant="dark"
+                  data-view-component="true"
+                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
+                  id="imageUploadBtn"
+                >
+                  <FontAwesomeIcon icon={faMicrophone} color="white" />
+                </Button>
+              </div>
+
+              <div className="mt-0">
+                {/* <label className="camera-icon-btn"> */}
+                <input
+                  type="file"
+                  className="image-upload"
+                  id="imageUpload"
+                  onChange={handleUploadMultipleImages}
+                  multiple
+                />
+
+                <Button
+                  type="button"
+                  variant="dark"
+                  data-view-component="true"
+                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
+                  id="imageUploadBtn"
+                >
+                  <FontAwesomeIcon icon={faPaperclip} color="white" />
                 </Button>
               </div>
 
