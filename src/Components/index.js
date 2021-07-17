@@ -10,6 +10,6 @@ export { default as ImageGrid } from "./ImageGrid";
 export { default as RestrictedPost } from "./RestrictedPost";
 export { default as NewPost } from "./NewPost";
 export { default as ProgressBar } from "./ProgressBar";
-export { default as ErrorDisplay } from "./ErrorDisplay";
+export { default as AlertBox } from "./AlertBox";
 export { default as UploadPostImages } from "./UploadPostImages";
 export { default as PrivateRoute } from "./PrivateRoute";

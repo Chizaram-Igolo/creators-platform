@@ -8,11 +8,11 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 
-import { ErrorDisplay } from "../Components";
+import { AlertBox } from "../Components";
 
 import { useAuth } from "../contexts/AuthContext";
 
-import "./Signin.css";
+import "./styles/Signin.css";
 
 function Signup() {
   const emailRef = useRef();
@@ -58,7 +58,7 @@ function Signup() {
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Sign Up</h3>
 
-              <ErrorDisplay error={error} />
+              <AlertBox error={error} />
 
               <p>Start earning with other creators today!</p>
               <Form.Group controlId="formBasicEmail">

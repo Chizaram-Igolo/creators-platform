@@ -30,6 +30,7 @@
     "react-progressive-image-loading": "^3.0.3",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-toast-notifications": "^2.5.1",
     "web-vitals": "^1.1.2",
     "yup": "^0.32.9"
   },

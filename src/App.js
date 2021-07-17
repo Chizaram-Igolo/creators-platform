@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { ToastProvider } from "react-toast-notifications";
 import { AuthProvider } from "./contexts/AuthContext";
 import {
   Signin,
@@ -26,14 +27,15 @@ const routes = [
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Header />
-        <div className="pt-5 px-2">
-          <Switch>
-            <PrivateRoute path="/profile" component={Profile} />
-            <PrivateRoute path="/settings" component={Settings} />
+      <ToastProvider>
+        <AuthProvider>
+          <Header />
+          <div className="pt-5 px-2">
+            <Switch>
+              <PrivateRoute path="/profile" component={Profile} />
+              <PrivateRoute path="/settings" component={Settings} />
 
-            {/* <PrivateRoute exact path="/app/dashboard">
+              {/* <PrivateRoute exact path="/app/dashboard">
               <Content
                 navWidth={navWidth}
                 widthOffset={widthOffset}
@@ -45,7 +47,7 @@ function App() {
                 <Dashboard />
               </Content>
             </PrivateRoute> */}
-            {/* {routes.map((item, id) => {
+              {/* {routes.map((item, id) => {
               return (
                 <PrivateRoute path={item.route} key={id}>
                   <Content
@@ -61,16 +63,17 @@ function App() {
                 </PrivateRoute>
               );
             })} */}
-            {routes.map((item, id) => {
-              return (
-                <Route path={item.route} key={id} exact={item.exact}>
-                  {item.component}
-                </Route>
-              );
-            })}
-          </Switch>
-        </div>
-      </AuthProvider>
+              {routes.map((item, id) => {
+                return (
+                  <Route path={item.route} key={id} exact={item.exact}>
+                    {item.component}
+                  </Route>
+                );
+              })}
+            </Switch>
+          </div>
+        </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 }

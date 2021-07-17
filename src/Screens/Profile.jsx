@@ -10,9 +10,9 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 // import Button from "react-bootstrap/Button";
 
-import { SideBar, Tab, ErrorDisplay } from "../Components";
+import { SideBar, Tab, AlertBox } from "../Components";
 
-import "./Profile.css";
+import "./styles/Profile.css";
 
 function Profile() {
   const [file, setFile] = useState(null);
@@ -70,7 +70,7 @@ function Profile() {
               <div className="d-flex justify-content-center row">
                 <div className="col-md-12 px-2">
                   <div className="feed">
-                    <ErrorDisplay error={error} />
+                    <AlertBox error={error} />
                     <div className="bg-white p-2 pt-0 pl-0 pr-1 pb-3  mb-3 no-hor-padding">
                       <Tab />
                       <Tab />

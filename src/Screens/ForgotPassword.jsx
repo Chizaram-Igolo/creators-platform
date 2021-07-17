@@ -9,11 +9,11 @@ import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
 
-import { ErrorDisplay } from "../Components";
+import { AlertBox } from "../Components";
 
 import { useAuth } from "../contexts/AuthContext";
 
-import "./Signin.css";
+import "./styles/Signin.css";
 
 function ForgotPassword(props) {
   const emailRef = useRef();
@@ -46,7 +46,7 @@ function ForgotPassword(props) {
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Reset Password</h3>
 
-              <ErrorDisplay error={error} />
+              <AlertBox error={error} />
 
               {message && (
                 <>

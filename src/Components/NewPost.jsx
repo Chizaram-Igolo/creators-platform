@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useToasts } from "react-toast-notifications";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSmile,
@@ -14,15 +15,11 @@ import {
 } from "../firebase/config";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Alert from "react-bootstrap/Alert";
+import Resizer from "react-image-file-resizer";
+import $ from "jquery";
 
 import { ProgressBar } from ".";
-
 import "./styles/NewPost.css";
-
-import Resizer from "react-image-file-resizer";
-
-import $ from "jquery";
 
 const imageResizer = (file, size, imageType) =>
   new Promise((resolve) => {
@@ -40,10 +37,8 @@ const imageResizer = (file, size, imageType) =>
     );
   });
 
-export default function NewPost() {
+export default function NewPost({ handleChangeError }) {
   const [postText, setPostText] = useState("");
-
-  const [error, setError] = useState("");
 
   const [fileArray, setFileArray] = useState([]);
   const [images, setImages] = useState([]);
@@ -57,17 +52,19 @@ export default function NewPost() {
 
   const imageTypes = ["image/png", "image/jpeg", "image/jpg"];
 
+  const { addToast } = useToasts();
+
   const onEmojiClick = (e, emojiObject) => {
     e.preventDefault();
-    const textArea = document.querySelector("textarea");
-    textArea.value += emojiObject.emoji;
+    let _postText = postText;
+    setPostText(_postText + emojiObject.emoji);
   };
 
   useEffect(() => {
     const textArea = document.getElementById("postText");
     const postForm = document.getElementById("postForm");
     const multiPreview = $("#multiPreview");
-    const emojiTogglerBtn = document.getElementById("emojiTogglerBtn");
+    const emojiTogglerBtn = $("#emojiTogglerBtn");
     const emojiPickerDiv = $("#emojiPickerDiv");
 
     textArea.addEventListener("input", (event) => {
@@ -92,12 +89,6 @@ export default function NewPost() {
       } while (targetElement);
 
       // This is a click outside.
-      if (textArea.value.trim() === "" && images.length === 0) {
-        if (postButtonsContainer.style.display === "flex") {
-          postButtonsContainer.style.display = "none";
-        }
-      }
-
       textArea.style.height = "";
       textArea.style.height = textArea.scrollHeight + "px";
       multiPreview.removeClass("multi-preview-focus");
@@ -122,10 +113,10 @@ export default function NewPost() {
       multiPreview.removeClass("multi-preview-focus");
     });
 
-    emojiTogglerBtn.addEventListener("click", (event) => {
+    emojiTogglerBtn.click(function () {
       emojiPickerDiv.toggle();
     });
-  }, [images.length]);
+  }, []);
 
   function handleClickUploadBtn() {
     document.getElementById("imageUpload").click();
@@ -150,12 +141,24 @@ export default function NewPost() {
     images.sort((a, b) => (a.id > b.id ? 1 : -1));
     thumbnails.sort((a, b) => (a.id > b.id ? 1 : -1));
 
-    console.log(images);
-    console.log(thumbnails);
+    let _images = images.map((image) => image.url);
+    let _thumbnails = thumbnails.map((thumbnail) => thumbnail.url);
 
     collectionRef
-      .add({ post, createdAt, images, thumbnails })
-      .catch((err) => console.log("Err:", err));
+      .add({ post, createdAt, images: _images, thumbnails: _thumbnails })
+      .catch((err) => {
+        addToast(err.message, {
+          appearance: "error",
+          autoDismiss: false,
+        });
+
+        return;
+      });
+
+    addToast("Your post was uploaded.", {
+      appearance: "success",
+      autoDismiss: true,
+    });
 
     // Clear state
     setFileArray([]);
@@ -172,7 +175,6 @@ export default function NewPost() {
   }
 
   const handleUpload = async (e) => {
-    setError("");
     e.preventDefault();
 
     setLoading(true);
@@ -183,32 +185,40 @@ export default function NewPost() {
 
     // If Images were upload (with or no post text).
     if (allImages.length > 0) {
-      for (let i = 0; i < allImages.length; i++) {
+      let totalBytesTransferred = 0;
+
+      allImages.forEach((image) => {
         const uploadTask = projectStorage
-          .ref(`images/${allImages[i].name}`)
-          .put(allImages[i]);
+          .ref(`images/${image.name}`)
+          .put(image);
         promises.push(uploadTask);
         uploadTask.on(
           "state_changed",
           (snapshot) => {
+            totalBytesTransferred += snapshot.bytesTransferred;
+
             const progress = Math.round(
-              (snapshot.bytesTransferred / totalBytes) * 100
+              (totalBytesTransferred / totalBytes) * 100
             );
+
             setProgress(progress);
           },
           (error) => {
-            setError(error);
+            addToast(error.message, {
+              appearance: "error",
+              autoDismiss: false,
+            });
           },
           async () => {
             await projectStorage
               .ref("images")
-              .child(allImages[i].name)
+              .child(image.name)
               .getDownloadURL()
               .then((url) => {
-                if (allImages[i].typeOfFile === "thumbnail") {
-                  thumbnailUrls.push(url);
+                if (image.typeOfFile === "thumbnail") {
+                  thumbnailUrls.push({ url: url, id: image["id"] });
                 } else {
-                  urls.push(url);
+                  urls.push({ url: url, id: image["id"] });
                 }
 
                 if (
@@ -220,11 +230,16 @@ export default function NewPost() {
               });
           }
         );
-      }
+      });
 
       Promise.all(promises)
         .then(() => {})
-        .catch((err) => setError(err));
+        .catch((err) =>
+          addToast(err.message, {
+            appearance: "error",
+            autoDismiss: false,
+          })
+        );
     }
 
     // If only post text.
@@ -267,12 +282,13 @@ export default function NewPost() {
         images.push(imageBlob);
         thumbnails.push(thumbnailBlob);
 
-        // console.log(images);
-        // console.log(thumbnails);
         // setImages((prevState) => [...prevState, newImage]);
-        setError("");
       } else {
-        setError("Please select an image file (png or jpg)");
+        addToast("Please select an image file (png or jpeg)", {
+          appearance: "error",
+          autoDismiss: true,
+        });
+
         return;
       }
     }
@@ -288,7 +304,7 @@ export default function NewPost() {
     let _totalBytes = _totalBytesImages + _totalBytesThumbnails;
     setTotalBytes(_totalBytes);
 
-    document.getElementById("imageUpload").value = null;
+    // document.getElementById("imageUpload").value = null;
   }
 
   return (
@@ -296,19 +312,6 @@ export default function NewPost() {
       <div id="overlay"></div>
       <Form onSubmit={handleUpload} id="postForm">
         <Form.Group controlId="postText" className="mb-0">
-          {error && (
-            <>
-              <Alert
-                variant="light"
-                className="form-alert text-danger border border-danger auto-height"
-              >
-                <Form.Text className="text-danger status-message">
-                  {error}
-                </Form.Text>
-              </Alert>
-              <br />
-            </>
-          )}
           <div className="grow-wrap">
             <Form.Control
               as="textarea"
@@ -343,7 +346,11 @@ export default function NewPost() {
             </div>
 
             <div
-              className="post-buttons-container mb-0 hidden"
+              className={
+                postText.trim() === "" && images.length === 0
+                  ? "post-buttons-container mb-0 hidden"
+                  : "post-buttons-container mb-0"
+              }
               id="postButtonsContainer"
             >
               <div className="mt-0 ">

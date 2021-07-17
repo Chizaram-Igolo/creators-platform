@@ -1,0 +1,9 @@
+.vertical-center {
+  margin: 0;
+  position: relative;
+  top: 10%;
+}
+
+.small-text {
+  font-size: 0.98 !important;
+}

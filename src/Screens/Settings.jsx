@@ -11,7 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 import { SideBar } from "../Components";
 
-import "./Signin.css";
+import "./styles/Signin.css";
 
 function Settings() {
   const emailRef = useRef();

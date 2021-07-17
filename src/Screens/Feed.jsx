@@ -11,8 +11,8 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 
-import { Skeleton, Post, SideBar, NewPost, ErrorDisplay } from "../Components";
-import "./Feed.css";
+import { Skeleton, Post, SideBar, NewPost, AlertBox } from "../Components";
+import "./styles/Feed.css";
 
 class Feed extends Component {
   constructor(props) {
@@ -27,9 +27,15 @@ class Feed extends Component {
     };
 
     this.loadMorePosts = this.loadMorePosts.bind(this);
+    this.handleChangeError = this.handleChangeError.bind(this);
   }
+
   // const { user } = useAuth();
-  // const { docs, loading, latestDoc, error } = useFirestore("posts");s
+  // const { docs, loading, latestDoc, error } = useFirestore("posts");
+
+  handleChangeError(error) {
+    this.setState({ error });
+  }
 
   getPosts() {
     let set = this;
@@ -102,7 +108,7 @@ class Feed extends Component {
 
   render() {
     const { loading, docs, hasMore, error } = this.state;
-    const { loadMorePosts } = this;
+    const { loadMorePosts, handleChangeError } = this;
 
     return (
       <Container>
@@ -142,11 +148,16 @@ class Feed extends Component {
                 <div className="d-flex justify-content-center row">
                   <div className="col-md-12 px-2">
                     <div className="feed">
-                      <ErrorDisplay error={error} />
-
+                      {error && <AlertBox error={error} top={-50} />}
                       <div className="flex-row justify-content-between align-items-center pb-2">
-                        <div className="feed-text px-2">
-                          <NewPost />
+                        <div
+                          className="feed-text px-2"
+                          style={{ position: "relative" }}
+                        >
+                          <NewPost
+                            error={error}
+                            handleChangeError={handleChangeError}
+                          />
                         </div>
                         <div className="feed-icon px-2">
                           <i className="fa fa-long-arrow-up text-black-50"></i>
@@ -204,7 +215,28 @@ class Feed extends Component {
               </div>
             )}
           </Col>
-          <Col></Col>
+          <Col>
+            <SideBar>
+              <Nav
+                defaultActiveKey="/"
+                className="flex-column fixed-position d-none d-md-block"
+              >
+                {/* <p>Your Subscriptions</p>
+                <Link to="/" className="nav-link" role="button">
+                  Cardi B
+                </Link>
+                <Link to="/" className="nav-link" role="button">
+                  blueturtle899
+                </Link>
+                <Link to="/" className="nav-link" role="button">
+                  Drake
+                </Link>
+                <Link to="/" className="nav-link" role="button">
+                  Dr. DRE
+                </Link> */}
+              </Nav>
+            </SideBar>
+          </Col>
         </Row>
       </Container>
     );

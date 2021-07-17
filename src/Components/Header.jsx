@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./styles/Header.css";
 import { Link, useHistory } from "react-router-dom";
-import { ReactComponent as BellIcon } from "../assets/icons/bell.svg";
-import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";
-
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
+import { ReactComponent as BellIcon } from "../assets/icons/bell.svg";
+import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";
+
 import { useAuth } from "../contexts/AuthContext";
 
-import { SearchBar, ErrorDisplay } from ".";
+import { SearchBar, AlertBox } from ".";
 import img1 from "../assets/img1.jpeg";
 
 import { globalVars } from "../../src/global_vars";
 import BookData from "../../src/Data.json";
+
+import "./styles/Header.css";
 
 function App() {
   const history = useHistory();
@@ -246,7 +247,7 @@ function DropdownMenu(props) {
             </div>
           </div>
 
-          <ErrorDisplay error={error} />
+          <AlertBox error={error} />
         </>
       )}
     </>
