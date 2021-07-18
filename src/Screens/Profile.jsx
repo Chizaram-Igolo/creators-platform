@@ -76,8 +76,6 @@ function Profile() {
                       <Tab />
                       <Tab />
                       <Tab />
-                      <Tab />
-                      <Tab />
                     </div>
                   </div>
                 </div>

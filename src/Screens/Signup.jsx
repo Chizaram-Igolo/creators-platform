@@ -35,7 +35,16 @@ function Signup() {
     try {
       setError(null);
       setLoading(true);
-      await signup(emailRef.current.value, passwordRef.current.value);
+      await signup(emailRef.current.value, passwordRef.current.value).then(
+        (userCredential) => {
+          var user = userCredential.user;
+          user.updateProfile({
+            photoURL:
+              "https://ui-avatars.com/api/?background=random&name=" +
+              emailRef.current.value[0],
+          });
+        }
+      );
       history.push("/feed");
     } catch (err) {
       setError(err.message);

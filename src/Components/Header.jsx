@@ -12,7 +12,7 @@ import { SearchBar, AlertBox } from ".";
 import img1 from "../assets/img1.jpeg";
 
 import { globalVars } from "../../src/global_vars";
-import BookData from "../../src/Data.json";
+import { BookData } from "../Data";
 
 import "./styles/Header.css";
 
@@ -44,7 +44,7 @@ function App() {
               />
             </Form> */}
 
-            <SearchBar placeholder="Search or jump to..." data={BookData} />
+            <SearchBar placeholder="Search or jump to..." options={BookData} />
           </div>
         }
       />

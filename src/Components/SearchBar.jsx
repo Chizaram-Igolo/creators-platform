@@ -5,6 +5,7 @@ const SearchbarDropdown = (props) => {
   const { options, onInputChange } = props;
   const ulRef = useRef();
   const inputRef = useRef();
+
   useEffect(() => {
     if (document.getElementById("results") !== null) {
       inputRef.current.addEventListener("click", (event) => {
@@ -38,11 +39,13 @@ const SearchbarDropdown = (props) => {
               type="button"
               key={index}
               onClick={(e) => {
-                inputRef.current.value = option;
+                inputRef.current.value = option.title;
               }}
               className="list-group-item list-group-item-action"
             >
-              {option}
+              {option["title"]}
+              <br />
+              <small>{option["author"]}</small>
             </button>
           );
         })}
@@ -56,17 +59,25 @@ for (let i = 0; i < 4; i++) {
   defaultOptions.push(`option ${i}`);
 }
 
-function App() {
-  const [options, setOptions] = useState([]);
+function App(props) {
+  const [options, setOptions] = useState(props.options ? props.options : []);
+  const [filteredOptions, setFilteredOptions] = useState([]);
+
   const onInputChange = (event) => {
-    setOptions(
-      defaultOptions.filter((option) => option.includes(event.target.value))
+    let filteredOptions = options.filter((option) =>
+      option["author"].includes(event.target.value)
     );
+
+    setFilteredOptions(filteredOptions.slice(0, 4));
+    // console.log(filteredOptions[(0, 5)]);
   };
 
   return (
     <div className="App container mt-2 mb-3">
-      <SearchbarDropdown options={options} onInputChange={onInputChange} />
+      <SearchbarDropdown
+        options={filteredOptions}
+        onInputChange={onInputChange}
+      />
     </div>
   );
 }

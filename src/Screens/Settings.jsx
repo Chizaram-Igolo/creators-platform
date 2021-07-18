@@ -15,9 +15,11 @@ import "./styles/Signin.css";
 
 function Settings() {
   const emailRef = useRef();
+  const usernameRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
-  const { user, updateEmail, updatePassword } = useAuth();
+
+  const { user, updateEmail, updatePassword, updateProfile } = useAuth();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirmPassError, setConfirmPassError] = useState("");
@@ -41,6 +43,13 @@ function Settings() {
 
     if (passwordRef.current.value) {
       promises.push(updatePassword(passwordRef.current.value));
+    }
+
+    if (
+      usernameRef.current.value &&
+      usernameRef.current.value !== user.displayName
+    ) {
+      promises.push(updateProfile({ displayName: usernameRef.current.value }));
     }
 
     Promise.all(promises)
@@ -92,7 +101,7 @@ function Settings() {
                     <Post comments={true} /> */}
 
                     <Form className="vertical-center" onSubmit={handleSubmit}>
-                      <h3 className="mb-5 text-center">Profile</h3>
+                      {/* <h3 className="mb-5 text-center">Profile</h3> */}
 
                       {error && (
                         <Alert
@@ -136,8 +145,9 @@ function Settings() {
                           <Form.Control
                             type="text"
                             placeholder="Username"
+                            ref={usernameRef}
                             required
-                            isInvalid={confirmPassError.length > 0}
+                            // isInvalid={confirmPassError.length > 0}
                           />
                           <Form.Control.Feedback type="invalid">
                             Please choose a username.

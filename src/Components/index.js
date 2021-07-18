@@ -1,3 +1,5 @@
+export { default as GlobalStyles } from "./globalStyles";
+export { default as Toggle } from "./Toggle";
 export { default as Header } from "./Header";
 export { default as NavBar } from "./NavBar";
 export { default as SideBar } from "./SideBar";
