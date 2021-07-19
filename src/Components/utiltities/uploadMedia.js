@@ -18,7 +18,7 @@ async function uploadMultipleImages(
     if (newImage && imageTypes.includes(newImage.type)) {
       setFileArray((prevState) => [
         ...prevState,
-        URL.createObjectURL(newImage),
+        { type: "image", url: URL.createObjectURL(newImage) },
       ]);
 
       let imageType = newImage.type.split("/").slice(-1);
@@ -65,7 +65,7 @@ async function uploadMultipleImages(
   }, 0);
 
   let _totalBytes = _totalBytesImages + _totalBytesThumbnails;
-  setTotalBytes(_totalBytes);
+  setTotalBytes((prevState) => prevState + _totalBytes);
 
   imageUploadBtn.value = null;
 }
@@ -90,10 +90,10 @@ let onVideoLoad = function () {
 
 async function uploadMultipleVideos(
   e,
-  images,
-  thumbnails,
+  videos,
+  videoThumbnails,
+  fileArray,
   setFileArray,
-  imageResizer,
   setTotalBytes,
   addToast
 ) {
@@ -105,16 +105,35 @@ async function uploadMultipleVideos(
     window.URL = window.URL || window.webkitURL;
     let myVideos = [];
 
+    let numberOfVideos = fileArray.filter(
+      (item) => item.type === "video"
+    ).length;
+
+    if (i > 4 || numberOfVideos >= 5) {
+      addToast(
+        <Toast body="You can only upload a maximum of 5 videos at a time." />,
+        {
+          appearance: "error",
+          autoDismiss: true,
+        }
+      );
+
+      break;
+    }
+
     if (newVideo && videoTypes.includes(newVideo.type)) {
-      //   setFileArray((prevState) => [
-      //     ...prevState,
-      //     URL.createObjectURL(newVideo),
-      //   ]);
+      setFileArray((prevState) => [
+        ...prevState,
+        { type: "video", url: URL.createObjectURL(newVideo) },
+      ]);
+
+      console.log(URL.createObjectURL(newVideo));
 
       //   const imageBlob = await imageResizer(newImage, 1400, imageType);
-      //   imageBlob["id"] = i;
-      //   imageBlob["typeOfFile"] = "image";
-      //   imageBlob["name"] = newImage["name"];
+      newVideo["id"] = i;
+      newVideo["typeOfFile"] = "video";
+
+      console.log(newVideo);
 
       //   const thumbnailBlob = await imageResizer(newImage, 100, imageType);
       //   thumbnailBlob["id"] = imageBlob["id"];
@@ -125,10 +144,9 @@ async function uploadMultipleVideos(
       //     fileNameParts.slice(0, -1).join(".") +
       //     "_thumbnail" +
       //     "." +
-      //     fileNameParts.slice(-1);
+      //     fileNameParts.slifce(-1);
 
-      //   images.push(imageBlob);
-      //   thumbnails.push(thumbnailBlob);
+      videos.push(newVideo);
 
       // setImages((prevState) => [...prevState, newImage]);
 
@@ -153,16 +171,19 @@ async function uploadMultipleVideos(
     }
   }
 
-  let _totalBytesImages = images.reduce((accumulator, element) => {
+  let _totalBytesVideos = videos.reduce((accumulator, element) => {
     return accumulator + element.size;
   }, 0);
 
-  let _totalBytesThumbnails = thumbnails.reduce((accumulator, element) => {
-    return accumulator + element.size;
-  }, 0);
+  let _totalBytesVideoThumbnails = videoThumbnails.reduce(
+    (accumulator, element) => {
+      return accumulator + element.size;
+    },
+    0
+  );
 
-  let _totalBytes = _totalBytesImages + _totalBytesThumbnails;
-  setTotalBytes(_totalBytes);
+  let _totalBytes = _totalBytesVideos + _totalBytesVideoThumbnails;
+  setTotalBytes((prevState) => prevState + _totalBytes);
 }
 
 export { uploadMultipleImages, uploadMultipleVideos };

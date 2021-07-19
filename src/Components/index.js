@@ -4,6 +4,7 @@ export { default as Header } from "./Header";
 export { default as NavBar } from "./NavBar";
 export { default as SideBar } from "./SideBar";
 export { default as SearchBar } from "./SearchBar";
+export { default as DropdownMenu } from "./DropdownMenu";
 export { default as Tab } from "./Tab";
 export { default as Skeleton } from "./Skeleton";
 export { default as Post } from "./Post";

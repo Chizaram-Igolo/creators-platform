@@ -122,13 +122,6 @@ class Feed extends Component {
 
     // console.log("here");
   }
-  // useEffect(() => {
-  //   const unsub = loadPosts;
-
-  //   return () => unsub();
-  // }, []);
-
-  // const history = useHistory();
 
   render() {
     const { loading, docs, hasMore, error } = this.state;
@@ -144,6 +137,20 @@ class Feed extends Component {
                 className="flex-column fixed-position d-none d-md-block"
               >
                 <p>Your Subscriptions</p>
+                <Link to="/" className="nav-link" role="button">
+                  Cardi B
+                </Link>
+                <Link to="/" className="nav-link" role="button">
+                  blueturtle899
+                </Link>
+                <Link to="/" className="nav-link" role="button">
+                  Drake
+                </Link>
+                <Link to="/" className="nav-link" role="button">
+                  Dr. DRE
+                </Link>
+                <p></p>
+                <p>Suggested</p>
                 <Link to="/" className="nav-link" role="button">
                   Cardi B
                 </Link>
@@ -227,6 +234,8 @@ class Feed extends Component {
                                 thumbnails={
                                   doc.thumbnails ? doc.thumbnails : null
                                 }
+                                postId={doc.id}
+                                poster={doc.poster[0]}
                               />
                             );
                           })}

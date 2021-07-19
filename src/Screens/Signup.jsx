@@ -16,6 +16,7 @@ import "./styles/Signin.css";
 
 function Signup() {
   const emailRef = useRef();
+  const usernameRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
   const { signup } = useAuth();
@@ -23,6 +24,12 @@ function Signup() {
   const [confirmPassError, setConfirmPassError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
+
+  function genRanHex(size) {
+    return [...Array(size)]
+      .map(() => Math.floor(Math.random() * 16).toString(16))
+      .join("");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -39,13 +46,15 @@ function Signup() {
         (userCredential) => {
           var user = userCredential.user;
           user.updateProfile({
+            displayName: usernameRef.current.value,
             photoURL:
-              "https://ui-avatars.com/api/?background=random&name=" +
+              `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
               emailRef.current.value[0],
           });
+
+          history.push("/feed");
         }
       );
-      history.push("/feed");
     } catch (err) {
       setError(err.message);
     }
@@ -90,6 +99,7 @@ function Signup() {
                     type="text"
                     placeholder="Username"
                     required
+                    ref={usernameRef}
                     isInvalid={confirmPassError.length > 0}
                   />
                   <Form.Control.Feedback type="invalid">

@@ -9,7 +9,6 @@ import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";
 import { useAuth } from "../contexts/AuthContext";
 
 import { SearchBar, AlertBox } from ".";
-import img1 from "../assets/img1.jpeg";
 
 import { globalVars } from "../../src/global_vars";
 import { BookData } from "../Data";
@@ -74,7 +73,11 @@ function App() {
             <NavItem
               icon={
                 <>
-                  <img src={img1} alt="Avatar" className="avatar" />
+                  <img
+                    src={user.photoURL}
+                    alt={user.email[0]}
+                    className="avatar"
+                  />
                   <CaretIcon fontSize={8} />
                 </>
               }

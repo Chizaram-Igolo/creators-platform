@@ -8,6 +8,7 @@ import {
   faMicrophone,
   faPaperclip,
   faPaperPlane,
+  faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import {
@@ -19,6 +20,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Resizer from "react-image-file-resizer";
+import VideoThumbnail from "react-video-thumbnail";
 import $ from "jquery";
 
 import { ProgressBar, Toast } from ".";
@@ -27,6 +29,7 @@ import {
   uploadMultipleVideos,
 } from "./utiltities/uploadMedia";
 import "./styles/NewPost.css";
+import { useAuth } from "../contexts/AuthContext";
 
 const imageResizer = (file, size, imageType) =>
   new Promise((resolve) => {
@@ -45,16 +48,21 @@ const imageResizer = (file, size, imageType) =>
   });
 
 export default function NewPost({ handleChangeError }) {
+  const { user } = useAuth();
   const [postText, setPostText] = useState("");
 
   const [fileArray, setFileArray] = useState([]);
   const [images, setImages] = useState([]);
   const [thumbnails, setThumbnails] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [videoThumbnails, setVideoThumbnails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalBytes, setTotalBytes] = useState(0);
 
   const [urls, setUrls] = useState([]);
   const [thumbnailUrls, setThumbnailUrls] = useState([]);
+  const [videoUrls, setVideoUrls] = useState([]);
+  const [videoThumbnailUrls, setVideoThumbnailUrls] = useState([]);
   const [progress, setProgress] = useState(0);
 
   const [show, setShow] = useState(false);
@@ -152,12 +160,8 @@ export default function NewPost({ handleChangeError }) {
     // MouseUp
     $("#imageUploadBtn").on("mouseup", onMouseUp1);
     function onMouseUp1() {
-      // If the mouse is released immediately (i.e., a click), before the
-      //  holdStarter runs, then cancel the holdStarter and do the click
       if (holdStarter) {
         clearTimeout(holdStarter);
-        // run click-only operation here
-        // $(".status").text("Clicked!");
         imageUpload.trigger("click");
       }
       // Otherwise, if the mouse was being held, end the hold
@@ -195,21 +199,24 @@ export default function NewPost({ handleChangeError }) {
         handleShow();
       }
     }
-
-    // OnClick
-    // not using onclick at all - onmousedown and onmouseup take care of everything
-
-    // Optional add-on: if mouse moves out, then release hold
-    // $("#imageUploadBtn").on("mouseout", function () {
-    //   onMouseUp();
-    // });
   }, []);
 
   function handleRemoveThumbnail(e) {
+    console.log(e.target.id);
+    console.log(fileArray);
     let fA = [...fileArray];
-    fA.splice(fA.indexOf(e.target.id), 1);
-    images.splice(fA.indexOf(e.target.id), 1);
-    thumbnails.splice(fA.indexOf(e.target.id), 1);
+    fA.splice(
+      fA.findIndex((item) => item.url === e.target.id),
+      1
+    );
+    images.splice(
+      fA.findIndex((item) => item.url === e.target.id),
+      1
+    );
+    thumbnails.splice(
+      fA.findIndex((item) => item.url === e.target.id),
+      1
+    );
     setFileArray(fA);
   }
 
@@ -228,7 +235,25 @@ export default function NewPost({ handleChangeError }) {
     let _thumbnails = thumbnails.map((thumbnail) => thumbnail.url);
 
     collectionRef
-      .add({ post, createdAt, images: _images, thumbnails: _thumbnails })
+      .add({
+        post,
+        createdAt,
+        images: _images,
+        thumbnails: _thumbnails,
+        poster: [
+          {
+            userId: user.uid,
+            username: user.displayName,
+            userPhoto: user.photoURL,
+          },
+        ],
+      })
+      .then(
+        addToast(<Toast body="Your post was uploaded." />, {
+          appearance: "success",
+          autoDismiss: true,
+        })
+      )
       .catch((err) => {
         addToast(
           <Toast
@@ -245,11 +270,6 @@ export default function NewPost({ handleChangeError }) {
         setLoading(false);
         return;
       });
-
-    addToast(<Toast body="Your post was uploaded." />, {
-      appearance: "success",
-      autoDismiss: true,
-    });
 
     // Clear state
     setFileArray([]);
@@ -332,6 +352,69 @@ export default function NewPost({ handleChangeError }) {
           }
         );
       });
+    }
+
+    let allVideos = videos.concat(videoThumbnails);
+
+    // If Images were upload (with or no post text).
+    if (allVideos.length > 0) {
+      let totalBytesTransferredVid = 0;
+
+      allVideos.forEach((video) => {
+        const uploadTaskVid = projectStorage
+          .ref(`videos/${video.name}`)
+          .put(video);
+        promises.push(uploadTaskVid);
+        uploadTaskVid.on(
+          "state_changed",
+          (snapshot) => {
+            totalBytesTransferredVid += snapshot.bytesTransferred;
+
+            const progress = Math.round(
+              (totalBytesTransferredVid / totalBytes) * 100
+            );
+
+            setProgress(progress);
+          },
+          (err) => {
+            addToast(
+              <Toast
+                heading="We're sorry"
+                body="We couldn't complete the current operation due to a faulty connection. Please try again."
+              />,
+              {
+                appearance: "error",
+                autoDismiss: false,
+              }
+            );
+
+            setProgress(0);
+            setLoading(false);
+            return;
+          },
+          async () => {
+            await projectStorage
+              .ref("videos")
+              .child(video.name)
+              .getDownloadURL()
+              .then((url) => {
+                if (video.typeOfFile && video.typeOfFile === "video") {
+                  videoUrls.push({ url: url, id: video["id"] });
+                } else {
+                  videoThumbnailUrls.push({ url: url, id: video["id"] });
+                }
+
+                if (
+                  video.length + videoThumbnailUrls.length ===
+                    allVideos.length &&
+                  allVideos.length > 0
+                ) {
+                  handleUploadPost();
+                }
+              });
+          }
+        );
+      });
 
       Promise.all(promises)
         .then(() => {})
@@ -379,10 +462,10 @@ export default function NewPost({ handleChangeError }) {
 
     uploadMultipleVideos(
       e,
-      images,
-      thumbnails,
+      videos,
+      videoThumbnails,
+      fileArray,
       setFileArray,
-      imageResizer,
       setTotalBytes,
       addToast,
       imageUploadInput
@@ -406,9 +489,37 @@ export default function NewPost({ handleChangeError }) {
             />
 
             <div className="form-group multi-preview mb-0" id="multiPreview">
-              {(fileArray || []).map((url) => (
-                <div className="preview-img-div" key={url}>
-                  <img src={url} alt="..." />
+              {(fileArray || []).map((item, id) => (
+                <div className="preview-img-div" key={item.url}>
+                  {item.type === "image" && <img src={item.url} alt="..." />}
+                  {item.type === "video" && (
+                    <>
+                      <VideoThumbnail
+                        videoUrl={item.url}
+                        thumbnailHandler={(thumbnail) => {
+                          setVideoThumbnails((prevState) => [
+                            ...prevState,
+                            thumbnail,
+                          ]);
+                        }}
+                        width={1920}
+                        height={1080}
+                      />
+                      <span
+                        style={{
+                          display: "inline-block",
+                          position: "absolute",
+                          top: "2px",
+                          marginLeft: "calc(50% - 6px)",
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faPlay}
+                          color="rgba(255, 255, 255, 0.28)"
+                        />
+                      </span>
+                    </>
+                  )}
                   <button
                     type="button"
                     className="close closeThumbnail"
@@ -417,7 +528,7 @@ export default function NewPost({ handleChangeError }) {
                   >
                     <span
                       aria-hidden="true"
-                      id={url}
+                      id={item.url}
                       onClick={handleRemoveThumbnail}
                     >
                       ×
@@ -492,7 +603,7 @@ export default function NewPost({ handleChangeError }) {
                 <input
                   type="file"
                   className="image-upload"
-                  id="imageUpload"
+                  id="audioUpload"
                   onChange={handleUploadMultipleImages}
                   multiple
                 />
@@ -502,7 +613,7 @@ export default function NewPost({ handleChangeError }) {
                   variant="dark"
                   data-view-component="true"
                   className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
-                  id="imageUploadBtn"
+                  id="audioUploadBtn"
                 >
                   <FontAwesomeIcon icon={faMicrophone} color="white" />
                 </Button>
@@ -513,7 +624,7 @@ export default function NewPost({ handleChangeError }) {
                 <input
                   type="file"
                   className="image-upload"
-                  id="imageUpload"
+                  id="fileUpload"
                   onChange={handleUploadMultipleImages}
                   multiple
                 />
@@ -523,7 +634,7 @@ export default function NewPost({ handleChangeError }) {
                   variant="dark"
                   data-view-component="true"
                   className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
-                  id="imageUploadBtn"
+                  id="fileUploadBtn"
                 >
                   <FontAwesomeIcon icon={faPaperclip} color="white" />
                 </Button>

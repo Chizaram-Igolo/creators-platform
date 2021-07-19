@@ -43,11 +43,7 @@ function Profile() {
               <Form className="img-form pb-0">
                 <div className="img-grid">
                   <div className="img-wrap border-50">
-                    <img
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog"
-                      alt=""
-                      className="profile-img"
-                    />
+                    <img src={user.photoURL} alt="" className="profile-img" />
                   </div>
                   <label>
                     <input type="file" onChange={handleChange} />
@@ -59,6 +55,7 @@ function Profile() {
               </Form>
               <div className="pt-4">
                 <p>{user.email}</p>
+                <p>{JSON.stringify(user)}</p>
 
                 <Link to="/settings">Settings</Link>
               </div>
