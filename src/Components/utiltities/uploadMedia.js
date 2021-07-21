@@ -14,7 +14,6 @@ async function uploadMultipleImages(
 
   for (let i = 0; i < e.target.files.length; i++) {
     const newImage = e.target.files[i];
-
     if (newImage && imageTypes.includes(newImage.type)) {
       setFileArray((prevState) => [
         ...prevState,

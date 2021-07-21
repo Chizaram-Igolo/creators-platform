@@ -15,7 +15,7 @@ import { SideBar, Tab, AlertBox } from "../Components";
 import "./styles/Profile.css";
 
 function Profile() {
-  const [file, setFile] = useState(null);
+  // const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
 
   const { user } = useAuth();
@@ -26,10 +26,10 @@ function Profile() {
     let selected = e.target.files[0];
 
     if (selected && types.includes(selected.type)) {
-      setFile(selected);
+      // setFile(selected);
       setError("");
     } else {
-      setFile(null);
+      // setFile(null);
       setError("Please select an image file (png or jpg)");
     }
   };

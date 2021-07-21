@@ -227,7 +227,7 @@ class Feed extends Component {
                             return (
                               <Post
                                 key={doc.id}
-                                text={doc.post ? doc.post : null}
+                                text={doc.text ? doc.text : null}
                                 createdAt={doc.createdAt}
                                 comments={doc.comments ? doc.comments : null}
                                 images={doc.images ? doc.images : null}

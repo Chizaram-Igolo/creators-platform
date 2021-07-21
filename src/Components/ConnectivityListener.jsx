@@ -35,7 +35,7 @@ export function useConnectivityListener() {
         <div style={{ fontSize: "1.1em" }}>
           {isOnline
             ? "You are back online."
-            : "You went offline but we'll do our best. :)"}
+            : "You went offline but we'll catch you up when you get back online. :)"}
         </div>
       </Fragment>
     );

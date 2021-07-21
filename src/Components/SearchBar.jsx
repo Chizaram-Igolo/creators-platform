@@ -60,7 +60,7 @@ for (let i = 0; i < 4; i++) {
 }
 
 function App(props) {
-  const [options, setOptions] = useState(props.options ? props.options : []);
+  const [options] = useState(props.options ? props.options : []);
   const [filteredOptions, setFilteredOptions] = useState([]);
 
   const onInputChange = (event) => {

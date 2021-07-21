@@ -11,6 +11,11 @@ import {
   faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
+import {
+  projectFirestore,
+  projectStorage,
+  timestamp,
+} from "../firebase/config";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -54,9 +59,13 @@ export default function NewPost({ handleChangeError }) {
   const [loading, setLoading] = useState(false);
   const [totalBytes, setTotalBytes] = useState(0);
 
-  const [show, setShow] = useState(false);
+  const [urls, setUrls] = useState([]);
+  const [thumbnailUrls, setThumbnailUrls] = useState([]);
+  const [videoUrls, setVideoUrls] = useState([]);
+  const [videoThumbnailUrls, setVideoThumbnailUrls] = useState([]);
+  const [progress, setProgress] = useState(0);
 
-  const [post, setPost] = useState({});
+  const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -211,15 +220,66 @@ export default function NewPost({ handleChangeError }) {
     setFileArray(fA);
   }
 
-  function cleanUp() {
+  function handleUploadPost() {
+    const collectionRef = projectFirestore.collection("posts");
+    const post = postText.trim();
+    const createdAt = timestamp();
+    const images = urls;
+    const thumbnails = thumbnailUrls;
+
+    // Sort the image and thumbnail urls by their numeric ids to keep the order.
+    images.sort((a, b) => (a.id > b.id ? 1 : -1));
+    thumbnails.sort((a, b) => (a.id > b.id ? 1 : -1));
+
+    let _images = images.map((image) => image.url);
+    let _thumbnails = thumbnails.map((thumbnail) => thumbnail.url);
+
+    collectionRef
+      .add({
+        post,
+        createdAt,
+        images: _images,
+        thumbnails: _thumbnails,
+        poster: [
+          {
+            userId: user.uid,
+            username: user.displayName,
+            userPhoto: user.photoURL,
+          },
+        ],
+      })
+      .then(
+        addToast(<Toast body="Your post was uploaded." />, {
+          appearance: "success",
+          autoDismiss: true,
+        })
+      )
+      .catch((err) => {
+        addToast(
+          <Toast
+            heading="We're sorry"
+            body="We couldn't complete the current operation due to a faulty connection. Please try again."
+          />,
+          {
+            appearance: "error",
+            autoDismiss: false,
+          }
+        );
+
+        setProgress(0);
+        setLoading(false);
+        return;
+      });
+
     // Clear state
     setFileArray([]);
+    setUrls([]);
+    setThumbnailUrls([]);
     setImages([]);
     setThumbnails([]);
     setPostText("");
     setTotalBytes(0);
     setLoading(false);
-    setPost({});
     document.getElementById("postText").style.height = "54px";
     document.getElementById("postForm").reset();
     document.getElementById("postButtonsContainer").display = "none";
@@ -228,18 +288,161 @@ export default function NewPost({ handleChangeError }) {
   const handleUpload = async (e) => {
     e.preventDefault();
 
-    setPost({
-      files: [...images, ...thumbnails],
-      text: postText,
-      poster: [
-        {
-          userId: user.uid,
-          username: user.displayName,
-          userPhoto: user.photoURL,
-        },
-      ],
-      totalBytes: (totalBytes * 1024) / 1000,
-    });
+    setLoading(true);
+
+    const promises = [];
+
+    let allImages = images.concat(thumbnails);
+
+    // If Images were upload (with or no post text).
+    if (allImages.length > 0) {
+      let totalBytesTransferred = 0;
+
+      allImages.forEach((image) => {
+        const uploadTask = projectStorage
+          .ref(`images/${imalge.name}`)
+          .put(image);
+
+        console.log(uploadTask);
+
+        promises.push(uploadTask);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            totalBytesTransferred += snapshot.bytesTransferred;
+
+            const progress = Math.round(
+              (totalBytesTransferred / totalBytes) * 100
+            );
+
+            setProgress(progress);
+          },
+          (err) => {
+            addToast(
+              <Toast
+                heading="We're sorry"
+                body="We couldn't complete the current operation due to a faulty connection. Please try again."
+              />,
+              {
+                appearance: "error",
+                autoDismiss: false,
+              }
+            );
+
+            setProgress(0);
+            setLoading(false);
+            return;
+          },
+          async () => {
+            await projectStorage
+              .ref("images")
+              .child(image.name)
+              .getDownloadURL()
+              .then((url) => {
+                if (image.typeOfFile === "thumbnail") {
+                  thumbnailUrls.push({ url: url, id: image["id"] });
+                } else {
+                  urls.push({ url: url, id: image["id"] });
+                }
+
+                if (
+                  urls.length + thumbnailUrls.length === allImages.length &&
+                  allImages.length > 0
+                ) {
+                  handleUploadPost();
+                }
+              });
+          }
+        );
+      });
+    }
+
+    let allVideos = videos.concat(videoThumbnails);
+
+    // If Images were upload (with or no post text).
+    if (allVideos.length > 0) {
+      let totalBytesTransferredVid = 0;
+
+      allVideos.forEach((video) => {
+        const uploadTaskVid = projectStorage
+          .ref(`videos/${video.name}`)
+          .put(video);
+        promises.push(uploadTaskVid);
+        uploadTaskVid.on(
+          "state_changed",
+          (snapshot) => {
+            totalBytesTransferredVid += snapshot.bytesTransferred;
+
+            const progress = Math.round(
+              (totalBytesTransferredVid / totalBytes) * 100
+            );
+
+            setProgress(progress);
+          },
+          (err) => {
+            addToast(
+              <Toast
+                heading="We're sorry"
+                body="We couldn't complete the current operation due to a faulty connection. Please try again."
+              />,
+              {
+                appearance: "error",
+                autoDismiss: false,
+              }
+            );
+
+            setProgress(0);
+            setLoading(false);
+            return;
+          },
+          async () => {
+            await projectStorage
+              .ref("videos")
+              .child(video.name)
+              .getDownloadURL()
+              .then((url) => {
+                if (video.typeOfFile && video.typeOfFile === "video") {
+                  videoUrls.push({ url: url, id: video["id"] });
+                } else {
+                  videoThumbnailUrls.push({ url: url, id: video["id"] });
+                }
+
+                if (
+                  video.length + videoThumbnailUrls.length ===
+                    allVideos.length &&
+                  allVideos.length > 0
+                ) {
+                  handleUploadPost();
+                }
+              });
+          }
+        );
+      });
+
+      Promise.all(promises)
+        .then(() => {})
+        .catch((err) => {
+          addToast(
+            <Toast
+              heading="We're sorry"
+              body="We couldn't complete the current operation due to a faulty connection. Please try again."
+            />,
+            {
+              appearance: "error",
+              autoDismiss: true,
+            }
+          );
+
+          setProgress(0);
+          setLoading(false);
+          return;
+        });
+    }
+
+    // If only post text.
+    if (images.length <= 0 && postText.trim() !== "") {
+      handleUploadPost();
+    }
   };
 
   function handleUploadMultipleImages(e) {
@@ -443,10 +646,7 @@ export default function NewPost({ handleChangeError }) {
               <div className="mt-0 submit-btn-div">
                 <Button
                   disabled={
-                    (postText.length === 0 &&
-                      images.length === 0 &&
-                      videos.length === 0) ||
-                    loading
+                    (postText.length === 0 && images.length === 0) || loading
                   }
                   variant="primary"
                   type="submit"
@@ -467,9 +667,7 @@ export default function NewPost({ handleChangeError }) {
             </div>
           </div>
         </Form.Group>
-        {Object.keys(post).length !== 0 && (
-          <ProgressBar post={post} cleanUp={cleanUp} />
-        )}
+        {loading && <ProgressBar progress={progress} />}
         <div className="emoji-picker-div hidden" id="emojiPickerDiv">
           <Picker
             onEmojiClick={onEmojiClick}
