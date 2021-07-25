@@ -8,7 +8,7 @@ async function uploadMultipleImages(
   imageResizer,
   setTotalBytes,
   addToast,
-  imageUploadBtn
+  imageUploadRef
 ) {
   const imageTypes = ["image/png", "image/jpeg", "image/jpg"];
 
@@ -17,7 +17,11 @@ async function uploadMultipleImages(
     if (newImage && imageTypes.includes(newImage.type)) {
       setFileArray((prevState) => [
         ...prevState,
-        { type: "image", url: URL.createObjectURL(newImage) },
+        {
+          type: "image",
+          url: URL.createObjectURL(newImage),
+          name: newImage.name,
+        },
       ]);
 
       let imageType = newImage.type.split("/").slice(-1);
@@ -43,8 +47,6 @@ async function uploadMultipleImages(
 
       images.push(imageBlob);
       thumbnails.push(thumbnailBlob);
-
-      // setImages((prevState) => [...prevState, newImage]);
     } else {
       addToast(<Toast body="Please select an image file (png or jpeg)" />, {
         appearance: "error",
@@ -55,18 +57,13 @@ async function uploadMultipleImages(
     }
   }
 
-  let _totalBytesImages = images.reduce((accumulator, element) => {
-    return accumulator + element.size;
+  let totalBytes = images.concat(thumbnails).reduce((acc, elem) => {
+    return acc + elem.size;
   }, 0);
 
-  let _totalBytesThumbnails = thumbnails.reduce((accumulator, element) => {
-    return accumulator + element.size;
-  }, 0);
+  setTotalBytes((prevState) => prevState + totalBytes);
 
-  let _totalBytes = _totalBytesImages + _totalBytesThumbnails;
-  setTotalBytes((prevState) => prevState + _totalBytes);
-
-  imageUploadBtn.value = null;
+  imageUploadRef.current.value = null;
 }
 
 var video;
@@ -83,9 +80,10 @@ let onVideoLoad = function () {
     });
     return;
   }
-  console.log("duration", duration);
   _myVideos[_myVideos.length - 1].duration = duration;
 };
+
+const maxNumOfVideos = 3;
 
 async function uploadMultipleVideos(
   e,
@@ -94,13 +92,13 @@ async function uploadMultipleVideos(
   fileArray,
   setFileArray,
   setTotalBytes,
-  addToast
+  addToast,
+  videoUploadRef
 ) {
   const videoTypes = ["video/mp4", "video/avi"];
 
   for (let i = 0; i < e.target.files.length; i++) {
     const newVideo = e.target.files[i];
-
     window.URL = window.URL || window.webkitURL;
     let myVideos = [];
 
@@ -108,9 +106,11 @@ async function uploadMultipleVideos(
       (item) => item.type === "video"
     ).length;
 
-    if (i > 4 || numberOfVideos >= 5) {
+    if (i > maxNumOfVideos - 1 || numberOfVideos >= maxNumOfVideos) {
       addToast(
-        <Toast body="You can only upload a maximum of 5 videos at a time." />,
+        <Toast
+          body={`You can only upload a maximum of ${maxNumOfVideos} videos at a time.`}
+        />,
         {
           appearance: "error",
           autoDismiss: true,
@@ -121,34 +121,10 @@ async function uploadMultipleVideos(
     }
 
     if (newVideo && videoTypes.includes(newVideo.type)) {
-      setFileArray((prevState) => [
-        ...prevState,
-        { type: "video", url: URL.createObjectURL(newVideo) },
-      ]);
-
-      console.log(URL.createObjectURL(newVideo));
-
-      //   const imageBlob = await imageResizer(newImage, 1400, imageType);
       newVideo["id"] = i;
       newVideo["typeOfFile"] = "video";
 
-      console.log(newVideo);
-
-      //   const thumbnailBlob = await imageResizer(newImage, 100, imageType);
-      //   thumbnailBlob["id"] = imageBlob["id"];
-      //   thumbnailBlob["typeOfFile"] = "thumbnail";
-
-      //   let fileNameParts = newImage["name"].split(".");
-      //   thumbnailBlob["name"] =
-      //     fileNameParts.slice(0, -1).join(".") +
-      //     "_thumbnail" +
-      //     "." +
-      //     fileNameParts.slifce(-1);
-
       videos.push(newVideo);
-
-      // setImages((prevState) => [...prevState, newImage]);
-
       myVideos.push(newVideo);
 
       _myVideos = myVideos;
@@ -156,10 +132,17 @@ async function uploadMultipleVideos(
 
       video = document.createElement("video");
       video.preload = "metadata";
-
       video.onloadedmetadata = onVideoLoad;
-
       video.src = URL.createObjectURL(newVideo);
+
+      setFileArray((prevState) => [
+        ...prevState,
+        {
+          type: "video",
+          url: URL.createObjectURL(newVideo),
+          name: newVideo.name,
+        },
+      ]);
     } else {
       addToast(<Toast body="Please select a video file (mp4 or avi)" />, {
         appearance: "error",
@@ -170,19 +153,59 @@ async function uploadMultipleVideos(
     }
   }
 
-  let _totalBytesVideos = videos.reduce((accumulator, element) => {
-    return accumulator + element.size;
+  let totalBytes = videos.concat(videoThumbnails).reduce((acc, elem) => {
+    return acc + elem.size;
   }, 0);
 
-  let _totalBytesVideoThumbnails = videoThumbnails.reduce(
-    (accumulator, element) => {
-      return accumulator + element.size;
-    },
-    0
-  );
+  setTotalBytes((prevState) => prevState + totalBytes);
 
-  let _totalBytes = _totalBytesVideos + _totalBytesVideoThumbnails;
-  setTotalBytes((prevState) => prevState + _totalBytes);
+  videoUploadRef.current.value = null;
 }
 
-export { uploadMultipleImages, uploadMultipleVideos };
+async function uploadMultipleFiles(
+  e,
+  files,
+  fileArray,
+  setFileArray,
+  setTotalBytes,
+  addToast,
+  fileUploadRef
+) {
+  for (let i = 0; i < e.target.files.length; i++) {
+    const newFile = e.target.files[i];
+    if (
+      !newFile.type.match(
+        /(image|video|audio|application\/pdf|application\/doc|text\/plain)/g
+      )
+    ) {
+      addToast(<Toast body="We don't support upload of such files." />, {
+        appearance: "error",
+        autoDismiss: true,
+      });
+
+      return;
+    } else {
+      setFileArray((prevState) => [
+        ...prevState,
+        { type: "file", url: URL.createObjectURL(newFile), name: newFile.name },
+      ]);
+
+      newFile["id"] = i;
+      newFile["typeOfFile"] = "file";
+      files.push(newFile);
+
+      console.log(fileArray);
+      console.log(files);
+    }
+  }
+
+  let totalBytes = files.reduce((acc, elem) => {
+    return acc + elem.size;
+  }, 0);
+
+  setTotalBytes((prevState) => prevState + totalBytes);
+
+  fileUploadRef.current.value = null;
+}
+
+export { uploadMultipleImages, uploadMultipleVideos, uploadMultipleFiles };

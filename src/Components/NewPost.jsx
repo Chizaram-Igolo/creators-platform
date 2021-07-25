@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useToasts } from "react-toast-notifications";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSmile,
-  faCamera,
-  faVideo,
-  faMicrophone,
-  faPaperclip,
-  faPaperPlane,
-  faPlay,
-} from "@fortawesome/free-solid-svg-icons";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import Resizer from "react-image-file-resizer";
-import VideoThumbnail from "react-video-thumbnail";
 import $ from "jquery";
 
-import { ProgressBar, Toast } from ".";
+import {
+  PostButtonsContainer,
+  Toast,
+  ModalDialog,
+  MultiUploadPreview,
+} from ".";
 import {
   uploadMultipleImages,
   uploadMultipleVideos,
+  uploadMultipleFiles,
 } from "./utiltities/uploadMedia";
 import "./styles/NewPost.css";
 import { useAuth } from "../contexts/AuthContext";
@@ -42,26 +35,38 @@ const imageResizer = (file, size, imageType) =>
     );
   });
 
-export default function NewPost({ handleChangeError }) {
+export default function NewPost() {
   const { user } = useAuth();
-  const [postText, setPostText] = useState("");
+  const { addToast } = useToasts();
 
+  const [postText, setPostText] = useState("");
   const [fileArray, setFileArray] = useState([]);
   const [images, setImages] = useState([]);
   const [thumbnails, setThumbnails] = useState([]);
   const [videos, setVideos] = useState([]);
   const [videoThumbnails, setVideoThumbnails] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState([]);
   const [totalBytes, setTotalBytes] = useState(0);
-
-  const [show, setShow] = useState(false);
 
   const [post, setPost] = useState({});
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const [showModalDialog, setShowModalDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const { addToast } = useToasts();
+  // Refs
+  const postTextRef = useRef();
+  const imageUploadRef = useRef();
+  const videoUploadRef = useRef();
+  const fileUploadRef = useRef();
+  const emojiPickerRef = useRef();
+
+  const handleShowModalDialog = useCallback(() => {
+    setShowModalDialog(true);
+  }, []);
+
+  const handleCloseModalDialog = useCallback(() => {
+    setShowModalDialog(false);
+  }, []);
 
   const onEmojiClick = (e, emojiObject) => {
     e.preventDefault();
@@ -70,18 +75,14 @@ export default function NewPost({ handleChangeError }) {
   };
 
   useEffect(() => {
-    const textArea = document.getElementById("postText");
     const postForm = document.getElementById("postForm");
+    const postText = document.getElementById("postText");
     const multiPreview = $("#multiPreview");
     const emojiTogglerBtn = $("#emojiTogglerBtn");
     const emojiPickerDiv = $("#emojiPickerDiv");
     const imageUpload = $("#imageUpload");
     const videoUpload = $("#videoUpload");
-
-    textArea.addEventListener("input", (event) => {
-      textArea.style.height = "";
-      textArea.style.height = textArea.scrollHeight + "px";
-    });
+    const fileUpload = $("#fileUpload");
 
     const postButtonsContainer = document.getElementById(
       "postButtonsContainer"
@@ -100,13 +101,20 @@ export default function NewPost({ handleChangeError }) {
       } while (targetElement);
 
       // This is a click outside.
-      textArea.style.height = "";
-      textArea.style.height = textArea.scrollHeight + "px";
+      postText.style.height = "";
+      postText.style.height = postText.scrollHeight + "px";
+      if (
+        postText.value.trim() === "" &&
+        images.length === 0 &&
+        videos.length === 0
+      ) {
+        postButtonsContainer.style.display = "none";
+      }
       multiPreview.removeClass("multi-preview-focus");
       emojiPickerDiv.hide();
     });
 
-    textArea.addEventListener("focus", (event) => {
+    postText.addEventListener("focus", (evt) => {
       //   document.getElementById("overlay").style.display = "block";
       //   textArea.style.position = "relative";
       //   textArea.style.width = "100%";
@@ -115,13 +123,15 @@ export default function NewPost({ handleChangeError }) {
       postButtonsContainer.style.display = "flex";
       postButtonsContainer.style.position = "relative";
       multiPreview.addClass("multi-preview-focus");
-
-      //   postButtonsContainer.style.display = "flex";
-      //   postButtonsContainer.style.zIndex = "300";
     });
 
-    textArea.addEventListener("blur", (event) => {
+    postText.addEventListener("blur", (evt) => {
       multiPreview.removeClass("multi-preview-focus");
+    });
+
+    postText.addEventListener("input", (evt) => {
+      postText.style.height = "";
+      postText.style.height = postText.scrollHeight + "px";
     });
 
     emojiTogglerBtn.on("click", function () {
@@ -149,87 +159,158 @@ export default function NewPost({ handleChangeError }) {
     }
 
     // MouseUp
-    $("#imageUploadBtn").on("mouseup", onMouseUp1);
-    function onMouseUp1() {
+    $("#imageUploadBtn").on("mouseup", () => {
+      // If the mouse is released immediately (i.e., a click), before the
+      //  holdStarter runs, then cancel the holdStarter and do the click
       if (holdStarter) {
         clearTimeout(holdStarter);
+
+        // run click-only operation here
         imageUpload.trigger("click");
       }
       // Otherwise, if the mouse was being held, end the hold
       else if (holdActive) {
         holdActive = false;
-        handleShow();
+        handleShowModalDialog();
       }
-    }
+    });
 
     // MouseDown
-    $("#videoUploadBtn").on("mousedown", onMouseDown2);
-    function onMouseDown2() {
-      // Do not take any immediate action - just set the holdStarter
-      //  to wait for the predetermined delay, and then begin a hold
-      holdStarter = setTimeout(function () {
+    $("#videoUploadBtn").on("mousedown", () => {
+      holdStarter = setTimeout(() => {
         holdStarter = null;
         holdActive = true;
       }, holdDelay);
-    }
+    });
 
     // MouseUp
-    $("#videoUploadBtn").on("mouseup", onMouseUp2);
-    function onMouseUp2() {
-      // If the mouse is released immediately (i.e., a click), before the
-      //  holdStarter runs, then cancel the holdStarter and do the click
+    $("#videoUploadBtn").on("mouseup", () => {
       if (holdStarter) {
         clearTimeout(holdStarter);
-        // run click-only operation here
         // $(".status").text("Clicked!");
         videoUpload.trigger("click");
       }
       // Otherwise, if the mouse was being held, end the hold
       else if (holdActive) {
         holdActive = false;
-        handleShow();
+        handleShowModalDialog();
       }
-    }
+    });
+
+    // MouseDown
+    $("#fileUploadBtn").on("mousedown", () => {
+      holdStarter = setTimeout(() => {
+        holdStarter = null;
+        holdActive = true;
+      }, holdDelay);
+    });
+
+    // MouseUp
+    $("#fileUploadBtn").on("mouseup", () => {
+      if (holdStarter) {
+        clearTimeout(holdStarter);
+        // $(".status").text("Clicked!");
+        fileUpload.trigger("click");
+      }
+      // Otherwise, if the mouse was being held, end the hold
+      else if (holdActive) {
+        holdActive = false;
+        handleShowModalDialog();
+      }
+    });
   }, []);
 
   function handleRemoveThumbnail(e) {
     // console.log(e.target.id);
-    // console.log(fileArray);
+
     let fA = [...fileArray];
-    fA.splice(
+
+    let splicedItem = fA.splice(
       fA.findIndex((item) => item.url === e.target.id),
       1
     );
-    images.splice(
-      fA.findIndex((item) => item.url === e.target.id),
-      1
-    );
-    thumbnails.splice(
-      fA.findIndex((item) => item.url === e.target.id),
-      1
-    );
+
+    if (splicedItem[0].type === "image") {
+      images.splice(
+        fA.findIndex((item) => item.url === e.target.id),
+        1
+      );
+      thumbnails.splice(
+        fA.findIndex((item) => item.url === e.target.id),
+        1
+      );
+    } else if (splicedItem[0].type === "video") {
+      videos.splice(
+        fA.findIndex((item) => item.url === e.target.id),
+        1
+      );
+      videoThumbnails.splice(
+        fA.findIndex((item) => item.url === e.target.id),
+        1
+      );
+    } else if (splicedItem[0].type === "file") {
+      files.splice(
+        fA.findIndex((item) => item.url === e.target.id),
+        1
+      );
+    }
+
     setFileArray(fA);
   }
 
-  function cleanUp() {
+  function cleanUp(successState) {
+    if (successState) {
+      addToast(<Toast body="Your post was uploaded." />, {
+        appearance: "success",
+        autoDismiss: true,
+      });
+    }
+
+    if (!successState) {
+      addToast(
+        <Toast
+          heading="We're sorry"
+          body="We couldn't complete the current operation due to a faulty connection. Please try again."
+        />,
+        {
+          appearance: "error",
+          autoDismiss: false,
+        }
+      );
+    }
+
     // Clear state
     setFileArray([]);
     setImages([]);
     setThumbnails([]);
+    setVideos([]);
+    setVideoThumbnails([]);
+    setFiles([]);
     setPostText("");
     setTotalBytes(0);
-    setLoading(false);
     setPost({});
-    document.getElementById("postText").style.height = "54px";
+    setLoading(false);
+    postTextRef.current.style.height = "54px";
     document.getElementById("postForm").reset();
     document.getElementById("postButtonsContainer").display = "none";
   }
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
+    let videoThumbnailsSize = videoThumbnails.reduce((accumulator, element) => {
+      return accumulator + element.size;
+    }, 0);
 
     setPost({
-      files: [...images, ...thumbnails],
+      files: [
+        ...images,
+        ...thumbnails,
+        ...videos,
+        ...videoThumbnails,
+        ...files,
+      ],
       text: postText,
       poster: [
         {
@@ -238,13 +319,11 @@ export default function NewPost({ handleChangeError }) {
           userPhoto: user.photoURL,
         },
       ],
-      totalBytes: (totalBytes * 1024) / 1000,
+      totalBytes: (totalBytes * 1024) / 1000 + videoThumbnailsSize,
     });
   };
 
   function handleUploadMultipleImages(e) {
-    let imageUploadInput = document.getElementById("imageUpload");
-
     uploadMultipleImages(
       e,
       images,
@@ -253,13 +332,11 @@ export default function NewPost({ handleChangeError }) {
       imageResizer,
       setTotalBytes,
       addToast,
-      imageUploadInput
+      imageUploadRef
     );
   }
 
   function handleUploadMultipleVideos(e) {
-    let imageUploadInput = document.getElementById("imageUpload");
-
     uploadMultipleVideos(
       e,
       videos,
@@ -268,7 +345,19 @@ export default function NewPost({ handleChangeError }) {
       setFileArray,
       setTotalBytes,
       addToast,
-      imageUploadInput
+      videoUploadRef
+    );
+  }
+
+  function handleUploadMultipleFiles(e) {
+    uploadMultipleFiles(
+      e,
+      files,
+      fileArray,
+      setFileArray,
+      setTotalBytes,
+      addToast,
+      fileUploadRef
     );
   }
 
@@ -286,190 +375,32 @@ export default function NewPost({ handleChangeError }) {
               className="shadow-none animated new-post-textarea border-bottom-0"
               onChange={(e) => setPostText(e.target.value)}
               value={postText}
+              ref={postTextRef}
             />
 
-            <div className="form-group multi-preview mb-0" id="multiPreview">
-              {(fileArray || []).map((item, id) => (
-                <div className="preview-img-div" key={item.url}>
-                  {item.type === "image" && <img src={item.url} alt="..." />}
-                  {item.type === "video" && (
-                    <>
-                      <VideoThumbnail
-                        videoUrl={item.url}
-                        thumbnailHandler={(thumbnail) => {
-                          setVideoThumbnails((prevState) => [
-                            ...prevState,
-                            thumbnail,
-                          ]);
-                        }}
-                        width={1920}
-                        height={1080}
-                      />
-                      <span
-                        style={{
-                          display: "inline-block",
-                          position: "absolute",
-                          top: "2px",
-                          marginLeft: "calc(50% - 6px)",
-                        }}
-                      >
-                        <FontAwesomeIcon
-                          icon={faPlay}
-                          color="rgba(255, 255, 255, 0.28)"
-                        />
-                      </span>
-                    </>
-                  )}
-                  <button
-                    type="button"
-                    className="close closeThumbnail"
-                    aria-label="Close"
-                    style={{ position: "absolute", top: "-4px", right: "4px" }}
-                  >
-                    <span
-                      aria-hidden="true"
-                      id={item.url}
-                      onClick={handleRemoveThumbnail}
-                    >
-                      ×
-                    </span>
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div
-              className={
-                postText.trim() === "" && images.length === 0
-                  ? "post-buttons-container mb-0 hidden"
-                  : "post-buttons-container mb-0"
+            <MultiUploadPreview
+              fileArray={fileArray}
+              videos={videos}
+              videoThumbnails={videoThumbnails}
+              handleRemoveThumbnail={handleRemoveThumbnail}
+            />
+            <PostButtonsContainer
+              hasNoFileContent={
+                postText.trim() === "" &&
+                images.length === 0 &&
+                videos.length === 0 &&
+                files.length === 0
               }
-              id="postButtonsContainer"
-            >
-              <div className="mt-0 ">
-                <Button
-                  type="button"
-                  variant="primary"
-                  data-view-component="true"
-                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-1"
-                  id="emojiTogglerBtn"
-                >
-                  <FontAwesomeIcon icon={faSmile} color="white" />
-                </Button>
-              </div>
-
-              <div className="mt-0">
-                <input
-                  type="file"
-                  className="video-upload"
-                  id="videoUpload"
-                  onChange={handleUploadMultipleVideos}
-                  multiple
-                />
-                <Button
-                  type="button"
-                  variant="primary"
-                  data-view-component="true"
-                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-2"
-                  id="videoUploadBtn"
-                >
-                  <FontAwesomeIcon icon={faVideo} color="white" />
-                </Button>
-              </div>
-
-              <div className="mt-0">
-                {/* <label className="camera-icon-btn"> */}
-                <input
-                  type="file"
-                  className="image-upload"
-                  id="imageUpload"
-                  onChange={handleUploadMultipleImages}
-                  multiple
-                />
-
-                <Button
-                  type="button"
-                  variant="primary"
-                  data-view-component="true"
-                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
-                  id="imageUploadBtn"
-                >
-                  <FontAwesomeIcon icon={faCamera} color="white" />
-                </Button>
-              </div>
-
-              <div className="mt-0">
-                {/* <label className="camera-icon-btn"> */}
-                <input
-                  type="file"
-                  className="image-upload"
-                  id="audioUpload"
-                  onChange={handleUploadMultipleImages}
-                  multiple
-                />
-
-                <Button
-                  type="button"
-                  variant="dark"
-                  data-view-component="true"
-                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
-                  id="audioUploadBtn"
-                >
-                  <FontAwesomeIcon icon={faMicrophone} color="white" />
-                </Button>
-              </div>
-
-              <div className="mt-0">
-                {/* <label className="camera-icon-btn"> */}
-                <input
-                  type="file"
-                  className="image-upload"
-                  id="fileUpload"
-                  onChange={handleUploadMultipleImages}
-                  multiple
-                />
-
-                <Button
-                  type="button"
-                  variant="dark"
-                  data-view-component="true"
-                  className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
-                  id="fileUploadBtn"
-                >
-                  <FontAwesomeIcon icon={faPaperclip} color="white" />
-                </Button>
-              </div>
-
-              <div className="mt-0 submit-btn-div">
-                <Button
-                  disabled={
-                    (postText.length === 0 &&
-                      images.length === 0 &&
-                      videos.length === 0) ||
-                    loading
-                  }
-                  variant="primary"
-                  type="submit"
-                  block={true.toString()}
-                  className="inline-block  shadow-none post-buttons-3"
-                >
-                  {loading ? (
-                    <div className="box">
-                      <div className="card1"></div>
-                      <div className="card2"></div>
-                      <div className="card3"></div>
-                    </div>
-                  ) : (
-                    <FontAwesomeIcon icon={faPaperPlane} color="white" />
-                  )}
-                </Button>
-              </div>
-            </div>
+              loading={loading}
+              cleanUp={cleanUp}
+              handleUploadMultipleImages={handleUploadMultipleImages}
+              handleUploadMultipleVideos={handleUploadMultipleVideos}
+              handleUploadMultipleFiles={handleUploadMultipleFiles}
+              post={post}
+              ref={[imageUploadRef, videoUploadRef, fileUploadRef]}
+            />
           </div>
         </Form.Group>
-        {Object.keys(post).length !== 0 && (
-          <ProgressBar post={post} cleanUp={cleanUp} />
-        )}
         <div className="emoji-picker-div hidden" id="emojiPickerDiv">
           <Picker
             onEmojiClick={onEmojiClick}
@@ -477,24 +408,15 @@ export default function NewPost({ handleChangeError }) {
             skinTone={SKIN_TONE_MEDIUM_DARK}
             groupNames={{ smileys_people: "PEOPLE" }}
             native
+            ref={emojiPickerRef}
           />
         </div>
       </Form>
 
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleClose}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalDialog
+        showModalDialog={showModalDialog}
+        handleCloseModalDialog={handleCloseModalDialog}
+      />
     </>
   );
 }

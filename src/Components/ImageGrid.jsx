@@ -6,6 +6,8 @@ import Modal from "./Modal";
 import PropTypes from "prop-types";
 import "./styles/ImageGrid.css";
 
+import { Video } from ".";
+
 class ImageGrid extends Component {
   static defaultProps = {
     images: [],
@@ -59,7 +61,17 @@ class ImageGrid extends Component {
     return (
       <Container className="image-grid-container">
         <Row>
-          <ProgressiveImage
+          <Col
+            xs={12}
+            md={12}
+            className={`border background`}
+            onClick={this.openModal.bind(this, 0)}
+            style={{ background: `url(${images[0]})` }}
+          >
+            <Video src={images[0]} />
+            {/* {overlay} */}
+          </Col>
+          {/* <ProgressiveImage
             preview={thumbnails[0]}
             src={images[0]}
             render={(src, style) => (
@@ -73,7 +85,7 @@ class ImageGrid extends Component {
                 {overlay}
               </Col>
             )}
-          />
+          /> */}
         </Row>
       </Container>
     );

@@ -3,11 +3,13 @@ import { motion } from "framer-motion";
 import useStorage from "../hooks/useStorage";
 
 export default function ProgressBar({ post, cleanUp }) {
-  let { success, progress } = useStorage(post);
+  let { success, error, progress } = useStorage(post);
 
   useEffect(() => {
     if (success) {
-      cleanUp();
+      cleanUp(true);
+    } else if (error) {
+      cleanUp(false);
     }
   }, [success, cleanUp]);
 

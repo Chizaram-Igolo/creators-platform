@@ -126,13 +126,35 @@
   margin-bottom: 10px;
 }
 
+.multi-preview .preview-file-div {
+  position: relative;
+  width: calc(50% - 10px);
+  max-width: calc(50% - 10px);
+  max-height: 45px;
+  overflow: hidden;
+  /* border: 3px solid #ced4da; */
+  border: 3px solid #343a40;
+  border-radius: 2px;
+  margin-right: 5px;
+  margin-left: 5px;
+  margin-bottom: 10px;
+  background-color: #343a40;
+  color: #fff;
+}
+
 @media only screen and (max-device-width: 480px) {
   .multi-preview .preview-img-div {
     max-width: calc(20% - 10px);
   }
+
+  .multi-preview .preview-file-div {
+    width: calc(100% - 10px) !important;
+    max-width: calc(100% - 10px) !important;
+  }
 }
 
-.multi-preview .preview-img-div img {
+.multi-preview .preview-img-div img,
+.multi-preview .preview-file-div div {
   width: 100%;
   height: 100%;
   object-fit: contain;

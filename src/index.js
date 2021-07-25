@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { ToastProvider } from "react-toast-notifications";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 

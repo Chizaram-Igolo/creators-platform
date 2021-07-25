@@ -6,53 +6,69 @@ import {
 } from "../firebase/config";
 
 export default function useStorage(post) {
-  const [progress, setProgress] = useState(null);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     let imageUrls = [];
     let thumbnailUrls = [];
+    let videoUrls = [];
+    let videoThumbnailUrls = [];
+    let fileUrls = [];
+    let resourceList = [];
 
     function handleUploadPost() {
       const collectionRef = projectFirestore.collection("posts");
       const text = post.text.trim();
       const createdAt = timestamp();
-      const imUrls = imageUrls;
-      const thumbUrls = thumbnailUrls;
 
       // Sort the images and thumbnail urls by their numerical ids to keep the order.
-      imUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
-      thumbUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
+      imageUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
+      thumbnailUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
+      videoUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
+      videoThumbnailUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
+      fileUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
 
-      let _images = imUrls.map((image) => image.url);
-      let _thumbnails = thumbUrls.map((thumbnail) => thumbnail.url);
+      let images = imageUrls.map((image) => image.url);
+      let thumbnails = thumbnailUrls.map((thumbnail) => thumbnail.url);
+      let videos = videoUrls.map((video) => video.url);
+      let videoThumbnails = videoThumbnailUrls.map(
+        (thumbnail) => thumbnail.url
+      );
+      let files = fileUrls.map((file) => file.url);
 
       collectionRef
         .add({
           text,
           createdAt,
-          images: _images,
-          thumbnails: _thumbnails,
+          images,
+          thumbnails,
+          videos,
+          videoThumbnails,
+          files,
+          resourceList,
           poster: post.poster,
         })
         .then(() => {
           setProgress(0);
-          setLoading(0);
-          imageUrls = [];
-          thumbnailUrls = [];
+          imageUrls =
+            thumbnailUrls =
+            videoUrls =
+            videoThumbnailUrls =
+            fileUrls =
+            resourceList =
+              [];
           setError(null);
-          setSuccess(imUrls.slice(-1));
+          setSuccess(Math.random());
         })
         .catch((err) => {
           setProgress(0);
-          setLoading(false);
+          setError(err);
           return;
         });
     }
 
-    setLoading(true);
     const promises = [];
 
     let allFiles = post.files;
@@ -62,13 +78,44 @@ export default function useStorage(post) {
 
       allFiles.forEach((file) => {
         let uploadTask;
-        if (file.type.includes("image")) {
+
+        if (
+          file.typeOfFile === "videoThumbnail" &&
+          typeof file.img_base64 === "string"
+        ) {
+          console.log(file.name, file.size);
+          let base64_img = file.img_base64.split(/,(.+)/)[1];
+          let contentType = file.img_base64.split(";")[0].split(":")[1];
+
+          uploadTask = projectStorage
+            .ref(`videoThumbnails/${file.name}`)
+            .putString(base64_img, "base64", {
+              contentType: contentType,
+            });
+
+          resourceList.push(`videoThumbnails/${file.name}`);
+        } else if (file.typeOfFile.includes("image")) {
           uploadTask = projectStorage
             .ref(`images/${file.name}`)
             .put(file, { contentType: file.type });
+
+          resourceList.push(`images/${file.name}`);
+        } else if (file.type.includes("video")) {
+          uploadTask = projectStorage
+            .ref(`videos/${file.name}`)
+            .put(file, { contentType: file.type });
+
+          resourceList.push(`videos/${file.name}`);
+        } else {
+          uploadTask = projectStorage
+            .ref(`files/${file.name}`)
+            .put(file, { contentType: file.type });
+
+          resourceList.push(`files/${file.name}`);
         }
 
         promises.push(uploadTask);
+
         uploadTask.on(
           "state_changed",
           (snapshot) => {
@@ -81,16 +128,30 @@ export default function useStorage(post) {
           },
           (err) => {
             setError(err);
+            uploadTask.cancel();
+            return;
           },
           () => {
             uploadTask.snapshot.ref.getDownloadURL().then((url) => {
               if (file.typeOfFile === "thumbnail") {
                 thumbnailUrls.push({ url: url, id: file["id"] });
-              } else {
+              } else if (file.typeOfFile === "image") {
                 imageUrls.push({ url: url, id: file["id"] });
+              } else if (file.typeOfFile === "video") {
+                videoUrls.push({ url: url, id: file["id"] });
+              } else if (file.typeOfFile === "videoThumbnail") {
+                videoThumbnailUrls.push({ url: url, id: file["id"] });
+              } else if (file.typeOfFile === "file") {
+                fileUrls.push({ url: url, id: file["id"] });
               }
+
               if (
-                imageUrls.length + thumbnailUrls.length === allFiles.length &&
+                imageUrls.length +
+                  thumbnailUrls.length +
+                  videoUrls.length +
+                  videoThumbnailUrls.length +
+                  fileUrls.length ===
+                  allFiles.length &&
                 allFiles.length > 0
               ) {
                 handleUploadPost();
@@ -109,5 +170,5 @@ export default function useStorage(post) {
     }
   }, [post]);
 
-  return { progress, error, loading, success };
+  return { progress, error, success };
 }

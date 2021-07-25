@@ -1,25 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisV, faFile } from "@fortawesome/free-solid-svg-icons";
 import Moment from "react-moment";
 
-import { Comments, ImageGrid, DropdownMenu, Toast } from ".";
+import { projectStorage } from "../firebase/config";
+
+import { Comments, ImageGrid, Video, DropdownMenu, Toast } from ".";
 import { deletePost } from "../firebase/firestore";
-import { useToasts } from "react-toast-notifications";
+import { useToasts, deleteFiles } from "react-toast-notifications";
 
 export default function Post(props) {
   const [showComments, setShowComments] = useState(false);
+  const [numOfFilesToShow] = useState(3);
+  const [isShowMoreFiles, setIsShowMoreFiles] = useState(false);
+  const [allFiles] = useState([]);
   const { addToast } = useToasts();
+
+  let postFiles = [...props.resourceList];
+
+  const onClickShowMore = useCallback(() => {
+    setIsShowMoreFiles(true);
+  }, []);
+
+  const onClickShowLess = useCallback(() => {
+    setIsShowMoreFiles(false);
+  }, []);
 
   const handleDeletePost = async () => {
     try {
-      deletePost("posts", props.postId).then(
+      deletePost("posts", props.postId).then(() => {
         addToast(<Toast body="Post successfully deleted." />, {
           appearance: "success",
           autoDismiss: true,
-        })
-      );
+        });
+
+        let promises = [];
+        postFiles.forEach((file) => {
+          let deleteTask;
+          deleteTask = projectStorage.ref(file).delete();
+          promises.push(deleteTask);
+        });
+
+        Promise.all(promises)
+          .then(() => {
+            alert("okay");
+          })
+          .catch((err) => alert(err));
+      });
     } catch (err) {
       addToast(
         <Toast
@@ -32,12 +60,77 @@ export default function Post(props) {
         }
       );
     }
+
+    // projectStorage
+    //   .ref()
+    //   .child("files/library-list.txt")
+    //   .delete()
+    //   .then(() => {})
+    //   .catch((err) =>
+    //     addToast(<Toast heading="We're sorry" body={err} />, {
+    //       appearance: "error",
+    //       autoDismiss: true,
+    //     })
+    //   );
+
+    // let promises = [];
+
+    // for (let i; i < postFiles.length; i++) {
+    //   let deleteTask;
+
+    //   projectStorage
+    //     .ref("files")
+    //     .listAll()
+    //     .then((listResults) => console.log(listResults));
+
+    //   alert("adf", deleteTask);
+    // }
+
+    // console.log(promises);
+    // console.log(postFiles);
+
+    // Promise.all(promises)
+    //   .then(() => {})
+    //   .catch((err) => alert(err));
   };
+
+  // useEffect(() => {
+  //   projectStorage
+  //     .ref("files")
+  //     .listAll()
+  //     .then((listResults) => {
+  //       listResults.prefixes.forEach((folderRef) => {
+  //         console.log(folderRef);
+  //       });
+  //       listResults.items.forEach((itemRef) => {
+  //         console.log(itemRef.name);
+  //         allFiles.push(itemRef.name);
+  //       });
+
+  //       let promises = [];
+  //       allFiles.forEach((file) => {
+  //         let deleteTask;
+
+  //         deleteTask = projectStorage.ref(`files/${file}`).delete();
+
+  //         promises.push(deleteTask);
+
+  //         console.log("hi");
+  //       });
+
+  //       Promise.all(promises)
+  //         .then(() => {
+  //           alert("okay");
+  //         })
+  //         .catch((err) => alert(err));
+  //     });
+  //   console.log(allFiles);
+  // }, []);
 
   return (
     <div className="bg-white border-bottom pb-3 mt-2 mb-3 no-hor-padding">
       <div>
-        <div className="d-flex flex-row justify-content-between p-2">
+        <div className="d-flex flex-row justify-content-between py-2">
           <div className="d-flex flex-row align-items-center feed-text">
             <img
               className="rounded-circle"
@@ -61,7 +154,7 @@ export default function Post(props) {
               </span>
             </div>
           </div>
-          <div className="feed-icon px-2">
+          <div className="feed-icon pl-2">
             <DropdownMenu
               icon={<FontAwesomeIcon icon={faEllipsisV} color="#333333" />}
               options={[
@@ -71,7 +164,7 @@ export default function Post(props) {
           </div>
         </div>
       </div>
-      <div className="p-2">
+      <div className="py-2">
         <p className="post-p">{props.text}</p>
       </div>
 
@@ -81,10 +174,120 @@ export default function Post(props) {
         </div>
       )} */}
 
-      {props.images !== null && (
+      {props.videos !== null &&
+        props.images.length > 0 &&
+        props.videos.map((item) => (
+          <div className="feed-image pb-2 px-3">
+            <Video src={item} />
+          </div>
+        ))}
+
+      {props.videos !== null && props.images.length > 0 && (
+        <div className="feed-image pb-2 px-3">
+          <ImageGrid images={props.videos} thumbnails={props.videoThumbnails} />
+        </div>
+      )}
+
+      {props.images !== null && props.images.length > 0 && (
         <div className="feed-image pb-2 px-3">
           <ImageGrid images={props.images} thumbnails={props.thumbnails} />
         </div>
+      )}
+
+      {props.files !== null &&
+        props.files.map((item, id) => {
+          if (id < numOfFilesToShow) {
+            return (
+              <p className="py-0" style={{ lineHeight: "0.98em" }}>
+                <a href={item} download="w3school" target="_blank">
+                  <FontAwesomeIcon icon={faFile} />
+                  &nbsp;
+                  {item
+                    .replace("%2F", "/")
+                    .replace("%20", " ")
+                    .split("?")
+                    .slice(0, -1)
+                    .join("")
+                    .split("/")
+                    .slice(-1)}
+                </a>
+              </p>
+            );
+          } else {
+            return (
+              <>
+                <div class="row">
+                  <div class="col">
+                    <div
+                      class="collapse multi-collapse"
+                      id="multiCollapseExample1"
+                    >
+                      <p className="py-0" style={{ lineHeight: "0.98em" }}>
+                        <a href={item} download="w3school" target="_blank">
+                          <FontAwesomeIcon icon={faFile} />
+                          &nbsp;
+                          {item
+                            .replace("%2F", "/")
+                            .replace("%20", " ")
+                            .split("?")
+                            .slice(0, -1)
+                            .join("")
+                            .split("/")
+                            .slice(-1)}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            );
+          }
+        })}
+
+      {props.files !== null && !isShowMoreFiles && (
+        <p className="text-center">
+          <button
+            class="btn btn-link shadow-none"
+            data-toggle="collapse"
+            href="#multiCollapseExample1"
+            role="button"
+            aria-expanded="false"
+            aria-controls="multiCollapseExample1"
+            style={{
+              color: "#007bff",
+              textDecoration: "none",
+              backgroundColor: "transparent",
+            }}
+            onClick={onClickShowMore}
+          >
+            {!isShowMoreFiles && props.files.length > numOfFilesToShow && (
+              <>Show more ... ({props.files.length - numOfFilesToShow})</>
+            )}
+
+            {isShowMoreFiles && <>Show less</>}
+          </button>
+        </p>
+      )}
+
+      {props.files !== null && isShowMoreFiles && (
+        <p className="text-center">
+          <button
+            class="btn btn-link shadow-none"
+            data-toggle="collapse"
+            href="#multiCollapseExample1"
+            role="button"
+            aria-expanded="false"
+            aria-controls="multiCollapseExample1"
+            style={{
+              color: "#007bff",
+              textDecoration: "none",
+              backgroundColor: "transparent",
+            }}
+            onClick={onClickShowLess}
+          >
+            Show less
+          </button>
+        </p>
       )}
 
       <div className="d-flex justify-content-end socials py-3">
