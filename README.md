@@ -16,23 +16,23 @@ Users don't have to sign up or have an account to use it; view posts or make com
 1.  Sign up with email address
 2.  Password reset with email
 3.  Update user information
-    i. Update email address
-    ii. Update password
+    1. Update email address
+    2. Update password
 4.  Create post
-    i. Upload text
-    ii. Upload images
-    iii. Upload videos
-    iv. Upload files (images, videos, audios, pdfs, txts)
+    1. Upload text
+    2. Upload images
+    3. Upload videos
+    4. Upload files (images, videos, audios, pdfs, txts)
 5.  Display post
-    i. Display text
-    ii. Display images
-    iii. Display files (Downloadable links)
+    1. Display text
+    2. Display images
+    3. Display files (Downloadable links)
 6.  Delete post
-    i. Delete text
-    ii. Delete files (text, images, videos, etc.)
+    1. Delete text
+    2. Delete files (text, images, videos, etc.)
 
-TODO:
+## TODOS:
 
 1.  Display videos properly
 2.  Update User information
-    i. Update username
+    1. Update username
