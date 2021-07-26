@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import { projectFirestore } from "../firebase/config";
@@ -18,6 +17,7 @@ import {
   NewPost,
   AlertBox,
   Toast,
+  LeftSideBar,
 } from "../Components";
 import "./styles/Feed.css";
 
@@ -131,40 +131,7 @@ class Feed extends Component {
       <Container>
         <Row>
           <Col md={{ span: 3 }}>
-            <SideBar>
-              <Nav
-                defaultActiveKey="/"
-                className="flex-column fixed-position d-none d-md-block"
-              >
-                <p>Your Subscriptions</p>
-                <Link to="/" className="nav-link" role="button">
-                  Cardi B
-                </Link>
-                <Link to="/" className="nav-link" role="button">
-                  blueturtle899
-                </Link>
-                <Link to="/" className="nav-link" role="button">
-                  Drake
-                </Link>
-                <Link to="/" className="nav-link" role="button">
-                  Dr. DRE
-                </Link>
-                <p></p>
-                <p>Suggested</p>
-                <Link to="/" className="nav-link" role="button">
-                  Cardi B
-                </Link>
-                <Link to="/" className="nav-link" role="button">
-                  blueturtle899
-                </Link>
-                <Link to="/" className="nav-link" role="button">
-                  Drake
-                </Link>
-                <Link to="/" className="nav-link" role="button">
-                  Dr. DRE
-                </Link>
-              </Nav>
-            </SideBar>
+            <LeftSideBar />
           </Col>
 
           <Col md={{ span: 8 }} lg={{ span: 7 }} className="px-0 pt-0 pt-md-5">

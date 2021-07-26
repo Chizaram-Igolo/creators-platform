@@ -4,18 +4,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisV, faFile } from "@fortawesome/free-solid-svg-icons";
 import Moment from "react-moment";
 
-import { projectStorage } from "../firebase/config";
-
 import { Comments, ImageGrid, DropdownMenu, Toast } from ".";
 import { deletePost, deleteFiles } from "../firebase/firestore";
 import { useToasts } from "react-toast-notifications";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Post(props) {
+  const { user } = useAuth();
   const [showComments, setShowComments] = useState(false);
   const [numOfFilesToShow] = useState(3);
   const [isShowMoreFiles, setIsShowMoreFiles] = useState(false);
   const [postFiles, setPostFiles] = useState([]);
   const { addToast } = useToasts();
+
+  const options = [];
 
   useEffect(() => {
     setPostFiles([...props.resourceList]);
@@ -53,7 +55,11 @@ export default function Post(props) {
     }
   };
 
-  const handleDeleteFiles = () => {
+  if (user.uid === props.poster.userId) {
+    options.push({ option: "Delete Post", handlerFunction: handleDeletePost });
+  }
+
+  const handleDeleteFiles = async () => {
     Promise.all(deleteFiles(postFiles))
       .then(() => {})
       .catch((err) => {});
@@ -89,9 +95,7 @@ export default function Post(props) {
           <div className="feed-icon pl-2">
             <DropdownMenu
               icon={<FontAwesomeIcon icon={faEllipsisV} color="#333333" />}
-              options={[
-                { option: "Delete Post", handlerFunction: handleDeletePost },
-              ]}
+              options={options}
             />
           </div>
         </div>

@@ -169,6 +169,7 @@ function NavItem(props) {
 }
 
 function DropdownMenu(props) {
+  const { user } = useAuth();
   const [error, setError] = useState("");
   const [menuHeight, setMenuHeight] = useState(null);
   const dropdownRef = useRef(null);
@@ -227,7 +228,7 @@ function DropdownMenu(props) {
                   Signed in as
                   <br />
                   <strong className="strong-signed-in-name">
-                    Chizaram-Igolo
+                    {user.displayName}
                   </strong>
                   {/* <span class="d-block ">Never used</span> */}
                 </p>

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import Resizer from "react-image-file-resizer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,29 +11,95 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 // import Button from "react-bootstrap/Button";
 
-import { SideBar, Tab, AlertBox } from "../Components";
+import { SideBar, Tab, Toast } from "../Components";
 
 import "./styles/Profile.css";
+import { projectStorage } from "../firebase/config";
+import { useToasts } from "react-toast-notifications";
+
+const tabContent = [
+  { selector: "myPosts", heading: "My Posts", body: "My Posts" },
+  { selector: "engagements", heading: "Engagements", body: "Engagements" },
+];
+
+const selectors = [tabContent.map((item) => item.selector)];
+
+const imageResizer = (file, size, imageType) =>
+  new Promise((resolve) => {
+    Resizer.imageFileResizer(
+      file,
+      size,
+      size,
+      imageType,
+      100,
+      0,
+      (uri) => {
+        resolve(uri);
+      },
+      "blob"
+    );
+  });
 
 function Profile() {
-  // const [file, setFile] = useState(null);
-  const [error, setError] = useState(null);
+  const { addToast } = useToasts();
 
   const { user } = useAuth();
-
   const types = ["image/png", "image/jpeg"];
 
-  const handleChange = (e) => {
-    let selected = e.target.files[0];
+  async function handleUpdateProfile(e) {
+    let selectedImage = e.target.files[0];
 
-    if (selected && types.includes(selected.type)) {
+    if (selectedImage && types.includes(selectedImage.type)) {
       // setFile(selected);
-      setError("");
-    } else {
-      // setFile(null);
-      setError("Please select an image file (png or jpg)");
+
+      let imageType = selectedImage.type.split("/").slice(-1);
+      if (imageType === "JPG") {
+        imageType = "JPEG";
+      }
+
+      const img = await imageResizer(selectedImage, 240, imageType);
+      console.log(img);
+      img["name"] = selectedImage["name"];
+
+      let uploadImageTask = projectStorage
+        .ref(`user_images/${user.uid}/${img.name}`)
+        .put(img, { contentType: img.type });
+
+      uploadImageTask.on(
+        "state_changed",
+        () => {},
+        (err) => {
+          addToast(<Toast body="Sorry, the image could not be uploaded." />, {
+            appearance: "error",
+            autoDismiss: true,
+          });
+        },
+        () => {
+          uploadImageTask.snapshot.ref.getDownloadURL().then((url) => {
+            console.log(url);
+
+            user
+              .updateProfile({ photoURL: url })
+              .then(() => {
+                addToast(<Toast body="Your profile image was updated." />, {
+                  appearance: "success",
+                  autoDismiss: true,
+                });
+              })
+              .catch((err) =>
+                addToast(
+                  <Toast body="Sorry, the image could not be uploaded." />,
+                  {
+                    appearance: "error",
+                    autoDismiss: true,
+                  }
+                )
+              );
+          });
+        }
+      );
     }
-  };
+  }
 
   return (
     <>
@@ -46,7 +113,11 @@ function Profile() {
                     <img src={user.photoURL} alt="" className="profile-img" />
                   </div>
                   <label>
-                    <input type="file" onChange={handleChange} />
+                    <input
+                      type="file"
+                      onChange={handleUpdateProfile}
+                      accept="image/x-png,image/jpeg"
+                    />
                     <span style={{ fontSize: "16px" }}>
                       <FontAwesomeIcon icon={faUpload} color="white" />
                     </span>
@@ -66,9 +137,8 @@ function Profile() {
               <div className="d-flex justify-content-center row">
                 <div className="col-md-12 px-2">
                   <div className="feed">
-                    <AlertBox error={error} />
                     <div className="bg-white p-2 pt-0 pl-0 pr-1 pb-3  mb-3 no-hor-padding">
-                      <Tab />
+                      <Tab selectors={selectors} tabContent={tabContent} />
                     </div>
                   </div>
                 </div>

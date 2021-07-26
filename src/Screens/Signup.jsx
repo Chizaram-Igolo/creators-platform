@@ -13,6 +13,7 @@ import { AlertBox } from "../Components";
 import { useAuth } from "../contexts/AuthContext";
 
 import "./styles/Signin.css";
+import { projectFirestore } from "../firebase/config";
 
 function Signup() {
   const emailRef = useRef();
@@ -45,12 +46,20 @@ function Signup() {
       await signup(emailRef.current.value, passwordRef.current.value).then(
         (userCredential) => {
           var user = userCredential.user;
-          user.updateProfile({
-            displayName: usernameRef.current.value,
-            photoURL:
-              `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
-              emailRef.current.value[0],
-          });
+          user
+            .updateProfile({
+              displayName: usernameRef.current.value,
+              photoURL:
+                `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
+                emailRef.current.value[0],
+            })
+            .then(() => {
+              projectFirestore
+                .collection("users")
+                .doc(user.uid)
+                .set({ username: user.displayName, subscriptions: [] });
+            })
+            .catch((err) => setError(err.message));
 
           history.push("/feed");
         }
