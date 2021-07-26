@@ -11,7 +11,7 @@ export default function ProgressBar({ post, cleanUp }) {
     } else if (error) {
       cleanUp(false);
     }
-  }, [success, cleanUp]);
+  }, [success, error, cleanUp]);
 
   if (progress > 100) {
     progress = 100;

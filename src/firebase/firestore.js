@@ -4,18 +4,14 @@ export function deletePost(collection, doc) {
   return projectFirestore.collection(collection).doc(doc).delete();
 }
 
-export function deleteFiles() {
-  // const promises = [];
+export function deleteFiles(postFiles) {
+  let promises = [];
 
-  return projectStorage.ref().child("files/junk.txt").delete();
+  postFiles.forEach((file) => {
+    let deleteTask;
+    deleteTask = projectStorage.ref(file).delete();
+    promises.push(deleteTask);
+  });
 
-  // files.forEach((file) => {
-  //   projectStorage
-  //     .child(file)
-  //     .delete()
-  //     .then()
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // });
+  return promises;
 }

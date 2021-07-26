@@ -235,11 +235,6 @@ class Feed extends Component {
                                   doc.thumbnails ? doc.thumbnails : null
                                 }
                                 videos={doc.videos ? doc.videos : null}
-                                videoThumbnails={
-                                  doc.videoThumbnails
-                                    ? doc.videoThumbnails
-                                    : null
-                                }
                                 files={doc.files ? doc.files : null}
                                 resourceList={
                                   doc.resourceList ? doc.resourceList : null

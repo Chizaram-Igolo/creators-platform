@@ -8,13 +8,16 @@ async function uploadMultipleImages(
   imageResizer,
   setTotalBytes,
   addToast,
-  imageUploadRef
+  imageUploadRef,
+  setLoading
 ) {
   const imageTypes = ["image/png", "image/jpeg", "image/jpg"];
 
   for (let i = 0; i < e.target.files.length; i++) {
     const newImage = e.target.files[i];
     if (newImage && imageTypes.includes(newImage.type)) {
+      setLoading(true);
+
       setFileArray((prevState) => [
         ...prevState,
         {
@@ -47,13 +50,13 @@ async function uploadMultipleImages(
 
       images.push(imageBlob);
       thumbnails.push(thumbnailBlob);
+
+      setLoading(false);
     } else {
       addToast(<Toast body="Please select an image file (png or jpeg)" />, {
         appearance: "error",
         autoDismiss: true,
       });
-
-      return;
     }
   }
 
@@ -93,11 +96,14 @@ async function uploadMultipleVideos(
   setFileArray,
   setTotalBytes,
   addToast,
-  videoUploadRef
+  videoUploadRef,
+  setLoading
 ) {
   const videoTypes = ["video/mp4", "video/avi"];
 
   for (let i = 0; i < e.target.files.length; i++) {
+    setLoading(true);
+
     const newVideo = e.target.files[i];
     window.URL = window.URL || window.webkitURL;
     let myVideos = [];
@@ -143,6 +149,8 @@ async function uploadMultipleVideos(
           name: newVideo.name,
         },
       ]);
+
+      setLoading(false);
     } else {
       addToast(<Toast body="Please select a video file (mp4 or avi)" />, {
         appearance: "error",
@@ -169,7 +177,8 @@ async function uploadMultipleFiles(
   setFileArray,
   setTotalBytes,
   addToast,
-  fileUploadRef
+  fileUploadRef,
+  setLoading
 ) {
   for (let i = 0; i < e.target.files.length; i++) {
     const newFile = e.target.files[i];
@@ -185,6 +194,8 @@ async function uploadMultipleFiles(
 
       return;
     } else {
+      setLoading(true);
+
       setFileArray((prevState) => [
         ...prevState,
         { type: "file", url: URL.createObjectURL(newFile), name: newFile.name },
@@ -194,8 +205,10 @@ async function uploadMultipleFiles(
       newFile["typeOfFile"] = "file";
       files.push(newFile);
 
-      console.log(fileArray);
-      console.log(files);
+      setLoading(false);
+
+      // console.log(fileArray);
+      // console.log(files);
     }
   }
 

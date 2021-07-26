@@ -55,7 +55,6 @@ function Profile() {
               </Form>
               <div className="pt-4">
                 <p>{user.email}</p>
-                <p>{JSON.stringify(user)}</p>
 
                 <Link to="/settings">Settings</Link>
               </div>
@@ -69,9 +68,6 @@ function Profile() {
                   <div className="feed">
                     <AlertBox error={error} />
                     <div className="bg-white p-2 pt-0 pl-0 pr-1 pb-3  mb-3 no-hor-padding">
-                      <Tab />
-                      <Tab />
-                      <Tab />
                       <Tab />
                     </div>
                   </div>

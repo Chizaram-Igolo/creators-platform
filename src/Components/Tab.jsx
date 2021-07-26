@@ -2,7 +2,7 @@ import * as React from "react";
 import { TabPanel, useTabs } from "./TabPanel";
 import { TabSelector } from "./TabSelector";
 
-export default function Basic() {
+export default function Basic({ tabName, tabHeading, children }) {
   const [selectedTab, setSelectedTab] = useTabs([
     "myPosts",
     "myComments",

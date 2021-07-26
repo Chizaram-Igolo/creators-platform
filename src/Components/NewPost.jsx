@@ -218,7 +218,7 @@ export default function NewPost() {
         handleShowModalDialog();
       }
     });
-  }, []);
+  }, [handleShowModalDialog, images.length, videos.length]);
 
   function handleRemoveThumbnail(e) {
     // console.log(e.target.id);
@@ -299,18 +299,8 @@ export default function NewPost() {
     e.preventDefault();
     setLoading(true);
 
-    let videoThumbnailsSize = videoThumbnails.reduce((accumulator, element) => {
-      return accumulator + element.size;
-    }, 0);
-
     setPost({
-      files: [
-        ...images,
-        ...thumbnails,
-        ...videos,
-        ...videoThumbnails,
-        ...files,
-      ],
+      files: [...images, ...thumbnails, ...videos, ...files],
       text: postText,
       poster: [
         {
@@ -319,7 +309,7 @@ export default function NewPost() {
           userPhoto: user.photoURL,
         },
       ],
-      totalBytes: (totalBytes * 1024) / 1000 + videoThumbnailsSize,
+      totalBytes: (totalBytes * 1024) / 1000,
     });
   };
 
@@ -332,7 +322,8 @@ export default function NewPost() {
       imageResizer,
       setTotalBytes,
       addToast,
-      imageUploadRef
+      imageUploadRef,
+      setLoading
     );
   }
 
@@ -345,7 +336,8 @@ export default function NewPost() {
       setFileArray,
       setTotalBytes,
       addToast,
-      videoUploadRef
+      videoUploadRef,
+      setLoading
     );
   }
 
@@ -357,7 +349,8 @@ export default function NewPost() {
       setFileArray,
       setTotalBytes,
       addToast,
-      fileUploadRef
+      fileUploadRef,
+      setLoading
     );
   }
 

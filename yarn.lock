@@ -10147,11 +10147,6 @@ react-image-lightbox@^5.1.1:
     prop-types "^15.7.2"
     react-modal "^3.11.1"
 
-react-image-video-lightbox@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-image-video-lightbox/-/react-image-video-lightbox-3.0.0.tgz#14f7090a6fd042cf55bd6387ee46e4573e9c024d"
-  integrity sha512-kEF6r1oZ6wPQIlVzsmmOgIAvaPdpQg8CVUNoggnGBR3GnaHdiRoGbyoty1smtoovjfzIFDHP3P6mLU4R//7COQ==
-
 react-infinite-scroll-component@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/react-infinite-scroll-component/-/react-infinite-scroll-component-6.1.0.tgz#7e511e7aa0f728ac3e51f64a38a6079ac522407f"

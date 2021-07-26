@@ -14,7 +14,6 @@ export default function useStorage(post) {
     let imageUrls = [];
     let thumbnailUrls = [];
     let videoUrls = [];
-    let videoThumbnailUrls = [];
     let fileUrls = [];
     let resourceList = [];
 
@@ -27,15 +26,11 @@ export default function useStorage(post) {
       imageUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
       thumbnailUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
       videoUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
-      videoThumbnailUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
       fileUrls.sort((a, b) => (a.id > b.id ? 1 : -1));
 
       let images = imageUrls.map((image) => image.url);
       let thumbnails = thumbnailUrls.map((thumbnail) => thumbnail.url);
       let videos = videoUrls.map((video) => video.url);
-      let videoThumbnails = videoThumbnailUrls.map(
-        (thumbnail) => thumbnail.url
-      );
       let files = fileUrls.map((file) => file.url);
 
       collectionRef
@@ -45,20 +40,13 @@ export default function useStorage(post) {
           images,
           thumbnails,
           videos,
-          videoThumbnails,
           files,
           resourceList,
           poster: post.poster,
         })
         .then(() => {
           setProgress(0);
-          imageUrls =
-            thumbnailUrls =
-            videoUrls =
-            videoThumbnailUrls =
-            fileUrls =
-            resourceList =
-              [];
+          imageUrls = thumbnailUrls = videoUrls = fileUrls = resourceList = [];
           setError(null);
           setSuccess(Math.random());
         })
@@ -79,28 +67,29 @@ export default function useStorage(post) {
       allFiles.forEach((file) => {
         let uploadTask;
 
-        if (
-          file.typeOfFile === "videoThumbnail" &&
-          typeof file.img_base64 === "string"
-        ) {
-          console.log(file.name, file.size);
-          let base64_img = file.img_base64.split(/,(.+)/)[1];
-          let contentType = file.img_base64.split(";")[0].split(":")[1];
+        // if (
+        //   file.typeOfFile === "videoThumbnail" &&
+        //   typeof file.img_base64 === "string"
+        // ) {
+        //   let base64_img = file.img_base64.split(/,(.+)/)[1];
+        //   let contentType = file.img_base64.split(";")[0].split(":")[1];
 
-          uploadTask = projectStorage
-            .ref(`videoThumbnails/${file.name}`)
-            .putString(base64_img, "base64", {
-              contentType: contentType,
-            });
+        //   uploadTask = projectStorage
+        //     .ref(`videoThumbnails/${file.name}`)
+        //     .putString(base64_img, "base64", {
+        //       contentType: contentType,
+        //     });
 
-          resourceList.push(`videoThumbnails/${file.name}`);
-        } else if (file.typeOfFile.includes("image")) {
+        //   resourceList.push(`videoThumbnails/${file.name}`);
+        // }
+
+        if (file.typeOfFile === "image") {
           uploadTask = projectStorage
             .ref(`images/${file.name}`)
             .put(file, { contentType: file.type });
 
           resourceList.push(`images/${file.name}`);
-        } else if (file.type.includes("video")) {
+        } else if (file.typeOfFile === "video") {
           uploadTask = projectStorage
             .ref(`videos/${file.name}`)
             .put(file, { contentType: file.type });
@@ -139,8 +128,6 @@ export default function useStorage(post) {
                 imageUrls.push({ url: url, id: file["id"] });
               } else if (file.typeOfFile === "video") {
                 videoUrls.push({ url: url, id: file["id"] });
-              } else if (file.typeOfFile === "videoThumbnail") {
-                videoThumbnailUrls.push({ url: url, id: file["id"] });
               } else if (file.typeOfFile === "file") {
                 fileUrls.push({ url: url, id: file["id"] });
               }
@@ -149,7 +136,6 @@ export default function useStorage(post) {
                 imageUrls.length +
                   thumbnailUrls.length +
                   videoUrls.length +
-                  videoThumbnailUrls.length +
                   fileUrls.length ===
                   allFiles.length &&
                 allFiles.length > 0

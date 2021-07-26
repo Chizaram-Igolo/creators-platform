@@ -44,10 +44,10 @@ export default function MultiUploadPreview({
                   let thumb = thumbnail.split(",")[1].split("=")[0];
                   let thumbLength = thumb.length;
                   let size = thumbLength - (thumbLength / 8) * 2;
-                  size = Number((size * 1024) / 1000).toFixed(2);
+                  size = Number(((size * 1024) / 1000).toFixed(2));
 
                   videoThumbnails.push({
-                    name: videos[id].name,
+                    name: videos[id].name.slice(0, -1),
                     img_base64: thumbnail,
                     typeOfFile: "videoThumbnail",
                     id: id,

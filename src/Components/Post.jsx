@@ -6,18 +6,20 @@ import Moment from "react-moment";
 
 import { projectStorage } from "../firebase/config";
 
-import { Comments, ImageGrid, Video, DropdownMenu, Toast } from ".";
-import { deletePost } from "../firebase/firestore";
-import { useToasts, deleteFiles } from "react-toast-notifications";
+import { Comments, ImageGrid, DropdownMenu, Toast } from ".";
+import { deletePost, deleteFiles } from "../firebase/firestore";
+import { useToasts } from "react-toast-notifications";
 
 export default function Post(props) {
   const [showComments, setShowComments] = useState(false);
   const [numOfFilesToShow] = useState(3);
   const [isShowMoreFiles, setIsShowMoreFiles] = useState(false);
-  const [allFiles] = useState([]);
+  const [postFiles, setPostFiles] = useState([]);
   const { addToast } = useToasts();
 
-  let postFiles = [...props.resourceList];
+  useEffect(() => {
+    setPostFiles([...props.resourceList]);
+  }, [props.resourceList]);
 
   const onClickShowMore = useCallback(() => {
     setIsShowMoreFiles(true);
@@ -35,18 +37,7 @@ export default function Post(props) {
           autoDismiss: true,
         });
 
-        let promises = [];
-        postFiles.forEach((file) => {
-          let deleteTask;
-          deleteTask = projectStorage.ref(file).delete();
-          promises.push(deleteTask);
-        });
-
-        Promise.all(promises)
-          .then(() => {
-            alert("okay");
-          })
-          .catch((err) => alert(err));
+        handleDeleteFiles();
       });
     } catch (err) {
       addToast(
@@ -60,72 +51,13 @@ export default function Post(props) {
         }
       );
     }
-
-    // projectStorage
-    //   .ref()
-    //   .child("files/library-list.txt")
-    //   .delete()
-    //   .then(() => {})
-    //   .catch((err) =>
-    //     addToast(<Toast heading="We're sorry" body={err} />, {
-    //       appearance: "error",
-    //       autoDismiss: true,
-    //     })
-    //   );
-
-    // let promises = [];
-
-    // for (let i; i < postFiles.length; i++) {
-    //   let deleteTask;
-
-    //   projectStorage
-    //     .ref("files")
-    //     .listAll()
-    //     .then((listResults) => console.log(listResults));
-
-    //   alert("adf", deleteTask);
-    // }
-
-    // console.log(promises);
-    // console.log(postFiles);
-
-    // Promise.all(promises)
-    //   .then(() => {})
-    //   .catch((err) => alert(err));
   };
 
-  // useEffect(() => {
-  //   projectStorage
-  //     .ref("files")
-  //     .listAll()
-  //     .then((listResults) => {
-  //       listResults.prefixes.forEach((folderRef) => {
-  //         console.log(folderRef);
-  //       });
-  //       listResults.items.forEach((itemRef) => {
-  //         console.log(itemRef.name);
-  //         allFiles.push(itemRef.name);
-  //       });
-
-  //       let promises = [];
-  //       allFiles.forEach((file) => {
-  //         let deleteTask;
-
-  //         deleteTask = projectStorage.ref(`files/${file}`).delete();
-
-  //         promises.push(deleteTask);
-
-  //         console.log("hi");
-  //       });
-
-  //       Promise.all(promises)
-  //         .then(() => {
-  //           alert("okay");
-  //         })
-  //         .catch((err) => alert(err));
-  //     });
-  //   console.log(allFiles);
-  // }, []);
+  const handleDeleteFiles = () => {
+    Promise.all(deleteFiles(postFiles))
+      .then(() => {})
+      .catch((err) => {});
+  };
 
   return (
     <div className="bg-white border-bottom pb-3 mt-2 mb-3 no-hor-padding">
@@ -168,25 +100,11 @@ export default function Post(props) {
         <p className="post-p">{props.text}</p>
       </div>
 
-      {/* {props.images && (
-        <div className="feed-image mt-3 p-2 px-3">
-          <img className="img-fluid img-responsive" src={img1} alt="" />
-        </div>
-      )} */}
-
-      {props.videos !== null &&
-        props.images.length > 0 &&
-        props.videos.map((item) => (
-          <div className="feed-image pb-2 px-3">
-            <Video src={item} />
-          </div>
-        ))}
-
-      {props.videos !== null && props.images.length > 0 && (
+      {/* {props.videos !== null && props.videos.length > 0 && (
         <div className="feed-image pb-2 px-3">
           <ImageGrid images={props.videos} thumbnails={props.videoThumbnails} />
         </div>
-      )}
+      )} */}
 
       {props.images !== null && props.images.length > 0 && (
         <div className="feed-image pb-2 px-3">
@@ -199,7 +117,7 @@ export default function Post(props) {
           if (id < numOfFilesToShow) {
             return (
               <p className="py-0" style={{ lineHeight: "0.98em" }}>
-                <a href={item} download="w3school" target="_blank">
+                <a href={item} download={item} target="_blank" rel="noreferrer">
                   <FontAwesomeIcon icon={faFile} />
                   &nbsp;
                   {item
@@ -216,14 +134,19 @@ export default function Post(props) {
           } else {
             return (
               <>
-                <div class="row">
-                  <div class="col">
+                <div className="row">
+                  <div className="col">
                     <div
-                      class="collapse multi-collapse"
+                      className="collapse multi-collapse"
                       id="multiCollapseExample1"
                     >
                       <p className="py-0" style={{ lineHeight: "0.98em" }}>
-                        <a href={item} download="w3school" target="_blank">
+                        <a
+                          href={item}
+                          download={item}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           <FontAwesomeIcon icon={faFile} />
                           &nbsp;
                           {item
@@ -247,10 +170,9 @@ export default function Post(props) {
       {props.files !== null && !isShowMoreFiles && (
         <p className="text-center">
           <button
-            class="btn btn-link shadow-none"
+            className="btn btn-link shadow-none"
             data-toggle="collapse"
             href="#multiCollapseExample1"
-            role="button"
             aria-expanded="false"
             aria-controls="multiCollapseExample1"
             style={{
@@ -272,10 +194,9 @@ export default function Post(props) {
       {props.files !== null && isShowMoreFiles && (
         <p className="text-center">
           <button
-            class="btn btn-link shadow-none"
+            className="btn btn-link shadow-none"
             data-toggle="collapse"
             href="#multiCollapseExample1"
-            role="button"
             aria-expanded="false"
             aria-controls="multiCollapseExample1"
             style={{

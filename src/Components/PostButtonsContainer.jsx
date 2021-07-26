@@ -53,6 +53,7 @@ const PostButtonsContainer = forwardRef(
               className="video-upload"
               id="videoUpload"
               onChange={handleUploadMultipleVideos}
+              accept="video/*"
               multiple
             />
             <Button
@@ -74,6 +75,7 @@ const PostButtonsContainer = forwardRef(
               className="image-upload"
               id="imageUpload"
               onChange={handleUploadMultipleImages}
+              accept="image/x-png,image/jpeg"
               multiple
               ref={ref[0]}
             />
