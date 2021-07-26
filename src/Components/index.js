@@ -8,6 +8,7 @@ export { default as SearchBar } from "./SearchBar";
 export { default as DropdownMenu } from "./DropdownMenu";
 export { default as Tab } from "./Tab";
 export { default as Skeleton } from "./Skeleton";
+export { default as SideBarSkeleton } from "./SideBarSkeleton";
 export { default as Post } from "./Post";
 export { default as PostButtonsContainer } from "./PostButtonsContainer";
 export { default as Comments } from "./Comments";

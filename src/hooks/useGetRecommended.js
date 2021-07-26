@@ -20,7 +20,7 @@ export default function useGetRecommended(collection) {
           }
         });
 
-        setRecommendedUsers((prevState) => [...prevState, ...foundUsers]);
+        setRecommendedUsers(foundUsers);
       })
       .catch((err) => setError(err));
 

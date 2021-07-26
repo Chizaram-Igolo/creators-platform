@@ -59,6 +59,10 @@ export default function Post(props) {
     options.push({ option: "Delete Post", handlerFunction: handleDeletePost });
   }
 
+  if (user.uid !== props.poster.userId) {
+    options.push({ option: "Report Post", handlerFunction: () => {} });
+  }
+
   const handleDeleteFiles = async () => {
     Promise.all(deleteFiles(postFiles))
       .then(() => {})

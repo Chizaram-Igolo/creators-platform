@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Resizer from "react-image-file-resizer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -44,6 +46,8 @@ function Profile() {
   const { addToast } = useToasts();
 
   const { user } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const types = ["image/png", "image/jpeg"];
 
   async function handleUpdateProfile(e) {
@@ -58,16 +62,22 @@ function Profile() {
       }
 
       const img = await imageResizer(selectedImage, 240, imageType);
-      console.log(img);
       img["name"] = selectedImage["name"];
 
       let uploadImageTask = projectStorage
         .ref(`user_images/${user.uid}/${img.name}`)
         .put(img, { contentType: img.type });
 
+      setIsUploading(true);
+
       uploadImageTask.on(
         "state_changed",
-        () => {},
+        (snapshot) => {
+          let percentage = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          setProgress(percentage);
+        },
         (err) => {
           addToast(<Toast body="Sorry, the image could not be uploaded." />, {
             appearance: "error",
@@ -76,8 +86,6 @@ function Profile() {
         },
         () => {
           uploadImageTask.snapshot.ref.getDownloadURL().then((url) => {
-            console.log(url);
-
             user
               .updateProfile({ photoURL: url })
               .then(() => {
@@ -85,16 +93,23 @@ function Profile() {
                   appearance: "success",
                   autoDismiss: true,
                 });
+
+                setIsUploading(false);
+                setProgress(0);
               })
-              .catch((err) =>
+              .catch((err) => {
                 addToast(
                   <Toast body="Sorry, the image could not be uploaded." />,
                   {
                     appearance: "error",
                     autoDismiss: true,
                   }
-                )
-              );
+                );
+
+                setIsUploading(false);
+                setProgress(0);
+                uploadImageTask.cancel();
+              });
           });
         }
       );
@@ -112,11 +127,20 @@ function Profile() {
                   <div className="img-wrap border-50">
                     <img src={user.photoURL} alt="" className="profile-img" />
                   </div>
-                  <label>
+                  <label
+                    disabled={true}
+                    style={{
+                      background: isUploading ? "#dddddd" : "#efb6b2",
+                      border: isUploading
+                        ? "1px solid #dddddd"
+                        : "1px solid #efb6b2",
+                    }}
+                  >
                     <input
                       type="file"
                       onChange={handleUpdateProfile}
                       accept="image/x-png,image/jpeg"
+                      disabled={isUploading}
                     />
                     <span style={{ fontSize: "16px" }}>
                       <FontAwesomeIcon icon={faUpload} color="white" />
@@ -129,6 +153,21 @@ function Profile() {
 
                 <Link to="/settings">Settings</Link>
               </div>
+
+              {isUploading && (
+                <div
+                  style={{
+                    width: 175,
+                    height: 174,
+                    position: "absolute",
+                    top: "40px",
+                    left: "8px",
+                    zIndex: 100,
+                  }}
+                >
+                  <CircularProgressbar value={progress} strokeWidth={3} />
+                </div>
+              )}
             </SideBar>
           </Col>
 

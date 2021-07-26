@@ -25,6 +25,7 @@
   /* padding controls height, will always be perfectly square regardless of width */
   position: relative;
   border: 0px solid #999;
+  z-index: 300;
 }
 
 .img-wrap img {
@@ -66,6 +67,7 @@
   font-size: 24px;
   text-align: center;
   padding-top: 0px;
+  z-index: 300;
 }
 
 .img-grid label input {

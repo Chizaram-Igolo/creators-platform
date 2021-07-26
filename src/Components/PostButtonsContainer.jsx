@@ -108,7 +108,7 @@ const PostButtonsContainer = forwardRef(
               type="button"
               variant="dark"
               data-view-component="true"
-              className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
+              className="btn-sm text-reset text-decoration-none shadow-none post-buttons-4"
               id="audioUploadBtn"
             >
               <FontAwesomeIcon icon={faMicrophone} color="white" />
@@ -131,7 +131,7 @@ const PostButtonsContainer = forwardRef(
               type="button"
               variant="dark"
               data-view-component="true"
-              className="btn-sm text-reset text-decoration-none shadow-none post-buttons-3"
+              className="btn-sm text-reset text-decoration-none shadow-none post-buttons-5"
               id="fileUploadBtn"
             >
               <FontAwesomeIcon icon={faPaperclip} color="white" />
