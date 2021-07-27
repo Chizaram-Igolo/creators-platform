@@ -64,6 +64,16 @@ function Profile() {
       const img = await imageResizer(selectedImage, 240, imageType);
       img["name"] = selectedImage["name"];
 
+      await projectStorage
+        .ref(`user_images/${user.uid}`)
+        .listAll()
+        .then((listResults) => {
+          const promises = listResults.items.map((item) => {
+            return item.delete();
+          });
+          Promise.all(promises);
+        });
+
       let uploadImageTask = projectStorage
         .ref(`user_images/${user.uid}/${img.name}`)
         .put(img, { contentType: img.type });

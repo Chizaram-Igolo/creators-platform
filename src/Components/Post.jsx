@@ -72,7 +72,7 @@ export default function Post(props) {
   return (
     <div className="bg-white border-bottom pb-3 mt-2 mb-3 no-hor-padding">
       <div>
-        <div className="d-flex flex-row justify-content-between py-2">
+        <div className="d-flex flex-row justify-content-between py-2 px-2">
           <div className="d-flex flex-row align-items-center feed-text">
             <img
               className="rounded-circle"
@@ -104,7 +104,7 @@ export default function Post(props) {
           </div>
         </div>
       </div>
-      <div className="py-2">
+      <div className="py-3 px-2">
         <p className="post-p">{props.text}</p>
       </div>
 
@@ -115,7 +115,7 @@ export default function Post(props) {
       )} */}
 
       {props.images !== null && props.images.length > 0 && (
-        <div className="feed-image pb-2 px-3">
+        <div className="feed-image pb-2 px-4">
           <ImageGrid images={props.images} thumbnails={props.thumbnails} />
         </div>
       )}
@@ -124,7 +124,7 @@ export default function Post(props) {
         props.files.map((item, id) => {
           if (id < numOfFilesToShow) {
             return (
-              <p className="py-0" style={{ lineHeight: "0.98em" }}>
+              <p className="py-0 px-2" style={{ lineHeight: "0.98em" }}>
                 <a href={item} download={item} target="_blank" rel="noreferrer">
                   <FontAwesomeIcon icon={faFile} />
                   &nbsp;
@@ -175,7 +175,7 @@ export default function Post(props) {
           }
         })}
 
-      {props.files !== null && !isShowMoreFiles && (
+      {props.files !== null && props.files.length > 0 && !isShowMoreFiles && (
         <p className="text-center">
           <button
             className="btn btn-link shadow-none"
@@ -199,7 +199,7 @@ export default function Post(props) {
         </p>
       )}
 
-      {props.files !== null && isShowMoreFiles && (
+      {props.files !== null && props.files.length > 0 && isShowMoreFiles && (
         <p className="text-center">
           <button
             className="btn btn-link shadow-none"

@@ -47,7 +47,7 @@ class Feed extends Component {
   getPosts() {
     let set = this;
 
-    projectFirestore
+    this.unsubscribe = projectFirestore
       .collection("posts")
       .orderBy("createdAt", "desc")
       .limit(5)
@@ -82,11 +82,15 @@ class Feed extends Component {
     this.getPosts();
   }
 
+  componentDidUpdate() {
+    this.unsubscribe();
+  }
+
   loadMorePosts() {
     let set = this;
     let latestDoc = this.state.latestDoc;
 
-    projectFirestore
+    this.unsubscribe = projectFirestore
       .collection("posts")
       .orderBy("createdAt", "desc")
       .startAfter(latestDoc)
@@ -175,7 +179,7 @@ class Feed extends Component {
                         }
                         endMessage={<p style={{ textAlign: "center" }}></p>}
                         // below props only if you need pull down functionality
-                        // refreshFunction={this.refresh}
+                        // refreshFunction={this.getPosts}
                         // pullDownToRefresh
                         // pullDownToRefreshThreshold={50}
                         // pullDownToRefreshContent={

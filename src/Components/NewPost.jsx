@@ -84,6 +84,9 @@ export default function NewPost() {
     const videoUpload = $("#videoUpload");
     const fileUpload = $("#fileUpload");
 
+    const overlay = document.getElementById("overlay");
+    const overlayPostDiv = document.getElementById("overlayPostDiv");
+
     const postButtonsContainer = document.getElementById(
       "postButtonsContainer"
     );
@@ -101,8 +104,8 @@ export default function NewPost() {
       } while (targetElement);
 
       // This is a click outside.
-      postText.style.height = "";
-      postText.style.height = postText.scrollHeight + "px";
+      // postText.style.height = "";
+      // postText.style.height = postText.scrollHeight + "px";
       if (
         postText.value.trim() === "" &&
         images.length === 0 &&
@@ -114,15 +117,34 @@ export default function NewPost() {
       emojiPickerDiv.hide();
     });
 
+    document.addEventListener("click", (evt) => {
+      let targetElement = evt.target; // clicked element
+
+      do {
+        if (targetElement === overlayPostDiv || targetElement === postForm) {
+          // This is a click inside. Do nothing, just return.
+
+          return;
+        }
+        // Go up the DOM
+        targetElement = targetElement.parentNode;
+      } while (targetElement);
+
+      overlay.style.display = "none";
+      overlayPostDiv.style.display = "none";
+    });
+
     postText.addEventListener("focus", (evt) => {
-      //   document.getElementById("overlay").style.display = "block";
+      overlay.style.display = "block";
+      overlayPostDiv.style.display = "block";
+
       //   textArea.style.position = "relative";
       //   textArea.style.width = "100%";
       //   textArea.style.zIndex = "300";
 
-      postButtonsContainer.style.display = "flex";
-      postButtonsContainer.style.position = "relative";
-      multiPreview.addClass("multi-preview-focus");
+      // postButtonsContainer.style.display = "flex";
+      // postButtonsContainer.style.position = "relative";
+      // multiPreview.addClass("multi-preview-focus");
     });
 
     postText.addEventListener("blur", (evt) => {
@@ -356,7 +378,6 @@ export default function NewPost() {
 
   return (
     <>
-      <div id="overlay"></div>
       <Form onSubmit={handleUpload} id="postForm">
         <Form.Group controlId="postText" className="mb-0">
           <div className="grow-wrap">
@@ -392,8 +413,11 @@ export default function NewPost() {
               post={post}
               ref={[imageUploadRef, videoUploadRef, fileUploadRef]}
             />
+
+            <div className="post-text-overlay" id="overlayPostDiv"></div>
           </div>
         </Form.Group>
+
         <div className="emoji-picker-div hidden" id="emojiPickerDiv">
           <Picker
             onEmojiClick={onEmojiClick}
@@ -405,6 +429,8 @@ export default function NewPost() {
           />
         </div>
       </Form>
+
+      <div id="overlay"></div>
 
       <ModalDialog
         showModalDialog={showModalDialog}
