@@ -11,6 +11,7 @@ import {
   Profile,
   Settings,
   ForgotPassword,
+  UserFeed,
 } from "./Screens";
 
 import {
@@ -30,7 +31,8 @@ const routes = [
   { route: "/signup", component: <Signup /> },
   { route: "/help", component: <Feed /> },
   { route: "/forgot-password", component: <ForgotPassword /> },
-  { route: "/", component: <Feed />, exact: true },
+  // { route: "/:id", component: <UserFeed /> },
+  // { route: "/", component: <Feed />, exact: true },
 ];
 
 function App() {
@@ -55,44 +57,20 @@ function App() {
               <PrivateRoute path="/profile" component={Profile} />
               <PrivateRoute path="/settings" component={Settings} />
 
-              {/* <PrivateRoute exact path="/app/dashboard">
-              <Content
-                navWidth={navWidth}
-                widthOffset={widthOffset}
-                contentClassName={contentClassName}
-                shouldHideNavText={shouldHideNavText}
-                expandIcon={expandIcon}
-                handleChangeWidth={handleChangeWidth}
-              >
-                <Dashboard />
-              </Content>
-            </PrivateRoute> */}
-              {/* {routes.map((item, id) => {
-              return (
-                <PrivateRoute path={item.route} key={id}>
-                  <Content
-                    navWidth={navWidth}
-                    widthOffset={widthOffset}
-                    contentClassName={contentClassName}
-                    shouldHideNavText={shouldHideNavText}
-                    expandIcon={expandIcon}
-                    handleChangeWidth={handleChangeWidth}
-                  >
-                    {item.component}
-                  </Content>
-                </PrivateRoute>
-              );
-            })} */}
               {routes.map((item, id) => {
                 return (
-                  <Route path={item.route} key={id} exact={item.exact}>
+                  <Route path={item.route} key={id}>
                     {item.component}
                   </Route>
                 );
               })}
+
               <Route path="/feed">
                 <Feed addToast={addToast} />
               </Route>
+
+              <Route path="/:id" component={UserFeed} />
+              <Route path="/" component={Feed} />
             </Switch>
           </div>
         </AuthProvider>

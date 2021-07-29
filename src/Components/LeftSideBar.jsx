@@ -1,40 +1,32 @@
 import React, { useState, useEffect } from "react";
 import Nav from "react-bootstrap/Nav";
 import { Link } from "react-router-dom";
-import { useToasts } from "react-toast-notifications";
-import { Toast, SideBarSkeleton } from ".";
+import { SideBarSkeleton } from ".";
 import { useAuth } from "../contexts/AuthContext";
 import useGetRecommended from "../hooks/useGetRecommended";
 import SideBarSubscriptionList from "./SideBarSubscriptionList";
 
 export default function LeftSideBar() {
   const { user } = useAuth();
-  const { addToast } = useToasts();
-  const [loading, setLoading] = useState(true);
-  const { recommendedUsers, error } = useGetRecommended("users");
-
-  let recommended = [];
-
-  if (user !== null && user.id !== null) {
-    recommended = recommendedUsers.filter((item) => item.id !== user.uid);
-  } else {
-    recommended = recommendedUsers;
-  }
+  const { recommendedUsers, loading, error } = useGetRecommended("users");
+  const [recommended, setRecommended] = useState([]);
 
   useEffect(() => {
     if (error) {
-      addToast(<Toast body={error} />, {
-        appearance: "error",
-        autoDismiss: true,
-      });
+      // Send email with error details to developer.
     }
-  }, [error, addToast]);
+  }, [error]);
 
   useEffect(() => {
-    if (recommended !== null && recommended.length > 0) {
-      setLoading(false);
+    if (user !== null && user.id !== null) {
+      let filteredRecommended = recommendedUsers.filter(
+        (item) => item.id !== user.uid
+      );
+      setRecommended(filteredRecommended);
+    } else {
+      setRecommended(recommendedUsers);
     }
-  }, [recommended]);
+  }, [user, recommendedUsers]);
 
   return (
     <div className="container pt-5">
@@ -54,7 +46,12 @@ export default function LeftSideBar() {
         {!loading && recommended.length > 0 && <p>Suggested channels</p>}
         {!loading &&
           (recommended || []).map((item) => (
-            <Link to="/" className="nav-link" role="button">
+            <Link
+              to={`/${item.username}`}
+              className="nav-link text-decoration-none"
+              role="button"
+              key={item.username}
+            >
               @{item.username}
             </Link>
           ))}

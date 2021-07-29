@@ -1,8 +1,8 @@
-import { data } from "jquery";
 import { useState, useEffect } from "react";
 import { projectFirestore } from "../firebase/config";
 
 export default function useGetRecommended(collection) {
+  const [loading, setLoading] = useState(true);
   const [recommendedUsers, setRecommendedUsers] = useState([]);
   const [error, setError] = useState(null);
 
@@ -21,10 +21,11 @@ export default function useGetRecommended(collection) {
         });
 
         setRecommendedUsers(foundUsers);
+        setLoading(false);
       })
       .catch((err) => setError(err));
 
     return unsubscribe;
   }, [collection]);
-  return { recommendedUsers, error };
+  return { recommendedUsers, loading, error };
 }

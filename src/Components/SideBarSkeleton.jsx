@@ -12,6 +12,7 @@ export default function SideBarSkeleton(props) {
         backgroundColor="#f3f3f3"
         foregroundColor="#ecebeb"
         {...props}
+        // style={{ width: "100%" }}
       >
         <rect x="0" y="12" rx="3" ry="3" width="75%" height="6" />
         <rect x="16" y="60" rx="3" ry="3" width="70%" height="6" />

@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "neue_haas_sv";
+  src: url("./assets/fonts/neue_haas_sv/NHaasGroteskTXPro-55Rg.ttf");
+}
+
 * {
   /* box-sizing: border-box !important; */
   margin: 0;
@@ -6,6 +11,13 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap");
 
+html {
+  scroll-behavior: smooth;
+
+  scrollbar-width: thin;
+  scrollbar-color: #888888 #eeeeee;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -13,6 +25,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.clickable:hover {
+  cursor: pointer;
 }
 
 code {

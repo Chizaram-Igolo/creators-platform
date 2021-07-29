@@ -78,6 +78,11 @@
   /* height: 40px; */
 }
 
+.btn-div {
+  width: 60px;
+  max-width: 16.6667%;
+}
+
 .post-buttons-1,
 .post-buttons-2,
 .post-buttons-3,
@@ -86,7 +91,7 @@
   border-radius: 0px;
   font-size: 1em;
   display: inline-block !important;
-  width: 60px;
+  width: 100%;
   height: 40px;
 }
 
@@ -195,5 +200,6 @@
 
 .emoji-picker-div {
   position: absolute;
+  top: 97px;
   z-index: 300;
 }

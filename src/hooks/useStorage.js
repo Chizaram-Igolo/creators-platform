@@ -42,7 +42,9 @@ export default function useStorage(post) {
           videos,
           files,
           resourceList,
-          poster: post.poster,
+          posterId: post.posterId,
+          posterUsername: post.posterUsername,
+          posterPhoto: post.posterPhoto,
         })
         .then(() => {
           setProgress(0);
@@ -89,6 +91,12 @@ export default function useStorage(post) {
             .put(file, { contentType: file.type });
 
           resourceList.push(`images/${file.name}`);
+        } else if (file.typeOfFile === "thumbnail") {
+          uploadTask = projectStorage
+            .ref(`thumbnails/${file.name}`)
+            .put(file, { contentType: file.type });
+
+          resourceList.push(`thumbnails/${file.name}`);
         } else if (file.typeOfFile === "video") {
           uploadTask = projectStorage
             .ref(`videos/${file.name}`)

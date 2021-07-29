@@ -16,7 +16,7 @@ import Form from "react-bootstrap/Form";
 import { SideBar, Tab, Toast } from "../Components";
 
 import "./styles/Profile.css";
-import { projectStorage } from "../firebase/config";
+import { projectFirestore, projectStorage } from "../firebase/config";
 import { useToasts } from "react-toast-notifications";
 
 const tabContent = [
@@ -98,7 +98,7 @@ function Profile() {
           uploadImageTask.snapshot.ref.getDownloadURL().then((url) => {
             user
               .updateProfile({ photoURL: url })
-              .then(() => {
+              .then(async () => {
                 addToast(<Toast body="Your profile image was updated." />, {
                   appearance: "success",
                   autoDismiss: true,
@@ -106,6 +106,13 @@ function Profile() {
 
                 setIsUploading(false);
                 setProgress(0);
+
+                await projectFirestore
+                  .collection("users")
+                  .doc(user.uid)
+                  .update({
+                    photoURL: url,
+                  });
               })
               .catch((err) => {
                 addToast(

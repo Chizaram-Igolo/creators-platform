@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisV, faFile } from "@fortawesome/free-solid-svg-icons";
 import Moment from "react-moment";
+import ProgressiveImage from "react-progressive-image-loading";
 
 import { Comments, ImageGrid, DropdownMenu, Toast } from ".";
 import { deletePost, deleteFiles } from "../firebase/firestore";
@@ -55,11 +56,10 @@ export default function Post(props) {
     }
   };
 
-  if (user.uid === props.poster.userId) {
+  if (user === null || user.id === null) {
+  } else if (user.uid === props.posterId) {
     options.push({ option: "Delete Post", handlerFunction: handleDeletePost });
-  }
-
-  if (user.uid !== props.poster.userId) {
+  } else if (user.uid !== props.posterId) {
     options.push({ option: "Report Post", handlerFunction: () => {} });
   }
 
@@ -73,29 +73,42 @@ export default function Post(props) {
     <div className="bg-white border-bottom pb-3 mt-2 mb-3 no-hor-padding">
       <div>
         <div className="d-flex flex-row justify-content-between py-2 px-2">
-          <div className="d-flex flex-row align-items-center feed-text">
-            <img
-              className="rounded-circle"
-              src={props.poster.userPhoto}
-              alt=""
-              width="45"
-              height="45"
-            />
-            <div className="d-flex flex-column flex-wrap ml-2">
-              <span className="font-weight-bold cooper">
-                {props.poster.username}
-              </span>
-              <span className="text-black-50 time">
-                {props.createdAt !== null && (
-                  <Moment fromNow>
-                    {props.createdAt !== null && props.createdAt.toDate()}
-                  </Moment>
+          <Link
+            to={`/${props.posterUsername}`}
+            className="text-decoration-none text-reset"
+          >
+            <div className="d-flex flex-row align-items-center feed-text">
+              <ProgressiveImage
+                preview={props.posterPhoto}
+                src={props.posterPhoto}
+                initialBlur={2}
+                render={(src, style) => (
+                  <img
+                    className="rounded-circle"
+                    src={src}
+                    style={style}
+                    alt=""
+                    width="45"
+                    height="45"
+                  />
                 )}
+              />
+              <div className="d-flex flex-column flex-wrap ml-2">
+                <span className="font-weight-bold cooper">
+                  {props.posterUsername}
+                </span>
+                <span className="text-black-50 time">
+                  {props.createdAt !== null && (
+                    <Moment fromNow>
+                      {props.createdAt !== null && props.createdAt.toDate()}
+                    </Moment>
+                  )}
 
-                {props.createdAt === null && <>calculating...</>}
-              </span>
+                  {props.createdAt === null && <>calculating...</>}
+                </span>
+              </div>
             </div>
-          </div>
+          </Link>
           <div className="feed-icon pl-2">
             <DropdownMenu
               icon={<FontAwesomeIcon icon={faEllipsisV} color="#333333" />}

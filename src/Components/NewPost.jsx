@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  createRef,
+  useCallback,
+} from "react";
 import { useToasts } from "react-toast-notifications";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import Form from "react-bootstrap/Form";
@@ -55,9 +61,9 @@ export default function NewPost() {
 
   // Refs
   const postTextRef = useRef();
-  const imageUploadRef = useRef();
-  const videoUploadRef = useRef();
-  const fileUploadRef = useRef();
+  const imageUploadRef = createRef();
+  const videoUploadRef = createRef();
+  const fileUploadRef = createRef();
   const emojiPickerRef = useRef();
 
   const handleShowModalDialog = useCallback(() => {
@@ -121,7 +127,7 @@ export default function NewPost() {
       let targetElement = evt.target; // clicked element
 
       do {
-        if (targetElement === overlayPostDiv || targetElement === postForm) {
+        if (targetElement === overlayPostDiv) {
           // This is a click inside. Do nothing, just return.
 
           return;
@@ -135,15 +141,18 @@ export default function NewPost() {
     });
 
     postText.addEventListener("focus", (evt) => {
-      overlay.style.display = "block";
-      overlayPostDiv.style.display = "block";
+      // overlay.style.display = "block";
+      // overlayPostDiv.style.display = "block";
 
       //   textArea.style.position = "relative";
       //   textArea.style.width = "100%";
       //   textArea.style.zIndex = "300";
 
-      // postButtonsContainer.style.display = "flex";
-      // postButtonsContainer.style.position = "relative";
+      postButtonsContainer.style.display = "flex";
+      postButtonsContainer.style.position = "relative";
+
+      // postOptions.style.display = "block";
+
       // multiPreview.addClass("multi-preview-focus");
     });
 
@@ -281,6 +290,21 @@ export default function NewPost() {
   }
 
   function cleanUp(successState) {
+    // Clear state
+    setFileArray([]);
+    setImages([]);
+    setThumbnails([]);
+    setVideos([]);
+    setVideoThumbnails([]);
+    setFiles([]);
+    setPostText("");
+    setTotalBytes(0);
+    setPost({});
+    setLoading(false);
+    postTextRef.current.style.height = "54px";
+    document.getElementById("postForm").reset();
+    document.getElementById("postButtonsContainer").display = "none";
+
     if (successState) {
       addToast(<Toast body="Your post was uploaded." />, {
         appearance: "success",
@@ -300,21 +324,6 @@ export default function NewPost() {
         }
       );
     }
-
-    // Clear state
-    setFileArray([]);
-    setImages([]);
-    setThumbnails([]);
-    setVideos([]);
-    setVideoThumbnails([]);
-    setFiles([]);
-    setPostText("");
-    setTotalBytes(0);
-    setPost({});
-    setLoading(false);
-    postTextRef.current.style.height = "54px";
-    document.getElementById("postForm").reset();
-    document.getElementById("postButtonsContainer").display = "none";
   }
 
   const handleUpload = async (e) => {
@@ -324,13 +333,9 @@ export default function NewPost() {
     setPost({
       files: [...images, ...thumbnails, ...videos, ...files],
       text: postText,
-      poster: [
-        {
-          userId: user.uid,
-          username: user.displayName,
-          userPhoto: user.photoURL,
-        },
-      ],
+      posterId: user.uid,
+      posterUsername: user.displayName,
+      posterPhoto: user.photoURL,
       totalBytes: (totalBytes * 1024) / 1000,
     });
   };
@@ -383,7 +388,7 @@ export default function NewPost() {
           <div className="grow-wrap">
             <Form.Control
               as="textarea"
-              placeholder="Enter in content you want to share."
+              placeholder="What do you want to share."
               rows={1}
               role="textarea"
               className="shadow-none animated new-post-textarea border-bottom-0"
@@ -398,6 +403,18 @@ export default function NewPost() {
               videoThumbnails={videoThumbnails}
               handleRemoveThumbnail={handleRemoveThumbnail}
             />
+
+            <div className="emoji-picker-div hidden" id="emojiPickerDiv">
+              <Picker
+                onEmojiClick={onEmojiClick}
+                disableAutoFocus={true}
+                skinTone={SKIN_TONE_MEDIUM_DARK}
+                groupNames={{ smileys_people: "PEOPLE" }}
+                native
+                ref={emojiPickerRef}
+              />
+            </div>
+
             <PostButtonsContainer
               hasNoFileContent={
                 postText.trim() === "" &&
@@ -417,17 +434,6 @@ export default function NewPost() {
             <div className="post-text-overlay" id="overlayPostDiv"></div>
           </div>
         </Form.Group>
-
-        <div className="emoji-picker-div hidden" id="emojiPickerDiv">
-          <Picker
-            onEmojiClick={onEmojiClick}
-            disableAutoFocus={true}
-            skinTone={SKIN_TONE_MEDIUM_DARK}
-            groupNames={{ smileys_people: "PEOPLE" }}
-            native
-            ref={emojiPickerRef}
-          />
-        </div>
       </Form>
 
       <div id="overlay"></div>

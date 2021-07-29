@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 
 import Button from "react-bootstrap/Button";
@@ -17,14 +17,38 @@ import { projectFirestore } from "../firebase/config";
 
 function Signup() {
   const emailRef = useRef();
-  const usernameRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
+  const [username, setUsername] = useState("");
   const { signup } = useAuth();
   const [error, setError] = useState(null);
   const [confirmPassError, setConfirmPassError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
+
+  useEffect(() => {
+    async function checkIfUsernameAvailable() {
+      const snapshot = await projectFirestore
+        .collection("users")
+        .where("username", "==", username)
+        .get();
+
+      if (snapshot.empty) {
+        console.log(username, "is available");
+      } else {
+        console.log(username, "is not available");
+      }
+    }
+
+    if (username.length > 3) {
+      const timeout = setTimeout(() => {
+        checkIfUsernameAvailable();
+      }, 2000);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [username]);
 
   function genRanHex(size) {
     return [...Array(size)]
@@ -43,27 +67,39 @@ function Signup() {
     try {
       setError(null);
       setLoading(true);
-      await signup(emailRef.current.value, passwordRef.current.value).then(
-        (userCredential) => {
-          var user = userCredential.user;
-          user
-            .updateProfile({
-              displayName: usernameRef.current.value,
-              photoURL:
-                `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
-                emailRef.current.value[0],
-            })
-            .then(() => {
-              projectFirestore
-                .collection("users")
-                .doc(user.uid)
-                .set({ username: user.displayName, subscriptions: [] });
-            })
-            .catch((err) => setError(err.message));
 
-          history.push("/feed");
-        }
-      );
+      const snapshot = await projectFirestore
+        .collection("users")
+        .where("username", "==", username)
+        .get();
+
+      if (snapshot.empty) {
+        await signup(emailRef.current.value, passwordRef.current.value).then(
+          (userCredential) => {
+            var user = userCredential.user;
+            user
+              .updateProfile({
+                displayName: username,
+                photoURL:
+                  `https://ui-avatars.com/api/?background=${genRanHex(
+                    6
+                  )}&name=` + emailRef.current.value[0],
+              })
+              .then(() => {
+                projectFirestore.collection("users").doc(user.uid).set({
+                  username: user.displayName,
+                  photoURL: user.photoURL,
+                  subscriptions: [],
+                });
+              })
+              .catch((err) => setError(err.message));
+
+            history.push("/feed");
+          }
+        );
+      } else {
+        setError(`Username '${username}' is already taken.`);
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -108,8 +144,12 @@ function Signup() {
                     type="text"
                     placeholder="Username"
                     required
-                    ref={usernameRef}
+                    // ref={usernameRef}
                     isInvalid={confirmPassError.length > 0}
+                    value={username}
+                    onChange={(e) =>
+                      setUsername(e.target.value.toLocaleLowerCase())
+                    }
                   />
                   <Form.Control.Feedback type="invalid">
                     Please choose a username.
