@@ -28,9 +28,48 @@ class ImageGrid extends Component {
 
     this.openModal = this.openModal.bind(this);
     this.onClose = this.onClose.bind(this);
+    this.resize = this.resize.bind(this);
+    this.debounce = this.debounce.bind(this);
 
     if (props.countFrom <= 0 || props.countFrom > 5) {
       console.warn("countFrom is limited to 5!");
+    }
+  }
+
+  componentDidMount() {
+    let resize = this.resize;
+
+    window.addEventListener(
+      "resize",
+      this.debounce(function (event) {
+        resize();
+      }, 125)
+    );
+
+    this.resize();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.resize);
+  }
+
+  debounce(fn, delay) {
+    var timer = null;
+    return function () {
+      var context = this,
+        args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(context, args);
+      }, delay);
+    };
+  }
+
+  resize() {
+    if (window.innerWidth <= 780) {
+      this.setState({ countFrom: 3 });
+    } else {
+      this.setState({ countFrom: 5 });
     }
   }
 

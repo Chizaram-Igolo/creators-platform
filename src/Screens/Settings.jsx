@@ -1,10 +1,11 @@
 import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
 import { useAuth } from "../contexts/AuthContext";
@@ -18,16 +19,58 @@ function Settings() {
   const usernameRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
+  const reAuthPasswordRef = useRef();
 
-  const { user, updateEmail, updatePassword, updateProfile } = useAuth();
+  const {
+    user,
+    updateEmail,
+    updatePassword,
+    updateProfile,
+    deleteAccount,
+    reauthenticateUser,
+  } = useAuth();
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirmPassError, setConfirmPassError] = useState("");
+  const [reAuthError, setReAuthError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const history = useHistory();
 
-  function handleSubmit(e) {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => {
+    setShow(false);
+    setReAuthError("");
+  };
+  const handleShow = () => setShow(true);
+
+  async function handleReauthenticateUser(e) {
     e.preventDefault();
 
+    console.log(reAuthPasswordRef.current.value);
+
+    try {
+      const reauthPromise = await reauthenticateUser(
+        user.email,
+        reAuthPasswordRef.current.value
+      );
+
+      handleUpdateProfile();
+
+      console.log(reauthPromise);
+      console.log("reauthenticated!");
+    } catch (error) {
+      if (error.code === "auth/wrong-password") {
+        setReAuthError(
+          "This password is invalid, please enter the correct password."
+        );
+        return;
+      }
+    }
+  }
+
+  function handleUpdateProfile() {
     // Validation
     if (passwordRef.current.value !== confirmPasswordRef.current.value) {
       return setConfirmPassError("Passwords do not match.");
@@ -60,6 +103,17 @@ function Settings() {
       .finally(() => setLoading(false));
   }
 
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    handleShow(true);
+  }
+
+  async function handleDeleteAccount() {
+    await deleteAccount();
+    history.push("/");
+  }
+
   return (
     <>
       <Container>
@@ -90,131 +144,173 @@ function Settings() {
           </Col>
 
           <Col md={{ span: 7 }} className="px-0 pt-5">
-            <div className="container pt-4 mb-5">
-              <div className="d-flex justify-content-center row">
-                <div className="col-md-12 px-2">
-                  <div className="feed">
-                    <div className="bg-white p-2 pt-0 pl-0 pr-1 pb-3  mb-3 no-hor-padding"></div>
-
-                    {/* <Post images={true} />
+            <div className="mb-5">
+              {/* <Post images={true} />
                     <RestrictedPost />
                     <Post comments={true} /> */}
 
-                    <Form className="vertical-center" onSubmit={handleSubmit}>
-                      {/* <h3 className="mb-5 text-center">Profile</h3> */}
+              <Form className="vertical-center" onSubmit={handleSubmit}>
+                {/* <h3 className="mb-5 text-center">Profile</h3> */}
 
-                      {error && (
-                        <Alert
-                          variant="light"
-                          className="form-alert text-danger border border-danger"
-                        >
-                          <Form.Text className="text-danger">{error}</Form.Text>
-                        </Alert>
-                      )}
+                {error && (
+                  <Alert
+                    variant="light"
+                    className="form-alert text-danger border border-danger"
+                  >
+                    <Form.Text className="text-danger">{error}</Form.Text>
+                  </Alert>
+                )}
 
-                      {message && (
-                        <>
-                          <Alert
-                            variant="light"
-                            className="form-alert text-success border border-success"
-                          >
-                            <Form.Text className="text-success">
-                              {message}
-                            </Form.Text>
-                          </Alert>
-                        </>
-                      )}
-                      <p>Start earning with other creators today!</p>
-                      <Form.Group controlId="formBasicEmail">
-                        {/* <Form.Label>Email address</Form.Label> */}
+                {message && (
+                  <>
+                    <Alert
+                      variant="light"
+                      className="form-alert text-success border border-success"
+                    >
+                      <Form.Text className="text-success">{message}</Form.Text>
+                    </Alert>
+                  </>
+                )}
+                <p>Start earning with other creators today!</p>
+                <Form.Group controlId="formBasicEmail">
+                  {/* <Form.Label>Email address</Form.Label> */}
+                  <Form.Control
+                    type="email"
+                    placeholder="Email Address"
+                    ref={emailRef}
+                    required
+                    defaultValue={user.email}
+                  />
+                  <Form.Text className="text-muted">
+                    We'll never share your email with anyone else.
+                  </Form.Text>
+                </Form.Group>
+
+                <Form.Group>
+                  {/* <Form.Label>Username</Form.Label> */}
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      type="text"
+                      placeholder="Username"
+                      ref={usernameRef}
+                      // isInvalid={confirmPassError.length > 0}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please choose a username.
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+
+                <Form.Group controlId="formBasicPassword">
+                  {/* <Form.Label>Password</Form.Label> */}
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      type="password"
+                      isInvalid={confirmPassError.length > 0}
+                      ref={passwordRef}
+                      placeholder="Leave blank to keep the same"
+                    />
+                    <Form.Text id="passwordHelpBlock" muted>
+                      Your password must be 8-20 characters long, contain
+                      letters and numbers, and must not contain spaces, special
+                      characters, or emoji.
+                    </Form.Text>
+                    <Form.Control.Feedback type="invalid">
+                      Please enter a password.
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+
+                <Form.Group controlId="formConfirmBasicPassword">
+                  {/* <Form.Label>Confirm Password</Form.Label> */}
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      type="password"
+                      isInvalid={confirmPassError.length > 0}
+                      ref={confirmPasswordRef}
+                      placeholder="Leave blank to keep the same"
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Passwords do not match.
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+
+                <Button
+                  disabled={loading}
+                  variant="primary"
+                  type="submit"
+                  block={true.toString()}
+                  className="inline-block"
+                >
+                  {loading ? (
+                    <div className="box">
+                      <div className="card1"></div>
+                      <div className="card2"></div>
+                      <div className="card3"></div>
+                    </div>
+                  ) : (
+                    "Update profile"
+                  )}
+                </Button>
+
+                <Button
+                  variant="danger"
+                  type="button"
+                  block={true.toString()}
+                  onClick={() => handleDeleteAccount()}
+                >
+                  Delete your Account
+                </Button>
+
+                <p className="mt-3 text-center">
+                  <Link to="/profile">Go back to your profile</Link>
+                </p>
+              </Form>
+              <Modal
+                show={show}
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+              >
+                <Modal.Header closeButton>
+                  <Modal.Title>Enter your current password</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleReauthenticateUser}>
+                  <Modal.Body>
+                    <p>
+                      Please enter your current password to complete the
+                      operation.
+                    </p>
+                    <Form.Group controlId="formBasicReAuthPassword">
+                      {/* <Form.Label>Password</Form.Label> */}
+                      <InputGroup hasValidation>
                         <Form.Control
-                          type="email"
-                          placeholder="Email Address"
-                          ref={emailRef}
-                          required
-                          defaultValue={user.email}
+                          type="password"
+                          isInvalid={reAuthError.length > 0}
+                          ref={reAuthPasswordRef}
+                          placeholder="Your current password"
                         />
-                        <Form.Text className="text-muted">
-                          We'll never share your email with anyone else.
-                        </Form.Text>
-                      </Form.Group>
-
-                      <Form.Group>
-                        {/* <Form.Label>Username</Form.Label> */}
-                        <InputGroup hasValidation>
-                          <Form.Control
-                            type="text"
-                            placeholder="Username"
-                            ref={usernameRef}
-                            required
-                            // isInvalid={confirmPassError.length > 0}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            Please choose a username.
-                          </Form.Control.Feedback>
-                        </InputGroup>
-                      </Form.Group>
-
-                      <Form.Group controlId="formBasicPassword">
-                        {/* <Form.Label>Password</Form.Label> */}
-                        <InputGroup hasValidation>
-                          <Form.Control
-                            type="password"
-                            isInvalid={confirmPassError.length > 0}
-                            ref={passwordRef}
-                            placeholder="Leave blank to keep the same"
-                          />
-                          <Form.Text id="passwordHelpBlock" muted>
-                            Your password must be 8-20 characters long, contain
-                            letters and numbers, and must not contain spaces,
-                            special characters, or emoji.
-                          </Form.Text>
-                          <Form.Control.Feedback type="invalid">
-                            Please enter a password.
-                          </Form.Control.Feedback>
-                        </InputGroup>
-                      </Form.Group>
-
-                      <Form.Group controlId="formConfirmBasicPassword">
-                        {/* <Form.Label>Confirm Password</Form.Label> */}
-                        <InputGroup hasValidation>
-                          <Form.Control
-                            type="password"
-                            isInvalid={confirmPassError.length > 0}
-                            ref={confirmPasswordRef}
-                            placeholder="Leave blank to keep the same"
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            Passwords do not match.
-                          </Form.Control.Feedback>
-                        </InputGroup>
-                      </Form.Group>
-
-                      <Button
-                        disabled={loading}
-                        variant="primary"
-                        type="submit"
-                        block={true.toString()}
-                        className="inline-block"
-                      >
-                        {loading ? (
-                          <div className="box">
-                            <div className="card1"></div>
-                            <div className="card2"></div>
-                            <div className="card3"></div>
-                          </div>
-                        ) : (
-                          "Update profile"
-                        )}
-                      </Button>
-
-                      <p className="mt-3 text-center">
-                        <Link to="/profile">Go back to your profile</Link>
-                      </p>
-                    </Form>
-                  </div>
-                </div>
-              </div>
+                        <Form.Text id="passwordHelpBlock" muted></Form.Text>
+                        <Form.Control.Feedback
+                          type="invalid"
+                          style={{ fontSize: "0.86em" }}
+                        >
+                          {reAuthError}
+                        </Form.Control.Feedback>
+                      </InputGroup>
+                    </Form.Group>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                      Cancel
+                    </Button>
+                    <Button variant="primary" type="submit">
+                      Confirm
+                    </Button>
+                  </Modal.Footer>
+                </Form>
+              </Modal>
             </div>
           </Col>
           <Col></Col>

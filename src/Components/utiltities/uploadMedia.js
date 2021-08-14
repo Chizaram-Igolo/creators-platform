@@ -1,4 +1,5 @@
 import { Toast } from "../";
+import { globalVars } from "../../global_vars";
 
 async function uploadMultipleImages(
   e,
@@ -32,12 +33,22 @@ async function uploadMultipleImages(
         imageType = "JPEG";
       }
 
-      const imageBlob = await imageResizer(newImage, 1400, imageType);
+      const imageBlob = await imageResizer(
+        newImage,
+        globalVars.imageMaxSize,
+        imageType,
+        globalVars.imageQuality
+      );
       imageBlob["id"] = i;
       imageBlob["typeOfFile"] = "image";
       imageBlob["name"] = newImage["name"];
 
-      const thumbnailBlob = await imageResizer(newImage, 100, imageType);
+      const thumbnailBlob = await imageResizer(
+        newImage,
+        100,
+        imageType,
+        globalVars.imageQuality
+      );
       thumbnailBlob["id"] = imageBlob["id"];
       thumbnailBlob["typeOfFile"] = "thumbnail";
 

@@ -7,7 +7,7 @@ export default function Basic({ selectors, tabContent }) {
 
   return (
     <>
-      <nav className="flex border-b border-gray-300">
+      <nav className="flex border-b border-gray-300 px-3">
         {tabContent.map((item) => (
           <TabSelector
             isActive={selectedTab === item.selector}
@@ -18,7 +18,7 @@ export default function Basic({ selectors, tabContent }) {
           </TabSelector>
         ))}
       </nav>
-      <div className="py-4 px-2 mb-5">
+      <div className="py-4 mb-0">
         {tabContent.map((item) => (
           <TabPanel hidden={selectedTab !== item.selector} key={item.selector}>
             {item.body}

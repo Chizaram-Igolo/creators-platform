@@ -1,14 +1,18 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { useDarkMode } from "./hooks/useDarkMode";
-import { useToasts } from "react-toast-notifications";
 import { AuthProvider } from "./contexts/AuthContext";
+
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Nav from "react-bootstrap/Nav";
+
 import {
   Signin,
   Signout,
   Signup,
   Feed,
-  Profile,
   Settings,
   ForgotPassword,
   UserFeed,
@@ -20,6 +24,8 @@ import {
   PrivateRoute,
   ConnectivityListener,
   Toggle,
+  SideBar,
+  LeftSideBar,
 } from "./Components";
 
 import { lightTheme, darkTheme } from "./Components/Theme";
@@ -37,7 +43,6 @@ const routes = [
 
 function App() {
   const [theme, themeToggler, mountedCompnent] = useDarkMode();
-  const { addToast } = useToasts();
 
   const themeMode = theme === "light" ? lightTheme : darkTheme;
 
@@ -54,7 +59,6 @@ function App() {
           <div className="pt-5 px-2">
             <Toggle theme={theme} toggleTheme={themeToggler} />
             <Switch>
-              <PrivateRoute path="/profile" component={Profile} />
               <PrivateRoute path="/settings" component={Settings} />
 
               {routes.map((item, id) => {
@@ -65,12 +69,30 @@ function App() {
                 );
               })}
 
-              <Route path="/feed">
-                <Feed addToast={addToast} />
-              </Route>
+              <Container className="px-0">
+                <Row>
+                  <Col md={{ span: 3 }} className="d-none d-md-block">
+                    <LeftSideBar />
+                  </Col>
 
-              <Route path="/:id" component={UserFeed} />
-              <Route path="/" component={Feed} />
+                  <Col md={{ span: 8 }} lg={{ span: 7 }} className="pt-md-5">
+                    <Switch>
+                      <Route path="/feed" component={Feed} />
+                      <Route path="/:id" component={UserFeed} />
+                      <Route path="/" component={Feed} />
+                    </Switch>
+                  </Col>
+
+                  <Col className="d-none d-md-block">
+                    <SideBar>
+                      <Nav
+                        defaultActiveKey="/"
+                        className="flex-column fixed-position"
+                      ></Nav>
+                    </SideBar>
+                  </Col>
+                </Row>
+              </Container>
             </Switch>
           </div>
         </AuthProvider>

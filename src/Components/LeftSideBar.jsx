@@ -29,32 +29,34 @@ export default function LeftSideBar() {
   }, [user, recommendedUsers]);
 
   return (
-    <div className="container pt-5">
-      <Nav
-        defaultActiveKey="/"
-        className="flex-column fixed-position d-none d-md-block container col-md-3"
-      >
+    <div className="pt-2 pt-md-5">
+      <Nav defaultActiveKey="/" className="clearfix flex flex-column">
         {user !== null && user.id !== null && <SideBarSubscriptionList />}
-        <p></p>
 
         {loading && (
-          <div className="mt-2 mb-5 pt-0 px-0 col-6">
+          <div className="mt-2 mb-5 pt-0 px-0">
             <SideBarSkeleton />
           </div>
         )}
 
-        {!loading && recommended.length > 0 && <p>Suggested channels</p>}
-        {!loading &&
-          (recommended || []).map((item) => (
-            <Link
-              to={`/${item.username}`}
-              className="nav-link text-decoration-none"
-              role="button"
-              key={item.username}
-            >
-              @{item.username}
-            </Link>
-          ))}
+        {!loading && recommended.length > 0 && (
+          <p className="mt-3 ">Suggested channels</p>
+        )}
+
+        <ul>
+          {!loading &&
+            (recommended || []).map((item) => (
+              <li key={item.username}>
+                <Link
+                  to={`/${item.username}`}
+                  className="nav-link text-decoration-none"
+                  role="button"
+                >
+                  @{item.username}
+                </Link>
+              </li>
+            ))}
+        </ul>
       </Nav>
     </div>
   );

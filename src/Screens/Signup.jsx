@@ -26,6 +26,10 @@ function Signup() {
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
+  // useEffect(() => {
+  //   user.reauthenticateWithCredential()
+  // }, []);
+
   useEffect(() => {
     async function checkIfUsernameAvailable() {
       const snapshot = await projectFirestore
@@ -74,29 +78,30 @@ function Signup() {
         .get();
 
       if (snapshot.empty) {
-        await signup(emailRef.current.value, passwordRef.current.value).then(
-          (userCredential) => {
-            var user = userCredential.user;
-            user
-              .updateProfile({
-                displayName: username,
-                photoURL:
-                  `https://ui-avatars.com/api/?background=${genRanHex(
-                    6
-                  )}&name=` + emailRef.current.value[0],
-              })
-              .then(() => {
-                projectFirestore.collection("users").doc(user.uid).set({
-                  username: user.displayName,
-                  photoURL: user.photoURL,
-                  subscriptions: [],
-                });
-              })
-              .catch((err) => setError(err.message));
-
-            history.push("/feed");
-          }
+        const userCredential = await signup(
+          emailRef.current.value,
+          passwordRef.current.value
         );
+
+        const { user } = userCredential;
+
+        await userCredential.user.sendEmailVerification();
+        await userCredential.user.updateProfile({
+          displayName: username,
+          photoURL:
+            `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
+            emailRef.current.value[0],
+        });
+        await projectFirestore
+          .collection("users")
+          .doc(userCredential.user.uid)
+          .set({
+            username: user.displayName,
+            photoURL: user.photoURL,
+            subscriptions: [],
+          });
+
+        history.push("/feed");
       } else {
         setError(`Username '${username}' is already taken.`);
       }
@@ -168,9 +173,8 @@ function Signup() {
                     placeholder="Password"
                   />
                   <Form.Text id="passwordHelpBlock" muted>
-                    Your password must be 8-20 characters long, contain letters
-                    and numbers, and must not contain spaces, special
-                    characters, or emoji.
+                    Your password must have at least 8 characters including
+                    letters and numbers.
                   </Form.Text>
                   <Form.Control.Feedback type="invalid">
                     Please enter a password.

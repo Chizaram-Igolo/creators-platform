@@ -1,0 +1,21 @@
+[debug] [2021-08-07T05:28:28.652Z] ----------------------------------------------------------------------
+[debug] [2021-08-07T05:28:28.655Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js use --add
+[debug] [2021-08-07T05:28:28.655Z] CLI Version:   9.16.0
+[debug] [2021-08-07T05:28:28.656Z] Platform:      win32
+[debug] [2021-08-07T05:28:28.656Z] Node Version:  v14.17.2
+[debug] [2021-08-07T05:28:28.657Z] Time:          Sat Aug 07 2021 06:28:28 GMT+0100 (West Africa Standard Time)
+[debug] [2021-08-07T05:28:28.657Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2021-08-07T05:28:28.752Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-08-07T05:28:28.753Z] > authorizing via signed-in user (igolo.chizaram@gmail.com)
+[debug] [2021-08-07T05:28:28.760Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2021-08-07T05:28:53.548Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2021-08-07T05:28:53.554Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+    at Client.doRequest (C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:211:19)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at async Client.request (C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:96:20)
+    at async getProjectPage (C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:233:17)
+    at async getFirebaseProjectPage (C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:250:23)
+    at async listFirebaseProjects (C:\Users\HP\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:281:29)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.

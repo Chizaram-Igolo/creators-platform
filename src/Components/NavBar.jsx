@@ -64,7 +64,14 @@ function NavBar() {
             <Nav className="mr-auto float-right"></Nav>
             <Nav className="float-right">
               <NavDropdown
-                title={<img src={img1} alt="Avatar" className="avatar" />}
+                title={
+                  <img
+                    src={img1}
+                    alt="Avatar"
+                    className="avatar"
+                    onError="this.style.display='none'"
+                  />
+                }
                 id="collasible-nav-dropdown"
               >
                 <NavDropdown.Item onClick={() => history.push("/profile")}>

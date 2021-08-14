@@ -10,6 +10,8 @@ export default function useGetPostsByUser(username) {
   useEffect(() => {
     let foundPosts = [];
 
+    console.log("inside useGetPostsByUser hook");
+
     const unsubscribe = projectFirestore
       .collection("posts")
       .where("posterUsername", "==", username)
@@ -30,9 +32,12 @@ export default function useGetPostsByUser(username) {
         setDocs(foundPosts);
         setLoading(false);
       })
-      .catch((err) => setError(err));
+      .catch((err) => {
+        // Send email with error to developer
+        setError(err);
+      });
 
-    return unsubscribe;
+    // return unsubscribe;
   }, [username]);
 
   return { docs, error, loading, latestDoc };

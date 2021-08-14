@@ -2,6 +2,11 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
+import "firebase/functions";
+
+if (process.env.NODE_ENV !== "production") {
+  import("firebase/analytics").then(() => {});
+}
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -21,11 +26,21 @@ function firebaseInit() {
 
 firebaseInit();
 
-// Initialize Firebase firestore and storage
+// Initialize Firebase Auth, Firestore, Storage and Functions
+const auth = firebase.auth();
 const projectFirestore = firebase.firestore();
+projectFirestore.enablePersistence({ synchronizeTabas: true }).catch((err) => {
+  if (err.code === "failed-precondition") {
+    // Multiple tabs open.
+    console.log("Broooooo!");
+  } else if (err.code === "unimplemented") {
+    console.log("Can't do that");
+  }
+});
+
 const projectStorage = firebase.storage();
+const projectFunctions = firebase.functions();
 const timestamp = firebase.firestore.FieldValue.serverTimestamp;
 
-export const auth = firebase.auth();
 export default firebase;
-export { projectFirestore, projectStorage, timestamp };
+export { auth, projectFirestore, projectStorage, projectFunctions, timestamp };

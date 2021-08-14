@@ -15,7 +15,7 @@ import Form from "react-bootstrap/Form";
 
 import { SideBar, Tab, Toast } from "../Components";
 
-import "./styles/Profile.css";
+// import "./styles/Profile.css";
 import { projectFirestore, projectStorage } from "../firebase/config";
 import { useToasts } from "react-toast-notifications";
 

@@ -29,13 +29,13 @@ export function useConnectivityListener() {
   useUpdateEffect(() => {
     const content = (
       <Fragment>
-        <strong style={{ fontSize: "1.1em" }}>
+        <span className="bold-text" style={{ fontSize: "1.1em" }}>
           {isOnline ? "Online" : "Offline"}
-        </strong>
+        </span>
         <div style={{ fontSize: "1.1em" }}>
           {isOnline
             ? "You are back online."
-            : "You went offline but we'll catch you up when you get back online. :)"}
+            : `You went offline. \n We will keep updating your UI with your changes and push the updates to our server when you get back online. :)`}
         </div>
       </Fragment>
     );

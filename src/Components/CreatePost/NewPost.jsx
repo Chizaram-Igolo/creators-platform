@@ -1,38 +1,28 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  createRef,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useToasts } from "react-toast-notifications";
 import Picker, { SKIN_TONE_MEDIUM_DARK } from "emoji-picker-react";
 import Form from "react-bootstrap/Form";
 import Resizer from "react-image-file-resizer";
 import $ from "jquery";
 
-import {
-  PostButtonsContainer,
-  Toast,
-  ModalDialog,
-  MultiUploadPreview,
-} from ".";
+import PostButtonsContainer from "./PostButtonsContainer";
+import { Toast, ModalDialog, MultiUploadPreview } from "..";
 import {
   uploadMultipleImages,
   uploadMultipleVideos,
   uploadMultipleFiles,
-} from "./utiltities/uploadMedia";
-import "./styles/NewPost.css";
-import { useAuth } from "../contexts/AuthContext";
+} from "../utiltities/uploadMedia";
+import "../styles/NewPost.css";
+import { useAuth } from "../../contexts/AuthContext";
 
-const imageResizer = (file, size, imageType) =>
+const imageResizer = (file, size, imageType, imageQuality) =>
   new Promise((resolve) => {
     Resizer.imageFileResizer(
       file,
       size,
       size,
       imageType,
-      80,
+      imageQuality,
       0,
       (uri) => {
         resolve(uri);
@@ -41,7 +31,7 @@ const imageResizer = (file, size, imageType) =>
     );
   });
 
-export default function NewPost() {
+export default function CreatePost() {
   const { user } = useAuth();
   const { addToast } = useToasts();
 
@@ -61,9 +51,9 @@ export default function NewPost() {
 
   // Refs
   const postTextRef = useRef();
-  const imageUploadRef = createRef();
-  const videoUploadRef = createRef();
-  const fileUploadRef = createRef();
+  const imageUploadRef = useRef();
+  const videoUploadRef = useRef();
+  const fileUploadRef = useRef();
   const emojiPickerRef = useRef();
 
   const handleShowModalDialog = useCallback(() => {
@@ -83,7 +73,7 @@ export default function NewPost() {
   useEffect(() => {
     const postForm = document.getElementById("postForm");
     const postText = document.getElementById("postText");
-    const multiPreview = $("#multiPreview");
+    // const multiPreview = $("#multiPreview");
     const emojiTogglerBtn = $("#emojiTogglerBtn");
     const emojiPickerDiv = $("#emojiPickerDiv");
     const imageUpload = $("#imageUpload");
@@ -93,9 +83,9 @@ export default function NewPost() {
     const overlay = document.getElementById("overlay");
     const overlayPostDiv = document.getElementById("overlayPostDiv");
 
-    const postButtonsContainer = document.getElementById(
-      "postButtonsContainer"
-    );
+    // const postButtonsContainer = document.getElementById(
+    //   "postButtonsContainer"
+    // );
 
     document.addEventListener("click", (evt) => {
       let targetElement = evt.target; // clicked element
@@ -117,9 +107,9 @@ export default function NewPost() {
         images.length === 0 &&
         videos.length === 0
       ) {
-        postButtonsContainer.style.display = "none";
+        // postButtonsContainer.style.display = "none";
       }
-      multiPreview.removeClass("multi-preview-focus");
+      // multiPreview.removeClass("multi-preview-focus");
       emojiPickerDiv.hide();
     });
 
@@ -143,22 +133,18 @@ export default function NewPost() {
     postText.addEventListener("focus", (evt) => {
       // overlay.style.display = "block";
       // overlayPostDiv.style.display = "block";
-
       //   textArea.style.position = "relative";
       //   textArea.style.width = "100%";
       //   textArea.style.zIndex = "300";
-
-      postButtonsContainer.style.display = "flex";
-      postButtonsContainer.style.position = "relative";
-
+      // postButtonsContainer.style.display = "flex";
+      // postButtonsContainer.style.position = "relative";
       // postOptions.style.display = "block";
-
       // multiPreview.addClass("multi-preview-focus");
     });
 
-    postText.addEventListener("blur", (evt) => {
-      multiPreview.removeClass("multi-preview-focus");
-    });
+    // postText.addEventListener("blur", (evt) => {
+    //   multiPreview.removeClass("multi-preview-focus");
+    // });
 
     postText.addEventListener("input", (evt) => {
       postText.style.height = "";
@@ -303,7 +289,7 @@ export default function NewPost() {
     setLoading(false);
     postTextRef.current.style.height = "54px";
     document.getElementById("postForm").reset();
-    document.getElementById("postButtonsContainer").display = "none";
+    // document.getElementById("postButtonsContainer").display = "none";
 
     if (successState) {
       addToast(<Toast body="Your post was uploaded." />, {
@@ -383,65 +369,68 @@ export default function NewPost() {
 
   return (
     <>
-      <Form onSubmit={handleUpload} id="postForm">
-        <Form.Group controlId="postText" className="mb-0">
-          <div className="grow-wrap">
-            <Form.Control
-              as="textarea"
-              placeholder="What do you want to share."
-              rows={1}
-              role="textarea"
-              className="shadow-none animated new-post-textarea border-bottom-0"
-              onChange={(e) => setPostText(e.target.value)}
-              value={postText}
-              ref={postTextRef}
-            />
-
-            <MultiUploadPreview
-              fileArray={fileArray}
-              videos={videos}
-              videoThumbnails={videoThumbnails}
-              handleRemoveThumbnail={handleRemoveThumbnail}
-            />
-
-            <div className="emoji-picker-div hidden" id="emojiPickerDiv">
-              <Picker
-                onEmojiClick={onEmojiClick}
-                disableAutoFocus={true}
-                skinTone={SKIN_TONE_MEDIUM_DARK}
-                groupNames={{ smileys_people: "PEOPLE" }}
-                native
-                ref={emojiPickerRef}
+      <div className="px-2">
+        <Form onSubmit={handleUpload} id="postForm">
+          <Form.Group controlId="postText" className="mb-0">
+            <div className="grow-wrap">
+              <Form.Control
+                as="textarea"
+                placeholder="What do you want to share."
+                rows={1}
+                role="textarea"
+                className="shadow-none animated new-post-textarea border-bottom-0"
+                onChange={(e) => setPostText(e.target.value)}
+                value={postText}
+                ref={postTextRef}
               />
+
+              <MultiUploadPreview
+                fileArray={fileArray}
+                videos={videos}
+                videoThumbnails={videoThumbnails}
+                handleRemoveThumbnail={handleRemoveThumbnail}
+              />
+
+              <div className="emoji-picker-div hidden" id="emojiPickerDiv">
+                <Picker
+                  onEmojiClick={onEmojiClick}
+                  disableAutoFocus={true}
+                  skinTone={SKIN_TONE_MEDIUM_DARK}
+                  groupNames={{ smileys_people: "PEOPLE" }}
+                  native
+                  ref={emojiPickerRef}
+                />
+              </div>
+
+              <PostButtonsContainer
+                user={user}
+                hasNoFileContent={
+                  postText.trim() === "" &&
+                  images.length === 0 &&
+                  videos.length === 0 &&
+                  files.length === 0
+                }
+                loading={loading}
+                cleanUp={cleanUp}
+                handleUploadMultipleImages={handleUploadMultipleImages}
+                handleUploadMultipleVideos={handleUploadMultipleVideos}
+                handleUploadMultipleFiles={handleUploadMultipleFiles}
+                post={post}
+                ref={[imageUploadRef, videoUploadRef, fileUploadRef]}
+              />
+
+              <div className="post-text-overlay" id="overlayPostDiv"></div>
             </div>
+          </Form.Group>
+        </Form>
 
-            <PostButtonsContainer
-              hasNoFileContent={
-                postText.trim() === "" &&
-                images.length === 0 &&
-                videos.length === 0 &&
-                files.length === 0
-              }
-              loading={loading}
-              cleanUp={cleanUp}
-              handleUploadMultipleImages={handleUploadMultipleImages}
-              handleUploadMultipleVideos={handleUploadMultipleVideos}
-              handleUploadMultipleFiles={handleUploadMultipleFiles}
-              post={post}
-              ref={[imageUploadRef, videoUploadRef, fileUploadRef]}
-            />
+        <div id="overlay"></div>
 
-            <div className="post-text-overlay" id="overlayPostDiv"></div>
-          </div>
-        </Form.Group>
-      </Form>
-
-      <div id="overlay"></div>
-
-      <ModalDialog
-        showModalDialog={showModalDialog}
-        handleCloseModalDialog={handleCloseModalDialog}
-      />
+        <ModalDialog
+          showModalDialog={showModalDialog}
+          handleCloseModalDialog={handleCloseModalDialog}
+        />
+      </div>
     </>
   );
 }

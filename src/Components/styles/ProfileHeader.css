@@ -18,9 +18,9 @@
 .img-wrap {
   overflow: hidden;
   height: 0px;
-  width: 160px;
-  max-width: 160px;
-  height: 160px;
+  width: 120px;
+  max-width: 120px;
+  height: 120px;
   /* padding: 50% 0; */
   /* padding controls height, will always be perfectly square regardless of width */
   position: relative;
@@ -28,13 +28,17 @@
   z-index: 300;
 }
 
-.img-wrap img {
-  min-width: 100%;
-  min-height: 100%;
-  max-width: 150%;
+.img-wrap div {
+  width: 120px !important;
+  height: 120px !important;
+  /* max-width: 120%; */
   position: absolute;
   top: 0;
   left: 0;
+
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 .file-div {
@@ -53,8 +57,8 @@
 .img-grid label {
   display: inline-block;
   position: absolute;
-  top: 120px;
-  left: 100px;
+  top: 80px;
+  left: 70px;
   /* right: 0px; */
   width: 42px;
   height: 42px;

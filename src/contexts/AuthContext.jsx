@@ -1,11 +1,12 @@
 import { useEffect, useState, useContext, createContext } from "react";
-import { auth } from "../firebase/config";
+import firebase, { auth } from "../firebase/config";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({ email: "chizaram.igolo@yahoo.com" });
+  const [user, setUser] = useState(null);
 
+  // Create new user.
   function signup(email, password) {
     return auth.createUserWithEmailAndPassword(email, password);
   }
@@ -30,11 +31,24 @@ export const AuthProvider = ({ children }) => {
     return user.updatePassword(password);
   }
 
-  function updateProfile({ details }) {
+  function updateProfile(details) {
     return user.updateProfile(details);
   }
 
+  function reauthenticateUser(email, password) {
+    const credential = firebase.auth.EmailAuthProvider.credential(
+      email,
+      password
+    );
+    return user.reauthenticateWithCredential(credential);
+  }
+
+  function deleteAccount() {
+    return user.delete();
+  }
+
   useEffect(() => {
+    // Get the currently signed-in user.
     const unsubscribe = auth.onAuthStateChanged((u) => {
       setUser(u);
     });
@@ -51,6 +65,8 @@ export const AuthProvider = ({ children }) => {
     updateEmail,
     updatePassword,
     updateProfile,
+    reauthenticateUser,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

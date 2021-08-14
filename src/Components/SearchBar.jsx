@@ -30,7 +30,7 @@ const SearchbarDropdown = (props) => {
         ref={inputRef}
         onChange={onInputChange}
         autoComplete="off"
-        style={{ height: "30px" }}
+        style={{ height: "34px", fontSize: ".96em" }}
       />
       <ul id="results" className="list-group" ref={ulRef}>
         {options.map((option, index) => {
@@ -42,6 +42,7 @@ const SearchbarDropdown = (props) => {
                 inputRef.current.value = option.title;
               }}
               className="list-group-item list-group-item-action"
+              style={{ fontSize: ".96em" }}
             >
               {option["title"]}
               <br />

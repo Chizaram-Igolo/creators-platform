@@ -77,6 +77,7 @@ function App() {
                     src={user.photoURL}
                     alt={user.email[0]}
                     className="avatar"
+                    onError="this.style.display='none'"
                   />
                   <CaretIcon fontSize={8} />
                 </>
@@ -223,24 +224,24 @@ function DropdownMenu(props) {
             ref={dropdownRef}
           >
             <div className="top-menu">
-              <DropdownItem route="/profile">
+              <DropdownItem route={`/${user.displayName}`}>
                 <p className="color-text-secondary mb-0">
                   Signed in as
                   <br />
-                  <strong className="strong-signed-in-name">
-                    {user.displayName}
-                  </strong>
+                  <span className="strong-signed-in-name bold-text">
+                    @{user.displayName}
+                  </span>
                   {/* <span class="d-block ">Never used</span> */}
                 </p>
               </DropdownItem>
               <NavDropdown.Divider />
-              <DropdownItem route="/profile">Your profile</DropdownItem>
+              <DropdownItem route={`/${user.displayName}`}>
+                Your wall
+              </DropdownItem>
               <DropdownItem route="/feed">Your feed</DropdownItem>
               <DropdownItem route="/subscriptions">
                 Your subscriptions
               </DropdownItem>
-              <DropdownItem route="/posts">Your posts</DropdownItem>
-              <DropdownItem route="/comments">Your comments</DropdownItem>
               <NavDropdown.Divider />
               <DropdownItem route="/help">Help</DropdownItem>
               <DropdownItem route="/settings">Settings</DropdownItem>

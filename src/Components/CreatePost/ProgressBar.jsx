@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import useStorage from "../hooks/useStorage";
+import useStorage from "../../hooks/useStorage";
 
 export default function ProgressBar({ post, cleanUp }) {
   let { success, error, progress } = useStorage(post);

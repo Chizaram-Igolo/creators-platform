@@ -1,13 +1,13 @@
 import React from "react";
 import { PaystackButton } from "react-paystack";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 import Alert from "react-bootstrap/Alert";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-import "./styles/RestrictedPost.css";
+import "../styles/RestrictedPost.css";
 
 export default function RestrictedPost(props) {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ export default function RestrictedPost(props) {
   };
 
   return (
-    <div className="bg-white border-bottom pb-3 mt-2 mb-5">
+    <div className="bg-white border-bottom pb-3 mt-2 mb-5 px-2 px-md-0">
       <Container>
         <Row>
           <Col md={12} className="mt-0 px-0 pb-0 mb-0">
@@ -89,7 +89,7 @@ export default function RestrictedPost(props) {
                 <div className="flex-auto px-4">
                   {/* <code>*****868786d5</code> */}
                   <Alert.Heading
-                    className="restricted-heading mb-2"
+                    className="restricted-heading mb-2 semi-bold-text"
                     style={{ fontWeight: 900 }}
                   >
                     Paid Content
@@ -102,7 +102,7 @@ export default function RestrictedPost(props) {
                     >
                       Jul 7, 2021
                     </relative-time>{" "}
-                    by <strong>Chizaram-Igolo</strong>
+                    by <span className="bold-text">Chizaram-Igolo</span>
                     {/* <span className="d-block ">Never used</span> */}
                   </p>
                   <p className="mt-2 mb-1 post-p">

@@ -45,6 +45,8 @@ export default function useStorage(post) {
           posterId: post.posterId,
           posterUsername: post.posterUsername,
           posterPhoto: post.posterPhoto,
+          numLikes: 0,
+          numComments: 0,
         })
         .then(() => {
           setProgress(0);

@@ -9,6 +9,7 @@
   width: inherit;
   overflow-y: hidden;
   height: 20em;
+  display: none;
   /* border-bottom: 1px #eeeeee solid; */
 }
 

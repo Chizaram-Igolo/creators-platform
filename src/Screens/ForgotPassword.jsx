@@ -51,7 +51,7 @@ function ForgotPassword(props) {
               {message && (
                 <>
                   <Alert
-                    variant="light"
+                    variant="success"
                     className="form-alert text-success border border-success"
                   >
                     <Form.Text className="text-success status-message">

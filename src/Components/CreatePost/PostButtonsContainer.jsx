@@ -16,11 +16,12 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 
-import { ProgressBar } from ".";
+import ProgressBar from "./ProgressBar";
 
 const PostButtonsContainer = forwardRef(
   (
     {
+      user,
       hasNoFileContent,
       loading,
       cleanUp,
@@ -36,7 +37,7 @@ const PostButtonsContainer = forwardRef(
         <div
           className={
             hasNoFileContent
-              ? "post-buttons-container mb-0 hidden"
+              ? "post-buttons-container mb-0"
               : "post-buttons-container mb-0"
           }
           id="postButtonsContainer"
@@ -215,7 +216,7 @@ const PostButtonsContainer = forwardRef(
                       <div className="flex-auto px-4">
                         <code>*****868786d5</code>
                         <Alert.Heading
-                          className="restricted-heading mb-2"
+                          className="restricted-heading mb-2 bold-text"
                           style={{ fontWeight: 900 }}
                         >
                           Access Restriction
@@ -228,7 +229,8 @@ const PostButtonsContainer = forwardRef(
                           >
                             Jul 7, 2021
                           </relative-time>{" "}
-                          by <strong>Chizaram-Igolo</strong>
+                          by{" "}
+                          <span className="bold-text">@{user.displayName}</span>
                         </p>
                         {/* <p className="mt-2 mb-1 post-p">
                           This content has been restricted. You need to pay to
@@ -236,7 +238,6 @@ const PostButtonsContainer = forwardRef(
                         </p> */}
                       </div>
                     </div>
-
                     <Form.Group
                       controlId="formBasicCheckbox"
                       className="mt-3 clearfix col-12 "
@@ -279,11 +280,11 @@ const PostButtonsContainer = forwardRef(
               </Row>
             </Container>
           </div>
-        </div>
 
-        {Object.keys(post).length !== 0 && (
-          <ProgressBar post={post} cleanUp={cleanUp} />
-        )}
+          {Object.keys(post).length !== 0 && (
+            <ProgressBar post={post} cleanUp={cleanUp} />
+          )}
+        </div>
       </>
     );
   }
