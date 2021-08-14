@@ -15,6 +15,18 @@ import {
 import "../styles/NewPost.css";
 import { useAuth } from "../../contexts/AuthContext";
 
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "& .MuiTextField-root": {
+      margin: theme.spacing(1),
+      width: "25ch",
+    },
+  },
+}));
+
 const imageResizer = (file, size, imageType, imageQuality) =>
   new Promise((resolve) => {
     Resizer.imageFileResizer(
@@ -68,6 +80,13 @@ export default function CreatePost() {
     e.preventDefault();
     let _postText = postText;
     setPostText(_postText + emojiObject.emoji);
+  };
+
+  const classes = useStyles();
+  const [value, setValue] = React.useState("Controlled");
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
   };
 
   useEffect(() => {
@@ -373,6 +392,15 @@ export default function CreatePost() {
         <Form onSubmit={handleUpload} id="postForm">
           <Form.Group controlId="postText" className="mb-0">
             <div className="grow-wrap">
+              <TextField
+                id="filled-multiline-static"
+                label="Multiline"
+                multiline
+                rows={4}
+                defaultValue="Default Value"
+                variant="filled"
+              />
+
               <Form.Control
                 as="textarea"
                 placeholder="What do you want to share."
