@@ -2,10 +2,6 @@ import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Nav from "react-bootstrap/Nav";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -13,13 +9,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import "../styles/Signin.css";
 
-function Account() {
-  const emailRef = useRef();
-  const usernameRef = useRef();
-  const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
-  const reAuthPasswordRef = useRef();
-
+export default function Account() {
   const {
     user,
     updateEmail,
@@ -28,6 +18,12 @@ function Account() {
     deleteAccount,
     reauthenticateUser,
   } = useAuth();
+
+  const [email, setEmail] = useState(user?.email);
+  const [username, setUsername] = useState(user?.displayName);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState();
+  const reAuthPasswordRef = useRef();
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -55,10 +51,10 @@ function Account() {
         reAuthPasswordRef.current.value
       );
 
-      handleUpdateProfile();
-
       console.log(reauthPromise);
       console.log("reauthenticated!");
+
+      handleUpdateProfile();
     } catch (error) {
       if (error.code === "auth/wrong-password") {
         setReAuthError(
@@ -71,7 +67,7 @@ function Account() {
 
   function handleUpdateProfile() {
     // Validation
-    if (passwordRef.current.value !== confirmPasswordRef.current.value) {
+    if (password !== confirmPassword) {
       return setConfirmPassError("Passwords do not match.");
     }
 
@@ -79,19 +75,16 @@ function Account() {
     setLoading(true);
     setError("");
 
-    if (emailRef.current.value !== user.email) {
-      promises.push(updateEmail(emailRef.current.value));
+    if (email !== user.email) {
+      promises.push(updateEmail(email));
     }
 
-    if (passwordRef.current.value) {
-      promises.push(updatePassword(passwordRef.current.value));
+    if (password) {
+      promises.push(updatePassword(password));
     }
 
-    if (
-      usernameRef.current.value &&
-      usernameRef.current.value !== user.displayName
-    ) {
-      promises.push(updateProfile({ displayName: usernameRef.current.value }));
+    if (username && username !== user.displayName) {
+      promises.push(updateProfile({ displayName: username }));
     }
 
     Promise.all(promises)
@@ -141,10 +134,10 @@ function Account() {
 
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
-              <h5 className="mb-3">Account</h5>
+              <h5 className="mb-3">Change your account information</h5>
               <Link to="/profile">Go back to your profile</Link>
             </div>
-            <Form.Group controlId="formBasicEmail">
+            <Form.Group controlId="formChannelName">
               <Form.Label className="bold-text">Channel Name</Form.Label>
               <Form.Control
                 type="name"
@@ -159,19 +152,20 @@ function Account() {
               </Form.Text>
             </Form.Group>
 
-            <Form.Group controlId="formBasicEmail">
+            {/* <Form.Group controlId="formBasicEmail">
               <Form.Label className="bold-text">Email address</Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Email Address"
-                ref={emailRef}
+                value={email}
                 required
                 defaultValue={user?.email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <Form.Text className="text-muted">
                 We'll never share your email with anyone else.
               </Form.Text>
-            </Form.Group>
+            </Form.Group> */}
 
             <Form.Group>
               {/* <Form.Label>Username</Form.Label> */}
@@ -183,8 +177,9 @@ function Account() {
                 <Form.Control
                   type="text"
                   placeholder="Username"
-                  ref={usernameRef}
+                  value={username}
                   defaultValue={user?.displayName}
+                  onChange={(e) => setUsername(e.target.value)}
                   // isInvalid={confirmPassError.length > 0}
                 />
                 <Form.Control.Feedback type="invalid">
@@ -193,46 +188,15 @@ function Account() {
               </InputGroup>
             </Form.Group>
 
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label className="bold-text">Password</Form.Label>
-              {/* <InputGroup hasValidation> */}
-              <Form.Control
-                type="password"
-                isInvalid={confirmPassError.length > 0}
-                ref={passwordRef}
-                placeholder="Leave blank to keep the same"
-              />
-              <Form.Text id="passwordHelpBlock" muted>
-                Must be at least 8 characters including letters, numbers, and 1
-                special character (e.g *$&#@)
-              </Form.Text>
-              <Form.Control.Feedback type="invalid">
-                Please enter a password.
-              </Form.Control.Feedback>
-              {/* </InputGroup> */}
-            </Form.Group>
-
-            <Form.Group controlId="formConfirmBasicPassword">
-              {/* <Form.Label>Confirm Password</Form.Label> */}
-              <InputGroup hasValidation>
-                <Form.Control
-                  type="password"
-                  isInvalid={confirmPassError.length > 0}
-                  ref={confirmPasswordRef}
-                  placeholder="Leave blank to keep the same"
-                />
-                <Form.Control.Feedback type="invalid">
-                  Passwords do not match.
-                </Form.Control.Feedback>
-              </InputGroup>
-            </Form.Group>
-
             <div className="d-flex flex-row justify-content-end">
               <Button
-                disabled={loading}
+                disabled={
+                  loading ||
+                  (email === user.email && username === user.displayName)
+                }
                 variant="primary"
                 type="submit"
-                className="btn-sm inline-block bold-text"
+                className="btn-sm inline-block bold-text rounded-lg"
                 style={{ letterSpacing: "0.82px" }}
               >
                 {loading ? (
@@ -247,21 +211,12 @@ function Account() {
               </Button>
             </div>
           </div>
-
-          {/* <Button
-                  variant="danger"
-                  type="button"
-                  block={true.toString()}
-                  onClick={() => handleDeleteAccount()}
-                >
-                  Delete your Account
-                </Button> */}
         </Form>
 
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
 
-          {false && (
+          {error && (
             <Alert
               variant="light"
               className="form-alert text-danger border border-danger"
@@ -280,92 +235,26 @@ function Account() {
               </Alert>
             </>
           )}
-          <h6 className="mb-3">Danger</h6>
-          <Form.Group controlId="formBasicEmail">
-            {/* <Form.Label>Email address</Form.Label> */}
-            <Form.Control
-              type="email"
-              placeholder="Email Address"
-              ref={emailRef}
-              required
-              defaultValue={user.email}
-            />
-            <Form.Text className="text-muted">
-              We'll never share your email with anyone else.
-            </Form.Text>
-          </Form.Group>
+          <div>
+            <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
+              <h5 className="mb-3 text-danger">Delete Your Account</h5>
+            </div>
+            <p>
+              Deleting your account means all your profile and content will be
+              erased permanently. Only proceed if you are sure.
+            </p>
 
-          <Form.Group>
-            {/* <Form.Label>Username</Form.Label> */}
-            <InputGroup hasValidation>
-              <Form.Control
-                type="text"
-                placeholder="Username"
-                ref={usernameRef}
-                value={user?.displayName}
-                // isInvalid={confirmPassError.length > 0}
-              />
-              <Form.Control.Feedback type="invalid">
-                Please choose a username.
-              </Form.Control.Feedback>
-            </InputGroup>
-          </Form.Group>
-
-          <Form.Group controlId="formBasicPassword">
-            {/* <Form.Label>Password</Form.Label> */}
-            <InputGroup hasValidation>
-              <Form.Control
-                type="password"
-                isInvalid={confirmPassError.length > 0}
-                ref={passwordRef}
-                placeholder="Leave blank to keep the same"
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a password.
-              </Form.Control.Feedback>
-            </InputGroup>
-          </Form.Group>
-
-          <Form.Group controlId="formConfirmBasicPassword">
-            {/* <Form.Label>Confirm Password</Form.Label> */}
-            <InputGroup hasValidation>
-              <Form.Control
-                type="password"
-                isInvalid={confirmPassError.length > 0}
-                ref={confirmPasswordRef}
-                placeholder="Leave blank to keep the same"
-              />
-              <Form.Control.Feedback type="invalid">
-                Passwords do not match.
-              </Form.Control.Feedback>
-            </InputGroup>
-          </Form.Group>
-
-          <Button
-            disabled={loading}
-            variant="primary"
-            type="submit"
-            // block={true.toString()}
-            className="inline-block"
-          >
-            {loading ? (
-              <div className="box">
-                <div className="card1"></div>
-                <div className="card2"></div>
-                <div className="card3"></div>
-              </div>
-            ) : (
-              "Update profile"
-            )}
-          </Button>
-
-          <Button
-            variant="danger"
-            type="button"
-            onClick={() => handleDeleteAccount()}
-          >
-            Delete your Account
-          </Button>
+            <div className="d-flex flex-row justify-content-end">
+              <Button
+                variant="outline-danger"
+                type="button"
+                onClick={() => handleDeleteAccount()}
+                className="rounded-lg"
+              >
+                Delete your Account
+              </Button>
+            </div>
+          </div>
         </Form>
 
         <Modal
@@ -375,7 +264,7 @@ function Account() {
           keyboard={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Enter your current password</Modal.Title>
+            <Modal.Title>Enter password to confirm</Modal.Title>
           </Modal.Header>
           <Form onSubmit={handleReauthenticateUser}>
             <Modal.Body>
@@ -412,21 +301,6 @@ function Account() {
           </Form>
         </Modal>
       </div>
-      <Container>
-        <Row>
-          <Col></Col>
-          <Col xs={10} md={8} lg={6} xl={5}>
-            {/* {error && (
-              <Alert variant="danger" className="form-alert">
-                {error}
-              </Alert>
-            )} */}
-          </Col>
-          <Col></Col>
-        </Row>
-      </Container>
     </>
   );
 }
-
-export default Account;

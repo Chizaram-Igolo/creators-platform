@@ -1,10 +1,7 @@
 import React, { useState, useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -12,47 +9,25 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import "../styles/Signin.css";
 
-function Security() {
-  const emailRef = useRef();
-  const usernameRef = useRef();
-  const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
+export default function Security() {
+  const [oldPassword, setOldPassword] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const reAuthPasswordRef = useRef();
 
-  const {
-    user,
-    updateEmail,
-    updatePassword,
-    updateProfile,
-    deleteAccount,
-    reauthenticateUser,
-  } = useAuth();
+  const { user, updatePassword, updateProfile, reauthenticateUser } = useAuth();
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirmPassError, setConfirmPassError] = useState("");
   const [reAuthError, setReAuthError] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
 
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => {
-    setShow(false);
-    setReAuthError("");
-  };
-  const handleShow = () => setShow(true);
-
-  async function handleReauthenticateUser(e) {
-    e.preventDefault();
-
-    console.log(reAuthPasswordRef.current.value);
+  async function handleReauthenticateUser() {
+    console.log(oldPassword);
 
     try {
-      const reauthPromise = await reauthenticateUser(
-        user.email,
-        reAuthPasswordRef.current.value
-      );
+      const reauthPromise = await reauthenticateUser(user.email, oldPassword);
 
       handleUpdateProfile();
 
@@ -70,7 +45,7 @@ function Security() {
 
   function handleUpdateProfile() {
     // Validation
-    if (passwordRef.current.value !== confirmPasswordRef.current.value) {
+    if (password !== confirmPassword) {
       return setConfirmPassError("Passwords do not match.");
     }
 
@@ -78,19 +53,8 @@ function Security() {
     setLoading(true);
     setError("");
 
-    if (emailRef.current.value !== user.email) {
-      promises.push(updateEmail(emailRef.current.value));
-    }
-
-    if (passwordRef.current.value) {
-      promises.push(updatePassword(passwordRef.current.value));
-    }
-
-    if (
-      usernameRef.current.value &&
-      usernameRef.current.value !== user.displayName
-    ) {
-      promises.push(updateProfile({ displayName: usernameRef.current.value }));
+    if (password) {
+      promises.push(updatePassword(password));
     }
 
     Promise.all(promises)
@@ -103,43 +67,11 @@ function Security() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    handleShow(true);
-  }
-
-  async function handleDeleteAccount() {
-    await deleteAccount();
-    history.push("/");
+    handleReauthenticateUser();
   }
 
   return (
     <>
-      {/* <Container className="px-0">
-        <Row>
-          <Col md={{ span: 3 }} className="d-none d-md-block">
-            <SideBar>
-              <div className="pt-2 pt-md-3">
-                <Nav defaultActiveKey="/" className="clearfix flex flex-column">
-                  <p className="mt-0">Profile</p>
-
-                  <ul>
-                    {subroutes.map((item) => (
-                      <li key={item.route}>
-                        <Link
-                          to={item.route}
-                          className="nav-link text-decoration-none"
-                          role="button"
-                        >
-                          {item.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </Nav>
-              </div>
-            </SideBar>
-          </Col> */}
-
       <div className="pt-4 px-2 mb-5">
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
@@ -166,68 +98,37 @@ function Security() {
 
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
-              <h5 className="mb-3">Account Security</h5>
+              <h5 className="mb-3">Change Password</h5>
               <Link to="/profile">Go back to your profile</Link>
             </div>
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Channel Name</Form.Label>
-              <Form.Control
-                type="name"
-                placeholder="Public Facing Name"
-                // ref={emailRef}
-                // required
-                // defaultValue={user?.email}
-              />
-              <Form.Text className="text-muted">
-                Your name may appear around GitHub where you contribute or are
-                mentioned. You can remove it at any time.
-              </Form.Text>
-            </Form.Group>
 
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Email Address"
-                ref={emailRef}
-                required
-                defaultValue={user?.email}
-              />
-              <Form.Text className="text-muted">
-                We'll never share your email with anyone else.
-              </Form.Text>
-            </Form.Group>
-
-            <Form.Group>
-              {/* <Form.Label>Username</Form.Label> */}
-
-              <Form.Label className="bold-text">Username</Form.Label>
-              <InputGroup hasValidation>
-                <InputGroup.Text id="btnGroupAddon">@</InputGroup.Text>
-
-                <Form.Control
-                  type="text"
-                  placeholder="Username"
-                  ref={usernameRef}
-                  defaultValue={user?.displayName}
-                  // isInvalid={confirmPassError.length > 0}
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please choose a username.
-                </Form.Control.Feedback>
-              </InputGroup>
-            </Form.Group>
-
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label className="bold-text">Password</Form.Label>
+            <Form.Group controlId="formBasicOldPassword">
+              <Form.Label className="bold-text">Old password</Form.Label>
               {/* <InputGroup hasValidation> */}
               <Form.Control
                 type="password"
                 isInvalid={confirmPassError.length > 0}
-                ref={passwordRef}
-                placeholder="Leave blank to keep the same"
+                value={oldPassword}
+                placeholder=""
+                onChange={(e) => setOldPassword(e.target.value)}
               />
-              <Form.Text id="passwordHelpBlock" muted>
+              <Form.Control.Feedback type="invalid">
+                Please enter a password.
+              </Form.Control.Feedback>
+              {/* </InputGroup> */}
+            </Form.Group>
+
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label className="bold-text">New password</Form.Label>
+              {/* <InputGroup hasValidation> */}
+              <Form.Control
+                type="password"
+                isInvalid={confirmPassError.length > 0}
+                value={password}
+                placeholder=""
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Form.Text id="passwordHelpBlock" className="text-muted">
                 Must be at least 8 characters including letters, numbers, and 1
                 special character (e.g *$&#@)
               </Form.Text>
@@ -237,14 +138,18 @@ function Security() {
               {/* </InputGroup> */}
             </Form.Group>
 
-            <Form.Group controlId="formConfirmBasicPassword">
+            <Form.Group controlId="formBasicConfirmPassword">
               {/* <Form.Label>Confirm Password</Form.Label> */}
+              <Form.Label className="bold-text">
+                Confirm new password
+              </Form.Label>
               <InputGroup hasValidation>
                 <Form.Control
                   type="password"
                   isInvalid={confirmPassError.length > 0}
-                  ref={confirmPasswordRef}
-                  placeholder="Leave blank to keep the same"
+                  value={confirmPassword}
+                  placeholder=""
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <Form.Control.Feedback type="invalid">
                   Passwords do not match.
@@ -252,9 +157,14 @@ function Security() {
               </InputGroup>
             </Form.Group>
 
-            <div className="d-flex flex-row justify-content-end">
+            <div className="d-flex flex-row justify-content-end mt-3">
               <Button
-                disabled={loading}
+                disabled={
+                  loading ||
+                  oldPassword === "" ||
+                  password === "" ||
+                  confirmPassword === ""
+                }
                 variant="primary"
                 type="submit"
                 className="btn-sm inline-block bold-text"
@@ -267,21 +177,43 @@ function Security() {
                     <div className="card3"></div>
                   </div>
                 ) : (
-                  "Update profile"
+                  "Update password"
                 )}
               </Button>
             </div>
           </div>
-
-          {/* <Button
-                  variant="danger"
-                  type="button"
-                  block={true.toString()}
-                  onClick={() => handleDeleteAccount()}
-                >
-                  Delete your Account
-                </Button> */}
         </Form>
+        <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
+          <h5 className="mb-3">Two-factor Authentication</h5>
+        </div>
+        <h6 className="text-center">
+          Two factor authentication is not enabled yet.
+        </h6>
+
+        <p className="text-center mt-4">
+          Two-factor authentication adds an additional layer of security to your
+          account by requiring more than just a password to sign in.
+        </p>
+
+        <p className="text-center mt-4">
+          <Button
+            disabled={loading}
+            variant="primary"
+            type="submit"
+            className="btn-sm inline-block bold-text"
+            style={{ letterSpacing: "0.82px" }}
+          >
+            {loading ? (
+              <div className="box">
+                <div className="card1"></div>
+                <div className="card2"></div>
+                <div className="card3"></div>
+              </div>
+            ) : (
+              "Enable two-factor authenticaton"
+            )}
+          </Button>
+        </p>
 
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
@@ -305,62 +237,8 @@ function Security() {
               </Alert>
             </>
           )}
-
-          <Button
-            variant="danger"
-            type="button"
-            onClick={() => handleDeleteAccount()}
-          >
-            Delete your Account
-          </Button>
         </Form>
-
-        <Modal
-          show={show}
-          onHide={handleClose}
-          backdrop="static"
-          keyboard={false}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Enter your current password</Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={handleReauthenticateUser}>
-            <Modal.Body>
-              <p>
-                Please enter your current password to complete the operation.
-              </p>
-              <Form.Group controlId="formBasicReAuthPassword">
-                {/* <Form.Label>Password</Form.Label> */}
-                <InputGroup hasValidation>
-                  <Form.Control
-                    type="password"
-                    isInvalid={reAuthError.length > 0}
-                    ref={reAuthPasswordRef}
-                    placeholder="Your current password"
-                  />
-                  <Form.Text id="passwordHelpBlock" muted></Form.Text>
-                  <Form.Control.Feedback
-                    type="invalid"
-                    style={{ fontSize: "0.86em" }}
-                  >
-                    {reAuthError}
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button variant="primary" type="submit">
-                Confirm
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
       </div>
     </>
   );
 }
-
-export default Security;

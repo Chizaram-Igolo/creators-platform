@@ -41,7 +41,7 @@ function Appearance() {
               <h5 className="mb-3">Appearance</h5>
               <Link to="/profile">Go back to your profile</Link>
             </div>
-            <p>
+            <p className="mb-5">
               Choose how {globalVars.name} looks to you. Select a single theme,
               or sync with your system and automatically switch between day and
               night themes.

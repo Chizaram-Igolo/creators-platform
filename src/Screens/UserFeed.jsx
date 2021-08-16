@@ -151,7 +151,7 @@ export default function UserFeed() {
     // if (user !== null && user.displayName !== null && id === user.displayName) {
     // } else {
     // }
-  }, [user, id]);
+  }, [user, id, getDetails, getOwnDetails]);
 
   function getOwnDetails() {
     setUserDetails({ username: user?.displayName, photoURL: user?.photoURL });

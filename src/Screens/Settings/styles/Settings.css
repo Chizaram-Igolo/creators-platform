@@ -8,3 +8,20 @@
   margin-left: -1px;
   padding: 6px 16px 6px 36px;
 }
+
+.radio-label:last-of-type {
+  border-bottom-right-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.radio-label:first-of-type {
+  border-bottom-left-radius: 6px;
+  border-top-left-radius: 6px;
+  margin-left: 0;
+}
+
+:checked + .radio-label {
+  border-color: var(--color-border-info);
+  position: relative;
+  z-index: 1;
+}

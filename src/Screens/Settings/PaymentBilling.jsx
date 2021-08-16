@@ -2,9 +2,6 @@ import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -114,32 +111,6 @@ function PaymentBilling() {
 
   return (
     <>
-      {/* <Container className="px-0">
-        <Row>
-          <Col md={{ span: 3 }} className="d-none d-md-block">
-            <SideBar>
-              <div className="pt-2 pt-md-3">
-                <Nav defaultActiveKey="/" className="clearfix flex flex-column">
-                  <p className="mt-0">Profile</p>
-
-                  <ul>
-                    {subroutes.map((item) => (
-                      <li key={item.route}>
-                        <Link
-                          to={item.route}
-                          className="nav-link text-decoration-none"
-                          role="button"
-                        >
-                          {item.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </Nav>
-              </div>
-            </SideBar>
-          </Col> */}
-
       <div className="pt-4 px-2 mb-5">
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
@@ -166,7 +137,7 @@ function PaymentBilling() {
 
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
-              <h5 className="mb-3">Basic Information</h5>
+              <h5 className="mb-3">Payment Information</h5>
               <Link to="/profile">Go back to your profile</Link>
             </div>
             <Form.Group controlId="formBasicEmail">
@@ -257,7 +228,7 @@ function PaymentBilling() {
                 disabled={loading}
                 variant="primary"
                 type="submit"
-                className="btn-sm inline-block bold-text"
+                className="btn-sm inline-block bold-text rounded-lg"
                 style={{ letterSpacing: "0.82px" }}
               >
                 {loading ? (
@@ -272,125 +243,6 @@ function PaymentBilling() {
               </Button>
             </div>
           </div>
-
-          {/* <Button
-                  variant="danger"
-                  type="button"
-                  block={true.toString()}
-                  onClick={() => handleDeleteAccount()}
-                >
-                  Delete your Account
-                </Button> */}
-        </Form>
-
-        <Form className="vertical-center" onSubmit={handleSubmit}>
-          {/* <h3 className="mb-5 text-center">Profile</h3> */}
-
-          {false && (
-            <Alert
-              variant="light"
-              className="form-alert text-danger border border-danger"
-            >
-              <Form.Text className="text-danger">{error}</Form.Text>
-            </Alert>
-          )}
-
-          {message && (
-            <>
-              <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
-              >
-                <Form.Text className="text-success">{message}</Form.Text>
-              </Alert>
-            </>
-          )}
-          <h6 className="mb-3">Danger</h6>
-          <Form.Group controlId="formBasicEmail">
-            {/* <Form.Label>Email address</Form.Label> */}
-            <Form.Control
-              type="email"
-              placeholder="Email Address"
-              ref={emailRef}
-              required
-              defaultValue={user.email}
-            />
-            <Form.Text className="text-muted">
-              We'll never share your email with anyone else.
-            </Form.Text>
-          </Form.Group>
-
-          <Form.Group>
-            {/* <Form.Label>Username</Form.Label> */}
-            <InputGroup hasValidation>
-              <Form.Control
-                type="text"
-                placeholder="Username"
-                ref={usernameRef}
-                value={user?.displayName}
-                // isInvalid={confirmPassError.length > 0}
-              />
-              <Form.Control.Feedback type="invalid">
-                Please choose a username.
-              </Form.Control.Feedback>
-            </InputGroup>
-          </Form.Group>
-
-          <Form.Group controlId="formBasicPassword">
-            {/* <Form.Label>Password</Form.Label> */}
-            <InputGroup hasValidation>
-              <Form.Control
-                type="password"
-                isInvalid={confirmPassError.length > 0}
-                ref={passwordRef}
-                placeholder="Leave blank to keep the same"
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a password.
-              </Form.Control.Feedback>
-            </InputGroup>
-          </Form.Group>
-
-          <Form.Group controlId="formConfirmBasicPassword">
-            {/* <Form.Label>Confirm Password</Form.Label> */}
-            <InputGroup hasValidation>
-              <Form.Control
-                type="password"
-                isInvalid={confirmPassError.length > 0}
-                ref={confirmPasswordRef}
-                placeholder="Leave blank to keep the same"
-              />
-              <Form.Control.Feedback type="invalid">
-                Passwords do not match.
-              </Form.Control.Feedback>
-            </InputGroup>
-          </Form.Group>
-
-          <Button
-            disabled={loading}
-            variant="primary"
-            type="submit"
-            // block={true.toString()}
-            className="inline-block"
-          >
-            {loading ? (
-              <div className="box">
-                <div className="card1"></div>
-                <div className="card2"></div>
-                <div className="card3"></div>
-              </div>
-            ) : (
-              "Update profile"
-            )}
-          </Button>
-
-          <Button
-            variant="danger"
-            type="button"
-            onClick={() => handleDeleteAccount()}
-          >
-            Delete your Account
-          </Button>
         </Form>
 
         <Modal
@@ -437,19 +289,6 @@ function PaymentBilling() {
           </Form>
         </Modal>
       </div>
-      <Container>
-        <Row>
-          <Col></Col>
-          <Col xs={10} md={8} lg={6} xl={5}>
-            {/* {error && (
-              <Alert variant="danger" className="form-alert">
-                {error}
-              </Alert>
-            )} */}
-          </Col>
-          <Col></Col>
-        </Row>
-      </Container>
     </>
   );
 }

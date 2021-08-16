@@ -198,18 +198,29 @@ function Profile() {
               </Form.Text>
             </Form.Group>
 
+            <Form.Group
+              className="mb-3"
+              controlId="exampleForm.ControlTextarea1"
+            >
+              <Form.Label className="bold-text">Bio</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Leave a short description about yourself or your channel"
+              />
+            </Form.Group>
+
             <Form.Group>
               {/* <Form.Label>Username</Form.Label> */}
 
-              <Form.Label className="bold-text">Username</Form.Label>
+              <Form.Label className="bold-text">Social Media Links</Form.Label>
               <InputGroup hasValidation>
-                <InputGroup.Text id="btnGroupAddon">@</InputGroup.Text>
+                <InputGroup.Text id="btnGroupAddon">https://</InputGroup.Text>
 
                 <Form.Control
                   type="text"
                   placeholder="Username"
                   ref={usernameRef}
-                  defaultValue={user?.displayName}
                   // isInvalid={confirmPassError.length > 0}
                 />
                 <Form.Control.Feedback type="invalid">
@@ -218,36 +229,18 @@ function Profile() {
               </InputGroup>
             </Form.Group>
 
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label className="bold-text">Password</Form.Label>
-              {/* <InputGroup hasValidation> */}
-              <Form.Control
-                type="password"
-                isInvalid={confirmPassError.length > 0}
-                ref={passwordRef}
-                placeholder="Leave blank to keep the same"
-              />
-              <Form.Text id="passwordHelpBlock" muted>
-                Must be at least 8 characters including letters, numbers, and 1
-                special character (e.g *$&#@)
-              </Form.Text>
-              <Form.Control.Feedback type="invalid">
-                Please enter a password.
-              </Form.Control.Feedback>
-              {/* </InputGroup> */}
-            </Form.Group>
-
-            <Form.Group controlId="formConfirmBasicPassword">
-              {/* <Form.Label>Confirm Password</Form.Label> */}
+            <Form.Group>
               <InputGroup hasValidation>
+                <InputGroup.Text id="btnGroupAddon">https://</InputGroup.Text>
+
                 <Form.Control
-                  type="password"
-                  isInvalid={confirmPassError.length > 0}
-                  ref={confirmPasswordRef}
-                  placeholder="Leave blank to keep the same"
+                  type="text"
+                  placeholder="Username"
+                  ref={usernameRef}
+                  // isInvalid={confirmPassError.length > 0}
                 />
                 <Form.Control.Feedback type="invalid">
-                  Passwords do not match.
+                  Please choose a username.
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
@@ -257,7 +250,7 @@ function Profile() {
                 disabled={loading}
                 variant="primary"
                 type="submit"
-                className="btn-sm inline-block bold-text"
+                className="btn-sm inline-block bold-text rounded-lg"
                 style={{ letterSpacing: "0.82px" }}
               >
                 {loading ? (
