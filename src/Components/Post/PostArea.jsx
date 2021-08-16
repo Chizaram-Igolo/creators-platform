@@ -15,7 +15,7 @@ export default function PostArea({
   return (
     <>
       {loading && (
-        <div className="mt-4 mb-5 px-2 px-md-4">
+        <div className="mt-4 mb-5 px-2 px-md-2">
           <Skeleton />
         </div>
       )}

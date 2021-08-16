@@ -1,0 +1,10 @@
+.radio-label {
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  float: left;
+  font-size: 14px;
+  line-height: 20px;
+  margin-left: -1px;
+  padding: 6px 16px 6px 36px;
+}

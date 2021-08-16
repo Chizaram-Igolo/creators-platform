@@ -37,8 +37,6 @@ const routes = [
   { route: "/signup", component: <Signup /> },
   { route: "/help", component: <Feed /> },
   { route: "/forgot-password", component: <ForgotPassword /> },
-  // { route: "/:id", component: <UserFeed /> },
-  // { route: "/", component: <Feed />, exact: true },
 ];
 
 function App() {

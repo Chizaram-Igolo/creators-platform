@@ -85,7 +85,7 @@ function Signup() {
 
         const { user } = userCredential;
 
-        await userCredential.user.sendEmailVerification();
+        // await userCredential.user.sendEmailVerification();
         await userCredential.user.updateProfile({
           displayName: username,
           photoURL:
@@ -173,8 +173,8 @@ function Signup() {
                     placeholder="Password"
                   />
                   <Form.Text id="passwordHelpBlock" muted>
-                    Your password must have at least 8 characters including
-                    letters and numbers.
+                    Must be at least 8 characters including letters, numbers,
+                    and 1 special character (e.g *$&#@)
                   </Form.Text>
                   <Form.Control.Feedback type="invalid">
                     Please enter a password.

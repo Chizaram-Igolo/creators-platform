@@ -29,14 +29,19 @@ firebaseInit();
 // Initialize Firebase Auth, Firestore, Storage and Functions
 const auth = firebase.auth();
 const projectFirestore = firebase.firestore();
-projectFirestore.enablePersistence({ synchronizeTabas: true }).catch((err) => {
-  if (err.code === "failed-precondition") {
-    // Multiple tabs open.
-    console.log("Broooooo!");
-  } else if (err.code === "unimplemented") {
-    console.log("Can't do that");
-  }
-});
+projectFirestore
+  .enablePersistence({
+    synchronizeTabs: true,
+    experimentalForceOwningTab: false,
+  })
+  .catch((err) => {
+    if (err.code === "failed-precondition") {
+      // Multiple tabs open.
+      console.log("Broooooo!");
+    } else if (err.code === "unimplemented") {
+      console.log("Can't do that");
+    }
+  });
 
 const projectStorage = firebase.storage();
 const projectFunctions = firebase.functions();

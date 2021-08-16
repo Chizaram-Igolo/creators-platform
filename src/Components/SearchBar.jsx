@@ -16,10 +16,11 @@ const SearchbarDropdown = (props) => {
       });
       document.addEventListener("click", (event) => {
         // ulRef.current.style.display = "none";
-        document.getElementById("results").style.display = "none";
+        // document.getElementById("results").style.display = "none";
       });
     }
   }, [ulRef, onInputChange]);
+
   return (
     <div className="search-bar-dropdown">
       <input

@@ -47,6 +47,12 @@
   /* height: 54px !important; */
 }
 
+.MuiFilledInput-underline:before,
+.MuiFilledInput-underline:after,
+.MuiInputBase-root:focus {
+  border-bottom: 0px solid !important;
+}
+
 .icon-example:after {
   content: url(http://www.stat.ncsu.edu/dept-icons/camera-icon.gif);
   position: absolute;
@@ -126,6 +132,7 @@
   border: 1px solid #ced4da;
   border-top: 0px solid !important;
   /* bottom: 10px; */
+  background-color: rgba(0, 0, 0, 0.09);
 }
 
 .multi-preview-focus {

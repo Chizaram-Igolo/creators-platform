@@ -1,10 +1,12 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { useParams } from "react-router";
 
 import { projectFirestore } from "../firebase/config";
 import { NewPost, PostArea, ProfileHeader, Tab, Toast } from "../Components";
 
 import "./styles/Feed.css";
+import IconTabs from "./IconTabs";
+import { useAuth } from "../contexts/AuthContext";
 
 class Wall extends Component {
   constructor(props) {
@@ -133,44 +135,60 @@ class Wall extends Component {
 
 export default function UserFeed() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const [userDetails, setUserDetails] = useState({});
 
-  const postsElem = (
-    <>
-      <label class="mdc-text-field mdc-text-field--textarea">
-        <span class="mdc-notched-outline">
-          <span class="mdc-notched-outline__leading"></span>
-          <span class="mdc-notched-outline__notch">
-            <span class="mdc-floating-label" id="my-label-id">
-              Textarea Label
-            </span>
-          </span>
-          <span class="mdc-notched-outline__trailing"></span>
-        </span>
-        <span class="mdc-text-field__resizer">
-          <textarea
-            class="mdc-text-field__input"
-            aria-labelledby="my-label-id"
-            rows="8"
-            cols="40"
-            maxlength="140"
-          ></textarea>
-        </span>
-      </label>
-      <div class="mdc-text-field-helper-line">
-        <div class="mdc-text-field-character-counter">0 / 140</div>
-      </div>
-      <TextField
-        id="filled-multiline-static"
-        label="Multiline"
-        multiline
-        rows={4}
-        defaultValue="Default Value"
-        variant="filled"
-      />
-      <NewPost />
-      <Wall userId={id} />
-    </>
-  );
+  useEffect(() => {
+    if (id !== null) {
+      // Don't do an unneccessary query.
+      if (user !== null && id === user?.displayName) {
+        getOwnDetails();
+      } else {
+        getDetails();
+      }
+    }
+
+    // if (user !== null && user.displayName !== null && id === user.displayName) {
+    // } else {
+    // }
+  }, [user, id]);
+
+  function getOwnDetails() {
+    setUserDetails({ username: user?.displayName, photoURL: user?.photoURL });
+  }
+
+  function getDetails() {
+    projectFirestore
+      .collection("users")
+      .where("username", "==", id)
+      .limit(1)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          setUserDetails(doc.data());
+        });
+      })
+      .catch((err) => {
+        // Send email with error to developer.
+      });
+  }
+
+  let postsElem;
+
+  if (user !== null && user?.displayName !== null && id === user?.displayName) {
+    postsElem = (
+      <>
+        <NewPost />
+        <Wall userId={id} />
+      </>
+    );
+  } else {
+    postsElem = (
+      <>
+        <Wall userId={id} />
+      </>
+    );
+  }
 
   const tabContent = [
     { selector: "myPosts", heading: "My Posts", body: postsElem },
@@ -181,12 +199,15 @@ export default function UserFeed() {
 
   return (
     <div style={{ minHeight: "800px" }}>
-      <div className="px-2">
-        <ProfileHeader />
+      <div className="px-2 mb-4">
+        <ProfileHeader userDetails={userDetails} />
       </div>
-      <div className="pt-2 pl-0 pr-1 pb-3 mb-0">
+
+      <IconTabs tabContent={tabContent} />
+
+      {/* <div className="pt-2 pl-0 pr-1 pb-3 mb-0">
         <Tab selectors={selectors} tabContent={tabContent} />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -7,6 +7,10 @@ import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import Moment from "react-moment";
 import { useAuth } from "../contexts/AuthContext";
 
+import { Alert, AlertTitle } from "@material-ui/lab";
+import EmailOutlined from "@material-ui/icons/EmailOutlined";
+import Button from "@material-ui/core/Button";
+
 import Form from "react-bootstrap/Form";
 
 import { Toast } from ".";
@@ -14,6 +18,8 @@ import { Toast } from ".";
 import "./styles/ProfileHeader.css";
 import { projectFirestore, projectStorage } from "../firebase/config";
 import { useToasts } from "react-toast-notifications";
+
+import VerifiedUser from "@material-ui/icons/VerifiedUser";
 
 const imageResizer = (file, size, imageType) =>
   new Promise((resolve) => {
@@ -31,13 +37,17 @@ const imageResizer = (file, size, imageType) =>
     );
   });
 
-export default function ProfileHeader() {
+export default function ProfileHeader({ userDetails }) {
   const { addToast } = useToasts();
 
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const types = ["image/png", "image/jpeg"];
+
+  async function handleSendEmailVerification() {
+    await user.sendEmailVerification();
+  }
 
   async function handleUpdateProfile(e) {
     let selectedImage = e.target.files[0];
@@ -124,12 +134,12 @@ export default function ProfileHeader() {
 
   return (
     <div>
-      <Form className="d-flex flex-row justify-content-between img-form pt-3 pb-0">
-        <div className="img-grid">
+      <Form className="d-flex flex-row justify-content-between img-form pt-4 pb-0">
+        <div className="img-grid pt-2">
           <div className="img-wrap border-50">
             <div
               className="user-profile-img-wrap img"
-              style={{ background: `url(${user.photoURL})` }}
+              style={{ background: `url(${userDetails.photoURL})` }}
             ></div>
           </div>
           <label
@@ -160,17 +170,43 @@ export default function ProfileHeader() {
         </div> */}
       </Form>
       <div className="pt-4">
-        {user.displayName && (
+        {userDetails.username && (
           <p>
-            <span className="bold-text">@{user.displayName}</span> • &nbsp;
-            <span>
-              Last seen{" "}
-              <Moment fromNow>{user?.metadata?.lastSignInTime}</Moment>
-            </span>
+            <span className="bold-text">@{userDetails.username}</span>
+            &nbsp;
+            {user.emailVerified && (
+              <span>
+                <VerifiedUser
+                  fontSize="small"
+                  style={{ color: "green", marginTop: "-4px" }}
+                />{" "}
+              </span>
+            )}
+            • &nbsp; Last seen{" "}
+            <Moment fromNow>{user?.metadata?.lastSignInTime}</Moment>
           </p>
         )}
-
         {/* <Link to="/settings">Settings</Link> */}
+
+        {userDetails.username === user?.displayName && !user?.emailVerified && (
+          <Alert
+            severity="warning"
+            icon={<EmailOutlined fontSize="inherit" />}
+            action={
+              <Button
+                color="inherit"
+                size="medium"
+                onClick={() => handleSendEmailVerification()}
+              >
+                Send Verification Email
+              </Button>
+            }
+            icon={<EmailOutlined fontSize="inherit" />}
+            style={{ fontSize: "1em" }}
+          >
+            Verify your email address to begin posting.
+          </Alert>
+        )}
       </div>
 
       {isUploading && (

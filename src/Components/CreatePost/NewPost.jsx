@@ -21,8 +21,8 @@ import TextField from "@material-ui/core/TextField";
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiTextField-root": {
-      margin: theme.spacing(1),
-      width: "25ch",
+      margin: theme.spacing(0),
+      width: "100%",
     },
   },
 }));
@@ -392,16 +392,21 @@ export default function CreatePost() {
         <Form onSubmit={handleUpload} id="postForm">
           <Form.Group controlId="postText" className="mb-0">
             <div className="grow-wrap">
-              <TextField
-                id="filled-multiline-static"
-                label="Multiline"
-                multiline
-                rows={4}
-                defaultValue="Default Value"
-                variant="filled"
-              />
+              <div className={classes.root}>
+                <TextField
+                  id="postText"
+                  label="What do you want to share?"
+                  multiline
+                  rows={1}
+                  variant="filled"
+                  onChange={(e) => setPostText(e.target.value)}
+                  value={postText}
+                  ref={postTextRef}
+                  style={{ borderBottom: "0px solid !important" }}
+                />
+              </div>
 
-              <Form.Control
+              {/* <Form.Control
                 as="textarea"
                 placeholder="What do you want to share."
                 rows={1}
@@ -410,7 +415,7 @@ export default function CreatePost() {
                 onChange={(e) => setPostText(e.target.value)}
                 value={postText}
                 ref={postTextRef}
-              />
+              /> */}
 
               <MultiUploadPreview
                 fileArray={fileArray}

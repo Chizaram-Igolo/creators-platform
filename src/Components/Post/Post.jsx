@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEllipsisV,
-  faFile,
-  faThumbsUp,
-  faHeart,
-  faComment,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisV, faFile } from "@fortawesome/free-solid-svg-icons";
 import Moment from "react-moment";
 import ProgressiveImage from "react-progressive-image-loading";
 import Form from "react-bootstrap/Form";
@@ -24,8 +18,12 @@ import {
 } from "../../firebase/firestore";
 import { useToasts } from "react-toast-notifications";
 import { useAuth } from "../../contexts/AuthContext";
+import IconButton from "@material-ui/core/IconButton";
+import Favorite from "@material-ui/icons/Favorite";
+import Comment from "@material-ui/icons/Comment";
 
 import "./Post.css";
+import AvatarComponent from "../AvatarComponent";
 
 export default function Post(props) {
   const { user } = useAuth();
@@ -163,7 +161,7 @@ export default function Post(props) {
 
   return (
     <div className="border-bottom pb-3 mb-3 px-md-0">
-      <div className="d-flex flex-row justify-content-between py-2 px-2">
+      <div className="d-flex flex-row justify-content-between py-2 px-0">
         <Link
           to={`/${props.posterUsername}`}
           className="text-decoration-none text-reset"
@@ -174,14 +172,21 @@ export default function Post(props) {
               src={props.posterPhoto}
               initialBlur={2}
               render={(src, style) => (
-                <img
-                  className="rounded-circle"
-                  src={src}
-                  style={style}
-                  alt=""
-                  width="45"
-                  height="45"
-                />
+                <>
+                  <AvatarComponent
+                    imgSrc={src}
+                    displayName={props.posterUsername.toLocaleUpperCase()}
+                    size="medium"
+                  />
+                  {/* <img
+                    className="rounded-circle"
+                    src={src}
+                    style={style}
+                    alt=""
+                    width="45"
+                    height="45"
+                  /> */}
+                </>
               )}
             />
             <div className="d-flex flex-column flex-wrap ml-2">
@@ -310,9 +315,9 @@ export default function Post(props) {
           </button>
         </p>
       )}
-      <div className="d-flex col-12 justify-content-end socials py-2">
+      <div className="d-flex col-12 justify-content-end socials pr-0">
         <div className="d-flex flex-row mr-4">
-          <Button
+          {/* <Button
             variant="none"
             className={
               hasLiked === true
@@ -320,22 +325,36 @@ export default function Post(props) {
                 : "btn btn-sm shadow-none clickable feed-icon text-muted"
             }
             onClick={handleLikeDislike}
+          > */}
+          <IconButton
+            aria-label="delete"
+            className={`feed-icon ${hasLiked === true ? "selected" : ""}`}
+            onClick={handleLikeDislike}
           >
-            <FontAwesomeIcon icon={faHeart} />
-          </Button>
+            <Favorite />
+            {/* <FontAwesomeIcon icon={faHeart} /> */}
+          </IconButton>
+          {/* </Button> */}
           <span className="text-right feed-stats semi-bold-text">
             {numLikes > 0 && numLikes}
           </span>
         </div>
 
         <div className="d-flex flex-row">
-          <Button
+          {/* <Button
             variant="none"
-            className="btn btn-sm shadow-none mr-2 clickable feed-icon text-muted"
+            className="btn btn-sm shadow-none mr clickable feed-icon text-muted"
+            onClick={() => setShowCommentForm(!showCommentForm)}
+          > */}
+          <IconButton
+            aria-label="delete"
+            className={`feed-icon text-muted`}
             onClick={() => setShowCommentForm(!showCommentForm)}
           >
-            <FontAwesomeIcon icon={faComment} />
-          </Button>
+            <Comment />
+          </IconButton>
+          {/* <FontAwesomeIcon icon={faComment} /> */}
+          {/* </Button> */}
           <span className="text-right feed-stats bold-text semi-bold-text">
             {numComments > 0 && numComments}
           </span>

@@ -9,6 +9,8 @@ import {
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 
+import SendIcon from "@material-ui/icons/Send";
+
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
@@ -37,8 +39,8 @@ const PostButtonsContainer = forwardRef(
         <div
           className={
             hasNoFileContent
-              ? "post-buttons-container mb-0"
-              : "post-buttons-container mb-0"
+              ? "post-buttons-container mb-3"
+              : "post-buttons-container mb-3"
           }
           id="postButtonsContainer"
         >
@@ -161,12 +163,15 @@ const PostButtonsContainer = forwardRef(
                   <div className="card3"></div>
                 </div>
               ) : (
-                <FontAwesomeIcon icon={faPaperPlane} color="white" />
+                <>
+                  {/* <FontAwesomeIcon icon={faPaperPlane} color="white" /> */}
+                  <SendIcon style={{ fontSize: "1.4em" }} />
+                </>
               )}
             </Button>
           </div>
 
-          <div className="bg-white border-bottom px-0 pb-3 mt-4 mb-2 col-12">
+          {/* <div className="bg-white border-bottom px-0 pb-3 mt-4 mb-2 col-12">
             <Container>
               <Row>
                 <Col md={12} className="mt-0 px-0 pb-0 mb-0">
@@ -230,12 +235,14 @@ const PostButtonsContainer = forwardRef(
                             Jul 7, 2021
                           </relative-time>{" "}
                           by{" "}
-                          <span className="bold-text">@{user.displayName}</span>
+                          <span className="bold-text">
+                            @{user?.displayName}
+                          </span>
                         </p>
-                        {/* <p className="mt-2 mb-1 post-p">
+                        <p className="mt-2 mb-1 post-p">
                           This content has been restricted. You need to pay to
                           see it.
-                        </p> */}
+                        </p>
                       </div>
                     </div>
                     <Form.Group
@@ -279,7 +286,7 @@ const PostButtonsContainer = forwardRef(
                 </Col>
               </Row>
             </Container>
-          </div>
+          </div> */}
 
           {Object.keys(post).length !== 0 && (
             <ProgressBar post={post} cleanUp={cleanUp} />

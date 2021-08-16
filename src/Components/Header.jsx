@@ -6,14 +6,18 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { ReactComponent as BellIcon } from "../assets/icons/bell.svg";
 import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";
 
+import Notifications from "@material-ui/icons/Notifications";
+
 import { useAuth } from "../contexts/AuthContext";
 
 import { SearchBar, AlertBox } from ".";
+import NavigationDrawer from "./NavigationDrawer";
 
 import { globalVars } from "../../src/global_vars";
 import { BookData } from "../Data";
 
 import "./styles/Header.css";
+import AvatarComponent from "./AvatarComponent";
 
 function App() {
   const history = useHistory();
@@ -31,6 +35,7 @@ function App() {
           </Navbar.Brand>
         }
       />
+      {/* <NavigationDrawer /> */}
       <NavItem
         search={
           <div className="top-navbar-search-web d-none d-sm-block">
@@ -69,16 +74,21 @@ function App() {
 
         {user && (
           <>
-            <NavItem icon={<BellIcon />} />
+            <NavItem icon={<Notifications fontSize="large" />} />
             <NavItem
               icon={
                 <>
-                  <img
-                    src={user.photoURL}
-                    alt={user.email[0]}
+                  <AvatarComponent
+                    imgSrc={user?.photoURL}
+                    displayName={user?.displayName.toLocaleUpperCase()}
+                    size="small"
+                  />
+                  {/* <img
+                    src={user?.photoURL}
+                    alt={user?.email[0]}
                     className="avatar"
                     onError="this.style.display='none'"
-                  />
+                  /> */}
                   <CaretIcon fontSize={8} />
                 </>
               }
@@ -141,6 +151,7 @@ function NavItem(props) {
           className="btn btn-link text-decoration-none text-reset shadow-none icon-button"
           onClick={() => setOpen(!open)}
           ref={wrapperRef}
+          style={{ fontSize: "4em !important" }}
         >
           {props.icon}
         </button>
