@@ -2,7 +2,7 @@ import React, { Component, useState, useEffect } from "react";
 import { useParams } from "react-router";
 
 import { projectFirestore } from "../firebase/config";
-import { NewPost, PostArea, ProfileHeader, Tab, Toast } from "../Components";
+import { NewPost, PostArea, ProfileHeader, Toast } from "../Components";
 
 import "./styles/Feed.css";
 import IconTabs from "./IconTabs";
@@ -142,36 +142,31 @@ export default function UserFeed() {
     if (id !== null) {
       // Don't do an unneccessary query.
       if ((user !== null && id === user?.displayName) || id === "profile") {
-        getOwnDetails();
+        setUserDetails({
+          username: user?.displayName,
+          photoURL: user?.photoURL,
+        });
       } else {
-        getDetails();
+        projectFirestore
+          .collection("users")
+          .where("username", "==", id)
+          .limit(1)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              setUserDetails(doc.data());
+            });
+          })
+          .catch((err) => {
+            // Send email with error to developer.
+          });
       }
     }
 
     // if (user !== null && user.displayName !== null && id === user.displayName) {
     // } else {
     // }
-  }, [user, id, getDetails, getOwnDetails]);
-
-  function getOwnDetails() {
-    setUserDetails({ username: user?.displayName, photoURL: user?.photoURL });
-  }
-
-  function getDetails() {
-    projectFirestore
-      .collection("users")
-      .where("username", "==", id)
-      .limit(1)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          setUserDetails(doc.data());
-        });
-      })
-      .catch((err) => {
-        // Send email with error to developer.
-      });
-  }
+  }, [user, id]);
 
   let postsElem;
 
@@ -195,7 +190,7 @@ export default function UserFeed() {
     { selector: "engagements", heading: "Engagements", body: "Engagements" },
   ];
 
-  const selectors = [tabContent.map((item) => item.selector)];
+  // const selectors = [tabContent.map((item) => item.selector)];
 
   return (
     <div style={{ minHeight: "800px" }}>

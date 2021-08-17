@@ -21,6 +21,7 @@ export { default as RestrictedPostContainer } from "./Post/RestrictedPostContain
 export { default as NewPost } from "./CreatePost/NewPost";
 export { default as ProgressBar } from "./CreatePost/ProgressBar";
 export { default as AlertBox } from "./AlertBox";
+export { default as AlertMessage } from "./AlertMessage";
 export { default as Toast } from "./Toast";
 export { default as ModalDialog } from "./ModalDialog";
 export { default as MultiUploadPreview } from "./CreatePost/MultiUploadPreview";

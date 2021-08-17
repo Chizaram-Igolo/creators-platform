@@ -3,7 +3,6 @@ import { Link, useHistory } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
-import { ReactComponent as BellIcon } from "../assets/icons/bell.svg";
 import { ReactComponent as CaretIcon } from "../assets/icons/caret.svg";
 
 import Notifications from "@material-ui/icons/Notifications";
@@ -28,7 +27,7 @@ function App() {
       <NavItem
         brand={
           <Navbar.Brand
-            className="pointer-on-hover brand"
+            className="clickable brand"
             onClick={() => history.push("/feed")}
           >
             {globalVars.name}

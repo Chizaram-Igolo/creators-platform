@@ -1,65 +1,71 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
-import Alert from "react-bootstrap/Alert";
+
 import InputGroup from "react-bootstrap/InputGroup";
 import { useAuth } from "../../contexts/AuthContext";
 
 import "../styles/Signin.css";
+import { AlertMessage } from "../../Components";
 
 export default function Account() {
-  const {
-    user,
-    updateEmail,
-    updatePassword,
-    updateProfile,
-    deleteAccount,
-    reauthenticateUser,
-  } = useAuth();
+  const { user, updateProfile, deleteAccount, reauthenticateUser } = useAuth();
 
-  const [email, setEmail] = useState(user?.email);
   const [username, setUsername] = useState(user?.displayName);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState();
-  const reAuthPasswordRef = useRef();
+  const [reAuthPassword, setReAuthPassword] = useState("");
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [confirmPassError, setConfirmPassError] = useState("");
   const [reAuthError, setReAuthError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const [showUsernameField, setShowUsernameField] = useState(false);
+
   const history = useHistory();
 
   const [show, setShow] = useState(false);
 
+  function clearMessages() {
+    setMessage("");
+    setError("");
+  }
+
   const handleClose = () => {
     setShow(false);
+    setReAuthPassword("");
     setReAuthError("");
+    setModalLoading(false);
+    setLoading(false);
   };
+
   const handleShow = () => setShow(true);
 
   async function handleReauthenticateUser(e) {
     e.preventDefault();
 
-    console.log(reAuthPasswordRef.current.value);
+    console.log(reAuthPassword);
+    setReAuthError("");
 
     try {
+      setModalLoading(true);
       const reauthPromise = await reauthenticateUser(
         user.email,
-        reAuthPasswordRef.current.value
+        reAuthPassword
       );
+
+      handleUpdateProfile();
 
       console.log(reauthPromise);
       console.log("reauthenticated!");
-
-      handleUpdateProfile();
     } catch (error) {
       if (error.code === "auth/wrong-password") {
         setReAuthError(
           "This password is invalid, please enter the correct password."
         );
+        setModalLoading(false);
         return;
       }
     }
@@ -67,21 +73,10 @@ export default function Account() {
 
   function handleUpdateProfile() {
     // Validation
-    if (password !== confirmPassword) {
-      return setConfirmPassError("Passwords do not match.");
-    }
 
     const promises = [];
     setLoading(true);
     setError("");
-
-    if (email !== user.email) {
-      promises.push(updateEmail(email));
-    }
-
-    if (password) {
-      promises.push(updatePassword(password));
-    }
 
     if (username && username !== user.displayName) {
       promises.push(updateProfile({ displayName: username }));
@@ -90,6 +85,7 @@ export default function Account() {
     Promise.all(promises)
       .then(() => {
         setMessage("Your profile was updated successfully.");
+        handleClose();
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -97,11 +93,11 @@ export default function Account() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
     handleShow(true);
   }
 
   async function handleDeleteAccount() {
+    handleShow(true);
     await deleteAccount();
     history.push("/");
   }
@@ -110,33 +106,29 @@ export default function Account() {
     <>
       <div className="pt-4 px-2 mb-5">
         <Form className="vertical-center" onSubmit={handleSubmit}>
-          {/* <h3 className="mb-5 text-center">Profile</h3> */}
-
-          {false && (
-            <Alert
-              variant="light"
-              className="form-alert text-danger border border-danger"
-            >
-              <Form.Text className="text-danger">{error}</Form.Text>
-            </Alert>
+          {error && (
+            <AlertMessage
+              message={error}
+              severity="error"
+              isOpen={error.length > 0}
+              clearMessages={clearMessages}
+            />
           )}
 
           {message && (
-            <>
-              <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
-              >
-                <Form.Text className="text-success">{message}</Form.Text>
-              </Alert>
-            </>
+            <AlertMessage
+              message={message}
+              severity="success"
+              isOpen={message.length > 0}
+              clearMessages={clearMessages}
+            />
           )}
 
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Change your account information</h5>
               <Link to="/profile" className="text-decoration-none">
-                Go back to your profile
+                Back to profile
               </Link>
             </div>
             <Form.Group controlId="formChannelName">
@@ -154,48 +146,47 @@ export default function Account() {
               </Form.Text>
             </Form.Group>
 
-            {/* <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                required
-                defaultValue={user?.email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Form.Text className="text-muted">
-                We'll never share your email with anyone else.
-              </Form.Text>
-            </Form.Group> */}
-
-            <Form.Group>
-              {/* <Form.Label>Username</Form.Label> */}
-
-              <Form.Label className="bold-text">Username</Form.Label>
-              <InputGroup hasValidation>
-                <InputGroup.Text id="btnGroupAddon">@</InputGroup.Text>
-
-                <Form.Control
-                  type="text"
-                  placeholder="Username"
-                  value={username}
-                  defaultValue={user?.displayName}
-                  onChange={(e) => setUsername(e.target.value)}
-                  // isInvalid={confirmPassError.length > 0}
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please choose a username.
-                </Form.Control.Feedback>
-              </InputGroup>
+            <Form.Group className="mt-4">
+              <p>
+                For security reasons, you may only change your username once
+                every 6 months. Last change was 2 weeks ago.
+              </p>
+              <Button
+                disabled={false}
+                variant="primary"
+                type="button"
+                className="btn-sm inline-block bold-text rounded-lg"
+                style={{ letterSpacing: "0.82px" }}
+                onClick={() => setShowUsernameField(true)}
+              >
+                Change Username
+              </Button>
             </Form.Group>
+
+            {showUsernameField && (
+              <Form.Group>
+                <Form.Label className="bold-text">Username</Form.Label>
+                <InputGroup hasValidation>
+                  <InputGroup.Text id="btnGroupAddon">@</InputGroup.Text>
+
+                  <Form.Control
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    defaultValue={user?.displayName}
+                    onChange={(e) => setUsername(e.target.value)}
+                    // isInvalid={confirmPassError.length > 0}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please choose a username.
+                  </Form.Control.Feedback>
+                </InputGroup>
+              </Form.Group>
+            )}
 
             <div className="d-flex flex-row justify-content-end">
               <Button
-                disabled={
-                  loading ||
-                  (email === user.email && username === user.displayName)
-                }
+                disabled={loading || username === user.displayName}
                 variant="primary"
                 type="submit"
                 className="btn-sm inline-block bold-text rounded-lg"
@@ -216,27 +207,6 @@ export default function Account() {
         </Form>
 
         <Form className="vertical-center" onSubmit={handleSubmit}>
-          {/* <h3 className="mb-5 text-center">Profile</h3> */}
-
-          {error && (
-            <Alert
-              variant="light"
-              className="form-alert text-danger border border-danger"
-            >
-              <Form.Text className="text-danger">{error}</Form.Text>
-            </Alert>
-          )}
-
-          {message && (
-            <>
-              <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
-              >
-                <Form.Text className="text-success">{message}</Form.Text>
-              </Alert>
-            </>
-          )}
           <div>
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3 text-danger">Delete Your Account</h5>
@@ -279,8 +249,9 @@ export default function Account() {
                   <Form.Control
                     type="password"
                     isInvalid={reAuthError.length > 0}
-                    ref={reAuthPasswordRef}
+                    value={reAuthPassword}
                     placeholder="Your current password"
+                    onChange={(e) => setReAuthPassword(e.target.value)}
                   />
                   <Form.Text id="passwordHelpBlock" muted></Form.Text>
                   <Form.Control.Feedback
@@ -296,8 +267,22 @@ export default function Account() {
               <Button variant="secondary" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button variant="primary" type="submit">
-                Confirm
+              <Button
+                disabled={modalLoading || reAuthPassword === ""}
+                variant="primary"
+                type="submit"
+                className="btn-sm inline-block bold-text rounded-lg"
+                style={{ letterSpacing: "0.82px" }}
+              >
+                {modalLoading ? (
+                  <div className="box">
+                    <div className="card1"></div>
+                    <div className="card2"></div>
+                    <div className="card3"></div>
+                  </div>
+                ) : (
+                  "Confirm"
+                )}
               </Button>
             </Modal.Footer>
           </Form>

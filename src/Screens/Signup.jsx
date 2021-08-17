@@ -92,14 +92,14 @@ function Signup() {
             `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
             emailRef.current.value[0],
         });
-        await projectFirestore
-          .collection("users")
-          .doc(userCredential.user.uid)
-          .set({
-            username: user.displayName,
-            photoURL: user.photoURL,
-            subscriptions: [],
-          });
+        // await projectFirestore
+        //   .collection("users")
+        //   .doc(userCredential.user.uid)
+        //   .set({
+        //     username: user.displayName,
+        //     photoURL: user.photoURL,
+        //     subscriptions: [],
+        //   });
 
         history.push("/profile");
       } else {

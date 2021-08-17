@@ -3,12 +3,11 @@ import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
-import Alert from "@material-ui/lab/Alert";
-
 import InputGroup from "react-bootstrap/InputGroup";
 import { useAuth } from "../../contexts/AuthContext";
 
 import "../styles/Signin.css";
+import { AlertMessage } from "../../Components";
 
 export default function Security() {
   const [oldPassword, setOldPassword] = useState("");
@@ -22,15 +21,22 @@ export default function Security() {
   const [confirmPassError, setConfirmPassError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function clearMessages() {
+    setMessage("");
+    setError("");
+  }
+
   async function handleReauthenticateUser() {
     try {
-      const reauthPromise = await reauthenticateUser(user.email, oldPassword);
+      setLoading(true);
+      await reauthenticateUser(user.email, oldPassword);
       handleUpdatePassword();
     } catch (error) {
       if (error.code === "auth/wrong-password") {
         setError(
           "The old password you entered is invalid, please enter the correct password."
         );
+        setLoading(false);
         return;
       }
     }
@@ -39,11 +45,11 @@ export default function Security() {
   function handleUpdatePassword() {
     // Validation
     if (password !== confirmPassword) {
+      setLoading(false);
       return setConfirmPassError("Passwords do not match.");
     }
 
     const promises = [];
-    setLoading(true);
     setError("");
 
     if (password) {
@@ -73,30 +79,28 @@ export default function Security() {
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
 
           {error && (
-            <Alert
+            <AlertMessage
+              message={error}
               severity="error"
-              className="form-alert border border-danger mb-4"
-            >
-              {error}
-            </Alert>
+              isOpen={error.length > 0}
+              clearMessages={clearMessages}
+            />
           )}
 
           {message && (
-            <>
-              <Alert
-                severity="success"
-                className="form-alert border border-success mb-4"
-              >
-                {message}
-              </Alert>
-            </>
+            <AlertMessage
+              message={message}
+              severity="success"
+              isOpen={message.length > 0}
+              clearMessages={clearMessages}
+            />
           )}
 
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Change Password</h5>
               <Link to="/profile" className="text-decoration-none">
-                Go back to your profile
+                Back to profile
               </Link>
             </div>
 
@@ -105,7 +109,7 @@ export default function Security() {
               {/* <InputGroup hasValidation> */}
               <Form.Control
                 type="password"
-                isInvalid={confirmPassError.length > 0}
+                // isInvalid={confirmPassError.length > 0}
                 value={oldPassword}
                 placeholder=""
                 onChange={(e) => setOldPassword(e.target.value)}
@@ -121,7 +125,7 @@ export default function Security() {
               {/* <InputGroup hasValidation> */}
               <Form.Control
                 type="password"
-                isInvalid={confirmPassError.length > 0}
+                // isInvalid={confirmPassError.length > 0}
                 value={password}
                 placeholder=""
                 onChange={(e) => setPassword(e.target.value)}
@@ -256,15 +260,6 @@ export default function Security() {
 
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
-
-          {false && (
-            <Alert
-              variant="light"
-              className="form-alert text-danger border border-danger"
-            >
-              <Form.Text className="text-danger">{error}</Form.Text>
-            </Alert>
-          )}
         </Form>
       </div>
     </>

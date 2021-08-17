@@ -41,7 +41,7 @@ function NavBar() {
         className="fixed-position w-100 z-300 px-4 pr-5"
       >
         <Navbar.Brand
-          className="pointer-on-hover brand"
+          className="clickable brand"
           onClick={() => history.push("/feed")}
         >
           {globalVars.name}

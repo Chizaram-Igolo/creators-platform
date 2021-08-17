@@ -1,10 +1,7 @@
 import React, { useState, useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -12,7 +9,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import "../styles/Signin.css";
 
-function Privacy() {
+export default function Privacy() {
   const emailRef = useRef();
   const usernameRef = useRef();
   const passwordRef = useRef();
@@ -24,7 +21,6 @@ function Privacy() {
     updateEmail,
     updatePassword,
     updateProfile,
-    deleteAccount,
     reauthenticateUser,
   } = useAuth();
 
@@ -33,7 +29,6 @@ function Privacy() {
   const [confirmPassError, setConfirmPassError] = useState("");
   const [reAuthError, setReAuthError] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
 
   const [show, setShow] = useState(false);
 
@@ -107,11 +102,6 @@ function Privacy() {
     handleShow(true);
   }
 
-  async function handleDeleteAccount() {
-    await deleteAccount();
-    history.push("/");
-  }
-
   return (
     <>
       <div className="pt-4 px-2 mb-5">
@@ -142,35 +132,55 @@ function Privacy() {
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Privacy Settings</h5>
               <Link to="/profile" className="text-decoration-none">
-                Go back to your profile
+                Back to profile
               </Link>
             </div>
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Channel Name</Form.Label>
-              <Form.Control
-                type="name"
-                placeholder="Public Facing Name"
-                // ref={emailRef}
-                // required
-                // defaultValue={user?.email}
+
+            <Form.Group className="mb-3" controlId="formBasicCheckbox1">
+              <Form.Check
+                type="checkbox"
+                label="Show online status"
+                className="clickable"
+                custom
               />
               <Form.Text className="text-muted">
-                Your name may appear around GitHub where you contribute or are
-                mentioned. You can remove it at any time.
+                Hiding your online status will also prevent you from seeing
+                other people's online status.
               </Form.Text>
             </Form.Group>
 
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Email Address"
-                ref={emailRef}
-                required
-                defaultValue={user?.email}
+            <Form.Group className="mb-3" controlId="formBasicCheckbox2">
+              <Form.Check
+                type="checkbox"
+                label="Show subscriber count"
+                className="clickable"
+                custom
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formBasicCheckbox3">
+              <Form.Check
+                type="checkbox"
+                label="Make account discoverable in search"
+                className="clickable"
+                custom
               />
               <Form.Text className="text-muted">
-                We'll never share your email with anyone else.
+                Whether search results should include your account and your
+                account's content.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formBasicCheckbox4">
+              <Form.Check
+                type="checkbox"
+                label="Show media content count"
+                className="clickable"
+                custom
+              />
+              <Form.Text className="text-muted">
+                A short summary of all your pictures, audio, videos on your
+                profile banner
               </Form.Text>
             </Form.Group>
 
@@ -263,5 +273,3 @@ function Privacy() {
     </>
   );
 }
-
-export default Privacy;

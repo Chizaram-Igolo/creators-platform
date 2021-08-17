@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
@@ -10,27 +10,18 @@ import { useAuth } from "../../contexts/AuthContext";
 import "../styles/Signin.css";
 
 function PaymentBilling() {
-  const emailRef = useRef();
   const usernameRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
   const reAuthPasswordRef = useRef();
 
-  const {
-    user,
-    updateEmail,
-    updatePassword,
-    updateProfile,
-    deleteAccount,
-    reauthenticateUser,
-  } = useAuth();
+  const { user, updatePassword, updateProfile, reauthenticateUser } = useAuth();
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirmPassError, setConfirmPassError] = useState("");
   const [reAuthError, setReAuthError] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
 
   const [show, setShow] = useState(false);
 
@@ -75,10 +66,6 @@ function PaymentBilling() {
     setLoading(true);
     setError("");
 
-    if (emailRef.current.value !== user.email) {
-      promises.push(updateEmail(emailRef.current.value));
-    }
-
     if (passwordRef.current.value) {
       promises.push(updatePassword(passwordRef.current.value));
     }
@@ -102,11 +89,6 @@ function PaymentBilling() {
     e.preventDefault();
 
     handleShow(true);
-  }
-
-  async function handleDeleteAccount() {
-    await deleteAccount();
-    history.push("/");
   }
 
   return (
@@ -139,7 +121,7 @@ function PaymentBilling() {
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Payment Information</h5>
               <Link to="/profile" className="text-decoration-none">
-                Go back to your profile
+                Back to profile
               </Link>
             </div>
 

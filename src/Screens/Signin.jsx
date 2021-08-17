@@ -114,7 +114,7 @@ function Signin(props) {
 
                   <Form.Group controlId="formBasicCheckbox">
                     <Form.Check
-                      className="pointer-on-hover"
+                      className="clickable"
                       type="checkbox"
                       label="Remember me"
                       custom

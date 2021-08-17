@@ -170,10 +170,6 @@ code {
   position: fixed;
 }
 
-.pointer-on-hover:hover {
-  cursor: pointer;
-}
-
 .brand,
 h3 {
   /* font-family: Cooper; */

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Nav from "react-bootstrap/Nav";
 import { Link } from "react-router-dom";
 import SideBar from "./SideBar";
@@ -8,10 +8,10 @@ export default function LeftSideBarSettings() {
   const subroutes = [
     { name: "Profile", route: "/settings" },
     { name: "Account", route: "/settings/account" },
-    { name: "Appearance", route: "/settings/appearance" },
+    { name: "Preferences", route: "/settings/preferences" },
     { name: "Payment/Billing", route: "/settings/payment" },
     { name: "Privacy", route: "/settings/privacy" },
-    { name: "Account Security", route: "/settings/security" },
+    { name: "Security", route: "/settings/security" },
   ];
 
   return (

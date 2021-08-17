@@ -10,7 +10,7 @@ import { LeftSideBarSettings, PrivateRoute, SideBar } from "../../Components";
 import "../styles/Signin.css";
 import Profile from "./Profile";
 import Account from "./Account";
-import Appearance from "./Appearance";
+import Preferences from "./Preferences";
 import PaymentBilling from "./PaymentBilling";
 import Privacy from "./Privacy";
 import Security from "./Security";
@@ -31,8 +31,8 @@ function Settings() {
               <PrivateRoute path={`${path}/profile`} component={Profile} />
               <PrivateRoute path={`${path}/account`} component={Account} />
               <PrivateRoute
-                path={`${path}/appearance`}
-                component={Appearance}
+                path={`${path}/preferences`}
+                component={Preferences}
               />
 
               <PrivateRoute
