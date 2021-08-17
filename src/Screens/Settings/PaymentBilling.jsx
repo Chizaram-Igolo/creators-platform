@@ -138,36 +138,10 @@ function PaymentBilling() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Payment Information</h5>
-              <Link to="/profile">Go back to your profile</Link>
+              <Link to="/profile" className="text-decoration-none">
+                Go back to your profile
+              </Link>
             </div>
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Channel Name</Form.Label>
-              <Form.Control
-                type="name"
-                placeholder="Public Facing Name"
-                // ref={emailRef}
-                // required
-                // defaultValue={user?.email}
-              />
-              <Form.Text className="text-muted">
-                Your name may appear around GitHub where you contribute or are
-                mentioned. You can remove it at any time.
-              </Form.Text>
-            </Form.Group>
-
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label className="bold-text">Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Email Address"
-                ref={emailRef}
-                required
-                defaultValue={user?.email}
-              />
-              <Form.Text className="text-muted">
-                We'll never share your email with anyone else.
-              </Form.Text>
-            </Form.Group>
 
             <Form.Group>
               {/* <Form.Label>Username</Form.Label> */}

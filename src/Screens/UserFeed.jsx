@@ -141,7 +141,7 @@ export default function UserFeed() {
   useEffect(() => {
     if (id !== null) {
       // Don't do an unneccessary query.
-      if (user !== null && id === user?.displayName) {
+      if ((user !== null && id === user?.displayName) || id === "profile") {
         getOwnDetails();
       } else {
         getDetails();

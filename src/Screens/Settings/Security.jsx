@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
-import Alert from "react-bootstrap/Alert";
+
+import Alert from "@material-ui/lab/Alert";
+
 import InputGroup from "react-bootstrap/InputGroup";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -13,37 +14,29 @@ export default function Security() {
   const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const reAuthPasswordRef = useRef();
 
-  const { user, updatePassword, updateProfile, reauthenticateUser } = useAuth();
+  const { user, updatePassword, reauthenticateUser } = useAuth();
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirmPassError, setConfirmPassError] = useState("");
-  const [reAuthError, setReAuthError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleReauthenticateUser() {
-    console.log(oldPassword);
-
     try {
       const reauthPromise = await reauthenticateUser(user.email, oldPassword);
-
-      handleUpdateProfile();
-
-      console.log(reauthPromise);
-      console.log("reauthenticated!");
+      handleUpdatePassword();
     } catch (error) {
       if (error.code === "auth/wrong-password") {
-        setReAuthError(
-          "This password is invalid, please enter the correct password."
+        setError(
+          "The old password you entered is invalid, please enter the correct password."
         );
         return;
       }
     }
   }
 
-  function handleUpdateProfile() {
+  function handleUpdatePassword() {
     // Validation
     if (password !== confirmPassword) {
       return setConfirmPassError("Passwords do not match.");
@@ -59,7 +52,10 @@ export default function Security() {
 
     Promise.all(promises)
       .then(() => {
-        setMessage("Your profile was updated successfully.");
+        setMessage("Your password was updated successfully.");
+        setOldPassword("");
+        setPassword("");
+        setConfirmPassword("");
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -76,22 +72,22 @@ export default function Security() {
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
 
-          {false && (
+          {error && (
             <Alert
-              variant="light"
-              className="form-alert text-danger border border-danger"
+              severity="error"
+              className="form-alert border border-danger mb-4"
             >
-              <Form.Text className="text-danger">{error}</Form.Text>
+              {error}
             </Alert>
           )}
 
           {message && (
             <>
               <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
+                severity="success"
+                className="form-alert border border-success mb-4"
               >
-                <Form.Text className="text-success">{message}</Form.Text>
+                {message}
               </Alert>
             </>
           )}
@@ -99,7 +95,9 @@ export default function Security() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Change Password</h5>
-              <Link to="/profile">Go back to your profile</Link>
+              <Link to="/profile" className="text-decoration-none">
+                Go back to your profile
+              </Link>
             </div>
 
             <Form.Group controlId="formBasicOldPassword">
@@ -158,6 +156,11 @@ export default function Security() {
             </Form.Group>
 
             <div className="d-flex flex-row justify-content-end mt-3">
+              <div className="d-flex align-items-end pr-4">
+                <Link to="/forgot-password" className="text-decoration-none">
+                  I forgot my password
+                </Link>
+              </div>
               <Button
                 disabled={
                   loading ||
@@ -168,7 +171,9 @@ export default function Security() {
                 variant="primary"
                 type="submit"
                 className="btn-sm inline-block bold-text"
-                style={{ letterSpacing: "0.82px" }}
+                style={{
+                  letterSpacing: "0.82px",
+                }}
               >
                 {loading ? (
                   <div className="box">
@@ -183,37 +188,71 @@ export default function Security() {
             </div>
           </div>
         </Form>
-        <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
-          <h5 className="mb-3">Two-factor Authentication</h5>
+
+        <div className="mb-5">
+          <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
+            <h5 className="mb-3">Two-factor Authentication</h5>
+          </div>
+          <h6 className="text-center">
+            Two factor authentication is not enabled yet.
+          </h6>
+
+          <p className="text-center mt-4">
+            Two-factor authentication adds an additional layer of security to
+            your account by requiring more than just a password to sign in.
+          </p>
+
+          <p className="text-center mt-4">
+            <Button
+              disabled={loading}
+              variant="primary"
+              type="submit"
+              className="inline-block bold-text"
+              style={{ letterSpacing: "0.82px" }}
+            >
+              {loading ? (
+                <div className="box">
+                  <div className="card1"></div>
+                  <div className="card2"></div>
+                  <div className="card3"></div>
+                </div>
+              ) : (
+                "Enable two-factor authenticaton"
+              )}
+            </Button>
+          </p>
         </div>
-        <h6 className="text-center">
-          Two factor authentication is not enabled yet.
-        </h6>
 
-        <p className="text-center mt-4">
-          Two-factor authentication adds an additional layer of security to your
-          account by requiring more than just a password to sign in.
-        </p>
+        <div className="mb-5">
+          <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
+            <h5 className="mb-3">Sessions</h5>
+          </div>
 
-        <p className="text-center mt-4">
-          <Button
-            disabled={loading}
-            variant="primary"
-            type="submit"
-            className="btn-sm inline-block bold-text"
-            style={{ letterSpacing: "0.82px" }}
-          >
-            {loading ? (
-              <div className="box">
-                <div className="card1"></div>
-                <div className="card2"></div>
-                <div className="card3"></div>
-              </div>
-            ) : (
-              "Enable two-factor authenticaton"
-            )}
-          </Button>
-        </p>
+          <p>
+            This is a list of devices that have logged into your account. Revoke
+            any sessions that you do not recognize.
+          </p>
+
+          <p className="text-center mt-4">
+            <Button
+              disabled={loading}
+              variant="primary"
+              type="submit"
+              className="inline-block bold-text"
+              style={{ letterSpacing: "0.82px" }}
+            >
+              {loading ? (
+                <div className="box">
+                  <div className="card1"></div>
+                  <div className="card2"></div>
+                  <div className="card3"></div>
+                </div>
+              ) : (
+                "Enable two-factor authenticaton"
+              )}
+            </Button>
+          </p>
+        </div>
 
         <Form className="vertical-center" onSubmit={handleSubmit}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
@@ -225,17 +264,6 @@ export default function Security() {
             >
               <Form.Text className="text-danger">{error}</Form.Text>
             </Alert>
-          )}
-
-          {message && (
-            <>
-              <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
-              >
-                <Form.Text className="text-success">{message}</Form.Text>
-              </Alert>
-            </>
           )}
         </Form>
       </div>

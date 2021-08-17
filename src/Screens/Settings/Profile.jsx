@@ -2,11 +2,10 @@ import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Modal from "react-bootstrap/Modal";
-import Alert from "react-bootstrap/Alert";
+
+import Alert from "@material-ui/lab/Alert";
+
 import InputGroup from "react-bootstrap/InputGroup";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -155,11 +154,8 @@ function Profile() {
 
           {message && (
             <>
-              <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
-              >
-                <Form.Text className="text-success">{message}</Form.Text>
+              <Alert severity="success" className="mb-3">
+                {message}
               </Alert>
             </>
           )}
@@ -167,7 +163,9 @@ function Profile() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Basic Information</h5>
-              <Link to="/profile">Go back to your profile</Link>
+              <Link to="/profile" className="text-decoration-none">
+                Go back to your profile
+              </Link>
             </div>
             <Form.Group controlId="formBasicEmail">
               <Form.Label className="bold-text">Channel Name</Form.Label>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouteMatch } from "react-router-dom";
 import Resizer from "react-image-file-resizer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgressbar } from "react-circular-progressbar";
@@ -44,6 +45,8 @@ export default function ProfileHeader({ userDetails }) {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const types = ["image/png", "image/jpeg"];
+
+  let { path } = useRouteMatch();
 
   async function handleSendEmailVerification() {
     await user.sendEmailVerification();
@@ -142,7 +145,7 @@ export default function ProfileHeader({ userDetails }) {
               style={{ background: `url(${userDetails.photoURL})` }}
             ></div>
           </div>
-          <label
+          {/* <label
             disabled={true}
             style={{
               background: isUploading ? "#dddddd" : "#efb6b2",
@@ -158,7 +161,7 @@ export default function ProfileHeader({ userDetails }) {
             <span style={{ fontSize: "16px" }}>
               <FontAwesomeIcon icon={faUpload} color="white" />
             </span>
-          </label>
+          </label> */}
         </div>
         {/* <div className="d-flex align-items-end">
           <Link to="/create" className="text-decoration-none btn btn-primary">
@@ -186,7 +189,6 @@ export default function ProfileHeader({ userDetails }) {
             <Moment fromNow>{user?.metadata?.lastSignInTime}</Moment>
           </p>
         )}
-        {/* <Link to="/settings">Settings</Link> */}
 
         {userDetails.username === user?.displayName && !user?.emailVerified && (
           <Alert

@@ -101,7 +101,7 @@ function Signup() {
             subscriptions: [],
           });
 
-        history.push("/feed");
+        history.push("/profile");
       } else {
         setError(`Username '${username}' is already taken.`);
       }

@@ -80,7 +80,7 @@ function App() {
                 <>
                   <AvatarComponent
                     imgSrc={user?.photoURL}
-                    displayName={user?.displayName.toLocaleUpperCase()}
+                    displayName={user?.displayName?.toLocaleUpperCase()}
                     size="small"
                   />
                   {/* <img

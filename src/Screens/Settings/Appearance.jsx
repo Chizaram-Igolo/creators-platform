@@ -39,7 +39,9 @@ function Appearance() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Appearance</h5>
-              <Link to="/profile">Go back to your profile</Link>
+              <Link to="/profile" className="text-decoration-none">
+                Go back to your profile
+              </Link>
             </div>
             <p className="mb-5">
               Choose how {globalVars.name} looks to you. Select a single theme,

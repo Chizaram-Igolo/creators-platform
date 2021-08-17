@@ -77,6 +77,7 @@ function App() {
                     <Switch>
                       <Route path="/feed" component={Feed} />
                       <Route path="/:id" component={UserFeed} />
+                      <Route path="/profile" component={UserFeed} />
                       <Route path="/" component={Feed} />
                     </Switch>
                   </Col>

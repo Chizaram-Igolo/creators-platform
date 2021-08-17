@@ -135,7 +135,9 @@ export default function Account() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Change your account information</h5>
-              <Link to="/profile">Go back to your profile</Link>
+              <Link to="/profile" className="text-decoration-none">
+                Go back to your profile
+              </Link>
             </div>
             <Form.Group controlId="formChannelName">
               <Form.Label className="bold-text">Channel Name</Form.Label>
