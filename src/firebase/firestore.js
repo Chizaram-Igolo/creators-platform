@@ -1,6 +1,6 @@
 import { projectFirestore, projectStorage, timestamp } from "./config";
 
-export function deletePost(collection, doc) {
+export async function deletePost(collection, doc) {
   return projectFirestore.collection(collection).doc(doc).delete();
 }
 

@@ -25,10 +25,11 @@ import {
   ConnectivityListener,
   Toggle,
   SideBar,
-  LeftSideBar,
+  LeftSideBarSettings,
 } from "./Components";
 
 import { lightTheme, darkTheme } from "./Components/Theme";
+import ErrorBoundary from "./Components/ErrorBoundary";
 import "./App.css";
 
 const routes = [
@@ -40,61 +41,79 @@ const routes = [
 ];
 
 function App() {
-  const [theme, themeToggler, mountedCompnent] = useDarkMode();
+  const [theme, themeToggler, setLightMode, setDarkMode, mountedComponent] =
+    useDarkMode();
 
   const themeMode = theme === "light" ? lightTheme : darkTheme;
 
-  if (!mountedCompnent) {
+  if (!mountedComponent) {
     return <div />;
   }
+
   return (
     <Router>
       <ThemeProvider theme={themeMode}>
-        <GlobalStyles />
-        <AuthProvider>
-          <Header />
-          <ConnectivityListener />
-          <div className="pt-5 px-2">
-            <Toggle theme={theme} toggleTheme={themeToggler} />
-            <Switch>
-              <PrivateRoute path="/settings" component={Settings} />
+        <ErrorBoundary>
+          <GlobalStyles />
+          <AuthProvider>
+            <Header />
+            <ConnectivityListener />
+            <div className="pt-5 px-2">
+              <Toggle theme={theme} toggleTheme={themeToggler} />
+              <Switch>
+                <PrivateRoute path="/settings">
+                  <Settings
+                    setLightMode={setLightMode}
+                    setDarkMode={setDarkMode}
+                  />
+                </PrivateRoute>
 
-              {routes.map((item, id) => {
-                return (
-                  <Route path={item.route} key={id}>
-                    {item.component}
-                  </Route>
-                );
-              })}
+                {routes.map((item, id) => {
+                  return (
+                    <Route path={item.route} key={id}>
+                      {item.component}
+                    </Route>
+                  );
+                })}
 
-              <Container className="px-0">
-                <Row>
-                  <Col md={{ span: 3 }} className="d-none d-md-block">
-                    <LeftSideBar />
-                  </Col>
+                <Container className="px-0">
+                  <Row>
+                    <Col
+                      md={{ span: 3 }}
+                      className="d-none d-md-block"
+                      style={{ position: "fixed" }}
+                    >
+                      {/* <LeftSideBar /> */}
+                      <LeftSideBarSettings />
+                    </Col>
 
-                  <Col md={{ span: 8 }} lg={{ span: 7 }} className="pt-md-5">
-                    <Switch>
-                      <Route path="/feed" component={Feed} />
-                      <Route path="/:id" component={UserFeed} />
-                      <Route path="/profile" component={UserFeed} />
-                      <Route path="/" component={Feed} />
-                    </Switch>
-                  </Col>
+                    <Col
+                      md={{ span: 8, offset: 3 }}
+                      lg={{ span: 7, offset: 3 }}
+                      className="pt-md-5"
+                    >
+                      <Switch>
+                        <Route path="/feed" component={Feed} />
+                        <Route path="/:id" component={UserFeed} />
+                        <Route path="/profile" component={UserFeed} />
+                        <Route path="/" component={Feed} />
+                      </Switch>
+                    </Col>
 
-                  <Col className="d-none d-md-block">
-                    <SideBar>
-                      <Nav
-                        defaultActiveKey="/"
-                        className="flex-column fixed-position"
-                      ></Nav>
-                    </SideBar>
-                  </Col>
-                </Row>
-              </Container>
-            </Switch>
-          </div>
-        </AuthProvider>
+                    <Col className="d-none d-md-block">
+                      <SideBar>
+                        <Nav
+                          defaultActiveKey="/"
+                          className="flex-column fixed-position"
+                        ></Nav>
+                      </SideBar>
+                    </Col>
+                  </Row>
+                </Container>
+              </Switch>
+            </div>
+          </AuthProvider>{" "}
+        </ErrorBoundary>
       </ThemeProvider>
     </Router>
   );

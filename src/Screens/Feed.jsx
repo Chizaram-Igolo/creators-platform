@@ -73,6 +73,10 @@ export default class Feed extends Component {
     let set = this;
     let latestDoc = this.state.latestDoc;
 
+    if (latestDoc.data()["createdAt"] == null) {
+      return;
+    }
+
     this.unsubscribe = projectFirestore
       .collection("posts")
       .orderBy("createdAt", "desc")

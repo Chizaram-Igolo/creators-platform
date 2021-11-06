@@ -15,25 +15,38 @@ import PaymentBilling from "./PaymentBilling";
 import Privacy from "./Privacy";
 import Security from "./Security";
 
-function Settings() {
+function Settings({ setLightMode, setDarkMode }) {
   let { path } = useRouteMatch();
 
   return (
     <>
       <Container className="px-0">
         <Row>
-          <Col md={{ span: 3 }} className="d-none d-md-block">
+          <Col
+            md={{ span: 3 }}
+            className="d-none d-md-block"
+            style={{ position: "fixed" }}
+          >
             <LeftSideBarSettings />
           </Col>
 
-          <Col md={{ span: 8 }} lg={{ span: 7 }} className="pt-2 pt-md-5">
+          <Col
+            md={{ span: 8, offset: 3 }}
+            lg={{ span: 7, offset: 3 }}
+            className="pt-2 pt-md-5"
+          >
             <Switch>
               <PrivateRoute path={`${path}/profile`} component={Profile} />
               <PrivateRoute path={`${path}/account`} component={Account} />
               <PrivateRoute
                 path={`${path}/preferences`}
-                component={Preferences}
-              />
+                // component={Preferences}
+              >
+                <Preferences
+                  setLightMode={setLightMode}
+                  setDarkMode={setDarkMode}
+                />
+              </PrivateRoute>
 
               <PrivateRoute
                 path={`${path}/payment`}

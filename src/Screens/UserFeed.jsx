@@ -1,11 +1,10 @@
 import React, { Component, useState, useEffect } from "react";
 import { useParams } from "react-router";
 
-import { projectFirestore } from "../firebase/config";
+import { projectDatabase, projectFirestore } from "../firebase/config";
 import { NewPost, PostArea, ProfileHeader, Toast } from "../Components";
 
 import "./styles/Feed.css";
-import IconTabs from "./IconTabs";
 import { useAuth } from "../contexts/AuthContext";
 
 class Wall extends Component {
@@ -79,6 +78,10 @@ class Wall extends Component {
     let set = this;
     let latestDoc = this.state.latestDoc;
 
+    if (latestDoc.data()["createdAt"] == null) {
+      return;
+    }
+
     this.unsubscribe = projectFirestore
       .collection("posts")
       .orderBy("createdAt", "desc")
@@ -135,27 +138,28 @@ class Wall extends Component {
 
 export default function UserFeed() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [userDetails, setUserDetails] = useState({});
 
   useEffect(() => {
     if (id !== null) {
       // Don't do an unneccessary query.
+
       if ((user !== null && id === user?.displayName) || id === "profile") {
         setUserDetails({
           username: user?.displayName,
           photoURL: user?.photoURL,
+          ...userProfile,
         });
       } else {
-        projectFirestore
-          .collection("users")
-          .where("username", "==", id)
-          .limit(1)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              setUserDetails(doc.data());
-            });
+        projectDatabase
+          .ref("users")
+          .orderByChild("username")
+          .equalTo(id)
+          .once("value", (snap) => {
+            for (let x in snap.val()) {
+              setUserDetails(snap.val()[x]);
+            }
           })
           .catch((err) => {
             // Send email with error to developer.
@@ -166,7 +170,7 @@ export default function UserFeed() {
     // if (user !== null && user.displayName !== null && id === user.displayName) {
     // } else {
     // }
-  }, [user, id]);
+  }, [user, id, userProfile]);
 
   let postsElem;
 
@@ -185,20 +189,22 @@ export default function UserFeed() {
     );
   }
 
-  const tabContent = [
-    { selector: "myPosts", heading: "My Posts", body: postsElem },
-    { selector: "engagements", heading: "Engagements", body: "Engagements" },
-  ];
+  // const tabContent = [
+  //   { selector: "myPosts", heading: "My Posts", body: postsElem },
+  //   { selector: "engagements", heading: "Engagements", body: "Engagements" },
+  // ];
 
   // const selectors = [tabContent.map((item) => item.selector)];
 
   return (
     <div style={{ minHeight: "800px" }}>
-      <div className="px-2 mb-4">
+      <div className="mb-4" style={{ marginTop: "-40px" }}>
         <ProfileHeader userDetails={userDetails} />
       </div>
 
-      <IconTabs tabContent={tabContent} />
+      {postsElem}
+
+      {/* <IconTabs tabContent={tabContent} /> */}
 
       {/* <div className="pt-2 pl-0 pr-1 pb-3 mb-0">
         <Tab selectors={selectors} tabContent={tabContent} />

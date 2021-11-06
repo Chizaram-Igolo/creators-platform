@@ -7,6 +7,8 @@ import ProgressiveImage from "react-progressive-image-loading";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
+import { SRLWrapper } from "simple-react-lightbox-pro";
+
 import { Comments, ImageGrid, DropdownMenu, Toast } from "..";
 import {
   deletePost,
@@ -177,6 +179,8 @@ export default function Post(props) {
                     imgSrc={src}
                     displayName={props.posterUsername.toLocaleUpperCase()}
                     size="medium"
+                    showOnlineStatus={false}
+                    avatarColour={props.posterAvatarColour}
                   />
                   {/* <img
                     className="rounded-circle"
@@ -190,7 +194,20 @@ export default function Post(props) {
               )}
             />
             <div className="d-flex flex-column flex-wrap ml-2">
-              <span className="bold-text">{props.posterUsername}</span>
+              <span className="semi-bold-text">
+                {props.posterUsername}{" "}
+                <span
+                  class="material-icons"
+                  style={{
+                    position: "relative",
+                    top: "2px",
+                    color: "green",
+                    fontSize: "1em",
+                  }}
+                >
+                  verified
+                </span>
+              </span>
               <span className="text-black-50 time">
                 {props.createdAt !== null && (
                   <Moment fromNow>
@@ -213,6 +230,33 @@ export default function Post(props) {
       <div className="py-3 px-2">
         <p className="post-p">{props.text}</p>
       </div>
+
+      {/* {props.videos !== null && props.videos.length > 0 && (
+        <video src={props.videos[0]}>
+          <source src={props.videos[0]} />
+        </video>
+      )} */}
+
+      {props.videos !== null && props.videos.length > 0 && (
+        <SRLWrapper>
+          <div>
+            <img src={props.videoThumbnails[0]} className="clickable" alt="0" />
+            <video
+              width="100%"
+              height="100%"
+              srl_video_thumbnail={props.videoThumbnails[0]}
+              // srl_video_caption="A video with a rabbit"
+              srl_video_controls="true"
+              srl_video_autoplay="true"
+              srl_video_muted="false"
+              style={{ display: "none" }}
+            >
+              <source src={props.videos[0]} />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </SRLWrapper>
+      )}
 
       {props.images !== null && props.images.length > 0 && (
         <div className="feed-image pb-2 px-4">
@@ -355,7 +399,7 @@ export default function Post(props) {
           </IconButton>
           {/* <FontAwesomeIcon icon={faComment} /> */}
           {/* </Button> */}
-          <span className="text-right feed-stats bold-text semi-bold-text">
+          <span className="text-right feed-stats semi-bold-text semi-bold-text">
             {numComments > 0 && numComments}
           </span>
         </div>

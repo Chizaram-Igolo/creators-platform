@@ -4,6 +4,7 @@ import { ToastProvider } from "react-toast-notifications";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import "material-icons/iconfont/outlined.css";
 import SimpleReactLightbox from "simple-react-lightbox-pro";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";

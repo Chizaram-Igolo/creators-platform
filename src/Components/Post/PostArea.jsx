@@ -45,12 +45,16 @@ export default function PostArea({
                     images={doc.images ? doc.images : null}
                     thumbnails={doc.thumbnails ? doc.thumbnails : null}
                     videos={doc.videos ? doc.videos : null}
+                    videoThumbnails={
+                      doc.videoThumbnails ? doc.videoThumbnails : null
+                    }
                     files={doc.files ? doc.files : null}
                     resourceList={doc.resourceList ? doc.resourceList : null}
                     postId={doc.id}
                     posterId={doc.posterId}
                     posterUsername={doc.posterUsername}
                     posterPhoto={doc.posterPhoto}
+                    posterAvatarColour={doc.posterAvatarColour}
                     numLikes={doc.numLikes ? doc.numLikes : 0}
                     numComments={doc.numComments ? doc.numComments : 0}
                   />
@@ -59,6 +63,14 @@ export default function PostArea({
           </InfiniteScroll>
 
           <div className="px-1">{/* <RestrictedPostContainer /> */}</div>
+        </div>
+      )}
+
+      {!loading && docs.length === 0 && (
+        <div className="pt-4 mb-5">
+          <div className="pt-4 pt-md-0 text-center text-muted">
+            <h5>There are no posts.</h5>
+          </div>
         </div>
       )}
     </>

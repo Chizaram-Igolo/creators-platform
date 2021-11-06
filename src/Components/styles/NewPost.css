@@ -129,7 +129,7 @@
   max-width: 100%;
   padding: 0px 0px 0px;
   row-gap: 0px;
-  border: 1px solid #ced4da;
+  /* border: 1px solid #ced4da; */
   border-top: 0px solid !important;
   /* bottom: 10px; */
   background-color: rgba(0, 0, 0, 0.09);

@@ -6,10 +6,9 @@ import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
 
-import { AlertBox } from "../Components";
+import { AlertMessage } from "../Components";
 
 import { useAuth } from "../contexts/AuthContext";
 
@@ -22,6 +21,8 @@ function ForgotPassword(props) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function clearMessages() {}
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -29,7 +30,7 @@ function ForgotPassword(props) {
       setError("");
       setLoading(true);
       await resetPassword(emailRef.current.value);
-      setMessage("Check your inbox for further instrutions.");
+      setMessage("Check your inbox for further instructions.");
     } catch (err) {
       setError(err.message.replace("identifier", "email address"));
     }
@@ -46,19 +47,24 @@ function ForgotPassword(props) {
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Reset Password</h3>
 
-              <AlertBox error={error} />
+              {error && (
+                <AlertMessage
+                  message={error}
+                  severity="error"
+                  isOpen={error.length > 0}
+                  clearMessages={clearMessages}
+                  keepOpen={true}
+                />
+              )}
 
               {message && (
-                <>
-                  <Alert
-                    variant="success"
-                    className="form-alert text-success border border-success"
-                  >
-                    <Form.Text className="text-success status-message">
-                      {message}
-                    </Form.Text>
-                  </Alert>
-                </>
+                <AlertMessage
+                  message={message}
+                  severity="success"
+                  isOpen={message.length > 0}
+                  clearMessages={clearMessages}
+                  keepOpen={true}
+                />
               )}
 
               <p>Enter your account email.</p>
@@ -98,16 +104,23 @@ function ForgotPassword(props) {
                 )}
               </Button>
 
-              <p className="mt-3 text-center">
-                <Link to="/signin">Sign in</Link>
-              </p>
-
-              <p className="mt-3 text-center">
-                Don't have an account?{" "}
-                <Link to="/signup" className="text-decoration-none">
-                  Sign Up
-                </Link>
-              </p>
+              <div className="mt-4 pt-2">
+                <p className="mt-0 text-center">
+                  <Link to="/signin">Sign In</Link>
+                  &nbsp;&nbsp;&nbsp;
+                  <span
+                    style={{
+                      fontSize: "1.2em",
+                      position: "relative",
+                      top: "2px",
+                    }}
+                  >
+                    •
+                  </span>
+                  &nbsp;&nbsp;&nbsp;
+                  <Link to="/signup">Sign Up</Link>
+                </p>
+              </div>
             </Form>
           </Col>
           <Col></Col>

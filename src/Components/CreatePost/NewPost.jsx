@@ -44,7 +44,7 @@ const imageResizer = (file, size, imageType, imageQuality) =>
   });
 
 export default function CreatePost() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { addToast } = useToasts();
 
   const [postText, setPostText] = useState("");
@@ -83,11 +83,11 @@ export default function CreatePost() {
   };
 
   const classes = useStyles();
-  const [value, setValue] = React.useState("Controlled");
+  // const [value, setValue] = React.useState("Controlled");
 
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
+  // const handleChange = (event) => {
+  //   setValue(event.target.value);
+  // };
 
   useEffect(() => {
     const postForm = document.getElementById("postForm");
@@ -257,8 +257,6 @@ export default function CreatePost() {
   }, [handleShowModalDialog, images.length, videos.length]);
 
   function handleRemoveThumbnail(e) {
-    // console.log(e.target.id);
-
     let fA = [...fileArray];
 
     let splicedItem = fA.splice(
@@ -268,25 +266,25 @@ export default function CreatePost() {
 
     if (splicedItem[0].type === "image") {
       images.splice(
-        fA.findIndex((item) => item.url === e.target.id),
+        images.findIndex((item) => item.name === splicedItem[0].name),
         1
       );
       thumbnails.splice(
-        fA.findIndex((item) => item.url === e.target.id),
+        fA.findIndex((item) => item.name === splicedItem[0].name),
         1
       );
     } else if (splicedItem[0].type === "video") {
       videos.splice(
-        fA.findIndex((item) => item.url === e.target.id),
+        fA.findIndex((item) => item.name === splicedItem[0].name),
         1
       );
       videoThumbnails.splice(
-        fA.findIndex((item) => item.url === e.target.id),
+        fA.findIndex((item) => item.name === splicedItem[0].name),
         1
       );
     } else if (splicedItem[0].type === "file") {
       files.splice(
-        fA.findIndex((item) => item.url === e.target.id),
+        fA.findIndex((item) => item.name === splicedItem[0].name),
         1
       );
     }
@@ -296,12 +294,6 @@ export default function CreatePost() {
 
   function cleanUp(successState) {
     // Clear state
-    setFileArray([]);
-    setImages([]);
-    setThumbnails([]);
-    setVideos([]);
-    setVideoThumbnails([]);
-    setFiles([]);
     setPostText("");
     setTotalBytes(0);
     setPost({});
@@ -311,6 +303,13 @@ export default function CreatePost() {
     // document.getElementById("postButtonsContainer").display = "none";
 
     if (successState) {
+      setFileArray([]);
+      setImages([]);
+      setThumbnails([]);
+      setVideos([]);
+      setVideoThumbnails([]);
+      setFiles([]);
+
       addToast(<Toast body="Your post was uploaded." />, {
         appearance: "success",
         autoDismiss: true,
@@ -319,13 +318,10 @@ export default function CreatePost() {
 
     if (!successState) {
       addToast(
-        <Toast
-          heading="We're sorry"
-          body="We couldn't complete the current operation due to a faulty connection. Please try again."
-        />,
+        <Toast heading="We're sorry" body="We couldn't upload the file(s)." />,
         {
           appearance: "error",
-          autoDismiss: false,
+          autoDismiss: true,
         }
       );
     }
@@ -336,11 +332,18 @@ export default function CreatePost() {
     setLoading(true);
 
     setPost({
-      files: [...images, ...thumbnails, ...videos, ...files],
+      files: [
+        ...images,
+        ...thumbnails,
+        ...videos,
+        ...videoThumbnails,
+        ...files,
+      ],
       text: postText,
       posterId: user.uid,
       posterUsername: user.displayName,
       posterPhoto: user.photoURL,
+      posterAvatarColour: userProfile?.avatarColour,
       totalBytes: (totalBytes * 1024) / 1000,
     });
   };
@@ -395,7 +398,6 @@ export default function CreatePost() {
               <div className={classes.root}>
                 <TextField
                   id="postText"
-                  label="What do you want to share?"
                   multiline
                   rows={1}
                   variant="filled"

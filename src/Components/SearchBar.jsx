@@ -14,8 +14,11 @@ const SearchbarDropdown = (props) => {
         document.getElementById("results").style.display = "flex";
         onInputChange(event);
       });
+
       document.addEventListener("click", (event) => {
-        // ulRef.current.style.display = "none";
+        if (document.getElementById("results") !== null) {
+          document.getElementById("results").style.display = "none";
+        }
         // document.getElementById("results").style.display = "none";
       });
     }

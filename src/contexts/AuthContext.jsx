@@ -1,10 +1,11 @@
 import { useEffect, useState, useContext, createContext } from "react";
-import firebase, { auth } from "../firebase/config";
+import firebase, { auth, projectDatabase } from "../firebase/config";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   // Create new user.
   function signup(email, password) {
@@ -56,8 +57,25 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    // Get the user's full profile details.
+
+    if (user != null) {
+      const unsubscribe = projectDatabase
+        .ref(`users/${user.uid}`)
+        .on("value", (snap) => {
+          if (snap) {
+            setUserProfile(snap.val());
+          }
+        });
+
+      return unsubscribe;
+    }
+  }, [user]);
+
   const value = {
     user,
+    userProfile,
     signup,
     signin,
     signout,

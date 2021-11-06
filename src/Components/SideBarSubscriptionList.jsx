@@ -15,7 +15,7 @@ export default function SideBarSubscriptionList() {
 
   return (
     <>
-      {subscriptions.length > 0 && <p>Your Subscriptions</p>}
+      {subscriptions && subscriptions.length > 0 && <p>Your Subscriptions</p>}
       {(subscriptions || []).map((item) => (
         <Link to="/" className="nav-link" role="button" key={item}>
           {item}

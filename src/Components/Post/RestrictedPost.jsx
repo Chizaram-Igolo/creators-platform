@@ -102,7 +102,7 @@ export default function RestrictedPost(props) {
                     >
                       Jul 7, 2021
                     </relative-time>{" "}
-                    by <span className="bold-text">Chizaram-Igolo</span>
+                    by <span className="semi-bold-text">Chizaram-Igolo</span>
                     {/* <span className="d-block ">Never used</span> */}
                   </p>
                   <p className="mt-2 mb-1 post-p">

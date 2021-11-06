@@ -20,7 +20,7 @@ import AvatarComponent from "./AvatarComponent";
 
 function App() {
   const history = useHistory();
-  const { user, signout } = useAuth();
+  const { user, userProfile, signout } = useAuth();
 
   return (
     <AppNavbar>
@@ -28,6 +28,7 @@ function App() {
         brand={
           <Navbar.Brand
             className="clickable brand"
+            style={{ fontWeight: "700 !important" }}
             onClick={() => history.push("/feed")}
           >
             {globalVars.name}
@@ -35,10 +36,10 @@ function App() {
         }
       />
       {/* <NavigationDrawer /> */}
-      <NavItem
+      {/* <NavItem
         search={
-          <div className="top-navbar-search-web d-none d-sm-block">
-            {/* <Form>
+          <div className="top-navbar-search-web d-none d-sm-block"> */}
+      {/* <Form>
               <FormControl
                 type="text"
                 placeholder="Search or jump to..."
@@ -47,10 +48,10 @@ function App() {
               />
             </Form> */}
 
-            <SearchBar placeholder="Search or jump to..." options={BookData} />
+      {/* <SearchBar placeholder="Search or jump to..." options={BookData} />
           </div>
         }
-      />
+      /> */}
       {/* <NavItem
         search={
           <div className="top-navbar-search-mobile">
@@ -78,9 +79,10 @@ function App() {
               icon={
                 <>
                   <AvatarComponent
-                    imgSrc={user?.photoURL}
+                    imgSrc={user.photoURL}
                     displayName={user?.displayName?.toLocaleUpperCase()}
                     size="small"
+                    avatarColour={userProfile?.avatarColour}
                   />
                   {/* <img
                     src={user?.photoURL}
@@ -104,7 +106,7 @@ function App() {
 
 function AppNavbar(props) {
   return (
-    <nav className="top-navbar fixed-position w-100 z-300 pl-xs-3 pr-xs-4 pl-md-4 pr-md-5">
+    <nav className="top-navbar fixed-position w-100 z-300 pl-xs-3 pr-xs-4 pl-md-4 pr-md-5 border">
       <ul className="top-navbar-nav pl-2">{props.children}</ul>
     </nav>
   );
@@ -238,7 +240,7 @@ function DropdownMenu(props) {
                 <p className="color-text-secondary mb-0">
                   Signed in as
                   <br />
-                  <span className="strong-signed-in-name bold-text">
+                  <span className="strong-signed-in-name semi-bold-text">
                     @{user.displayName}
                   </span>
                   {/* <span class="d-block ">Never used</span> */}

@@ -1,6 +1,6 @@
 export const globalVars = {
-  name: "Outgrowth",
+  name: "Onunu",
   companyName: "Company Name",
-  imageMaxSize: 800,
-  imageQuality: 40,
+  imageMaxSize: 1200,
+  imageQuality: 80,
 };

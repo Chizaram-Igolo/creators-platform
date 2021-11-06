@@ -20,16 +20,16 @@ const StyledBadge = withStyles((theme) => ({
       content: '""',
     },
   },
-  //   "@keyframes ripple": {
-  //     "0%": {
-  //       transform: "scale(.8)",
-  //       opacity: 1,
-  //     },
-  //     "100%": {
-  //       transform: "scale(2.4)",
-  //       opacity: 0,
-  //     },
+  // "@keyframes ripple": {
+  //   "0%": {
+  //     transform: "scale(.8)",
+  //     opacity: 1,
   //   },
+  //   "100%": {
+  //     transform: "scale(2.5)",
+  //     opacity: 0,
+  //   },
+  // },
 }))(Badge);
 
 const SmallAvatar = withStyles((theme) => ({
@@ -44,58 +44,113 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     "& > *": {
-      margin: theme.spacing(1),
+      margin: theme.spacing(0),
     },
   },
   small: {
     width: theme.spacing(4),
     height: theme.spacing(4),
+    fontSize: "0.98em",
+    // fontWeight: "bolder",
   },
   medium: {
     width: theme.spacing(6),
     height: theme.spacing(6),
+    // fontSize: "1.2em",
+    // fontWeight: "bolder",
   },
   large: {
-    width: theme.spacing(7),
-    height: theme.spacing(7),
+    width: theme.spacing(14),
+    height: theme.spacing(14),
+    fontSize: "2.6em",
+    // fontWeight: "bolder",
   },
 }));
 
-export default function AvatarComponent({ displayName, imgSrc, size }) {
+export default function AvatarComponent({
+  displayName,
+  imgSrc,
+  size,
+  showOnlineStatus = false,
+  avatarColour,
+  anchorElement,
+}) {
   const classes = useStyles();
+
+  const innerElem = (
+    <>
+      {size === "small" && (
+        <Avatar
+          alt={displayName}
+          src={imgSrc}
+          className={classes.small}
+          style={{ backgroundColor: avatarColour }}
+        />
+      )}
+      {size === "medium" && (
+        <Avatar
+          alt={displayName}
+          src={imgSrc}
+          className={classes.medium}
+          style={{ backgroundColor: avatarColour }}
+        />
+      )}
+      {size === "large" && (
+        <Avatar
+          alt={displayName}
+          src={imgSrc}
+          className={classes.large}
+          style={{ backgroundColor: avatarColour }}
+        />
+      )}
+    </>
+  );
 
   return (
     <div className={classes.root}>
-      <StyledBadge
-        overlap="circular"
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        variant="dot"
-      >
-        {size === "small" && (
-          <Avatar alt={displayName} src={imgSrc} className={classes.small} />
-        )}
-        {size === "medium" && (
-          <Avatar alt={displayName} src={imgSrc} className={classes.medium} />
-        )}
-        {size === "large" && (
-          <Avatar alt={displayName} src={imgSrc} className={classes.large} />
-        )}
-      </StyledBadge>
-      {/* <Badge
-        overlap="circular"
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        badgeContent={
-          <SmallAvatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-        }
-      >
-        <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-      </Badge> */}
+      {showOnlineStatus && !anchorElement && (
+        <StyledBadge
+          overlap="circular"
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          variant="dot"
+          badgeContent={anchorElement}
+        >
+          {innerElem}
+        </StyledBadge>
+      )}
+
+      {!showOnlineStatus && !anchorElement && innerElem}
+
+      {anchorElement && (
+        <Badge
+          overlap="circular"
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          badgeContent={
+            anchorElement
+            // <SmallAvatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+          }
+        >
+          {/* <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" /> */}
+
+          <StyledBadge
+            overlap="circular"
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            variant="dot"
+            badgeContent={anchorElement}
+          >
+            {innerElem}
+          </StyledBadge>
+        </Badge>
+      )}
     </div>
   );
 }

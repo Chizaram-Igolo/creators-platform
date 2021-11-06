@@ -84,14 +84,17 @@ var video;
 var _addToast;
 var _myVideos;
 
+let isLongerthanMaxTime = false;
+
 let onVideoLoad = function () {
   window.URL.revokeObjectURL(video.src);
   var duration = video.duration;
-  if (Math.floor(duration) > 600.0) {
-    _addToast(<Toast body="Video cannot be longer than 10 minutes" />, {
+  if (Math.floor(duration) > 300.0) {
+    _addToast(<Toast body="Video cannot be longer than 5 minutes" />, {
       appearance: "error",
       autoDismiss: true,
     });
+    isLongerthanMaxTime = true;
     return;
   }
   _myVideos[_myVideos.length - 1].duration = duration;
@@ -141,7 +144,6 @@ async function uploadMultipleVideos(
       newVideo["id"] = i;
       newVideo["typeOfFile"] = "video";
 
-      videos.push(newVideo);
       myVideos.push(newVideo);
 
       _myVideos = myVideos;
@@ -151,6 +153,10 @@ async function uploadMultipleVideos(
       video.preload = "metadata";
       video.onloadedmetadata = onVideoLoad;
       video.src = URL.createObjectURL(newVideo);
+
+      if (!isLongerthanMaxTime) {
+        videos.push(newVideo);
+      }
 
       setFileArray((prevState) => [
         ...prevState,
@@ -172,7 +178,7 @@ async function uploadMultipleVideos(
     }
   }
 
-  let totalBytes = videos.concat(videoThumbnails).reduce((acc, elem) => {
+  let totalBytes = videos.reduce((acc, elem) => {
     return acc + elem.size;
   }, 0);
 

@@ -1,138 +1,110 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
-import Alert from "react-bootstrap/Alert";
-import InputGroup from "react-bootstrap/InputGroup";
 import { useAuth } from "../../contexts/AuthContext";
 
 import "../styles/Signin.css";
+import { projectDatabase } from "../../firebase/config";
+import { AlertMessage } from "../../Components";
 
 export default function Privacy() {
-  const emailRef = useRef();
-  const usernameRef = useRef();
-  const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
-  const reAuthPasswordRef = useRef();
-
-  const {
-    user,
-    updateEmail,
-    updatePassword,
-    updateProfile,
-    reauthenticateUser,
-  } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [confirmPassError, setConfirmPassError] = useState("");
-  const [reAuthError, setReAuthError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [show, setShow] = useState(false);
+  const [showOnlineStatus, setShowOnlineStatus] = useState(
+    userProfile.showOnlineStatus
+  );
 
-  const handleClose = () => {
-    setShow(false);
-    setReAuthError("");
-  };
-  const handleShow = () => setShow(true);
+  const [showSubscriberCount, setShowSubscriberCount] = useState(
+    userProfile.showSubscriberCount
+  );
 
-  async function handleReauthenticateUser(e) {
-    e.preventDefault();
+  const [makeAccountDiscoverable, setMakeAccountDiscoverable] = useState(
+    userProfile.makeAccountDiscoverable
+  );
 
-    console.log(reAuthPasswordRef.current.value);
+  const [showMediaCount, setShowMediaCount] = useState(
+    userProfile.showMediaCount
+  );
 
-    try {
-      const reauthPromise = await reauthenticateUser(
-        user.email,
-        reAuthPasswordRef.current.value
-      );
+  const [showLastSeenDate, setShowLastSeenDate] = useState(
+    userProfile.showLastSeenDate
+  );
 
-      handleUpdateProfile();
-
-      console.log(reauthPromise);
-      console.log("reauthenticated!");
-    } catch (error) {
-      if (error.code === "auth/wrong-password") {
-        setReAuthError(
-          "This password is invalid, please enter the correct password."
-        );
-        return;
-      }
-    }
-  }
-
-  function handleUpdateProfile() {
-    // Validation
-    if (passwordRef.current.value !== confirmPasswordRef.current.value) {
-      return setConfirmPassError("Passwords do not match.");
-    }
-
-    const promises = [];
-    setLoading(true);
+  function clearMessages() {
+    setMessage("");
     setError("");
-
-    if (emailRef.current.value !== user.email) {
-      promises.push(updateEmail(emailRef.current.value));
-    }
-
-    if (passwordRef.current.value) {
-      promises.push(updatePassword(passwordRef.current.value));
-    }
-
-    if (
-      usernameRef.current.value &&
-      usernameRef.current.value !== user.displayName
-    ) {
-      promises.push(updateProfile({ displayName: usernameRef.current.value }));
-    }
-
-    Promise.all(promises)
-      .then(() => {
-        setMessage("Your profile was updated successfully.");
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
   }
 
-  function handleSubmit(e) {
+  async function handleUpdateProfile(e) {
     e.preventDefault();
 
-    handleShow(true);
+    setLoading(true);
+
+    const prefsObj = {};
+
+    if (showOnlineStatus !== userProfile.showOnlineStatus) {
+      prefsObj["showOnlineStatus"] = showOnlineStatus;
+    }
+    if (showSubscriberCount !== userProfile.showSubscriberCount) {
+      prefsObj["showSubscriberCount"] = showSubscriberCount;
+    }
+    if (makeAccountDiscoverable !== userProfile.makeAccountDiscoverable) {
+      prefsObj["makeAccountDiscoverable"] = makeAccountDiscoverable;
+    }
+    if (showMediaCount !== userProfile.showMediaCount) {
+      prefsObj["showMediaCount"] = showMediaCount;
+    }
+    if (showLastSeenDate !== userProfile.showLastSeenDate) {
+      prefsObj["showLastSeenDate"] = showLastSeenDate;
+    }
+
+    await projectDatabase
+      .ref(`users/${user.uid}`)
+      .update(prefsObj)
+      .then(() => {
+        setLoading(false);
+        setMessage("Your settings were saved");
+      })
+      .catch((err) => setError(err.message));
   }
 
   return (
     <>
       <div className="pt-4 px-2 mb-5">
-        <Form className="vertical-center" onSubmit={handleSubmit}>
+        <Form className="vertical-center" onSubmit={handleUpdateProfile}>
           {/* <h3 className="mb-5 text-center">Profile</h3> */}
 
-          {false && (
-            <Alert
-              variant="light"
-              className="form-alert text-danger border border-danger"
-            >
-              <Form.Text className="text-danger">{error}</Form.Text>
-            </Alert>
+          {error && (
+            <AlertMessage
+              message={error}
+              severity="error"
+              isOpen={error.length > 0}
+              clearMessages={clearMessages}
+            />
           )}
 
           {message && (
-            <>
-              <Alert
-                variant="light"
-                className="form-alert text-success border border-success"
-              >
-                <Form.Text className="text-success">{message}</Form.Text>
-              </Alert>
-            </>
+            <AlertMessage
+              message={message}
+              severity="success"
+              isOpen={message.length > 0}
+              clearMessages={clearMessages}
+            />
           )}
 
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Privacy Settings</h5>
-              <Link to="/profile" className="text-decoration-none">
-                Back to profile
+              <Link
+                to={`/${user.displayName}`}
+                className="text-decoration-none"
+              >
+                Back to wall
               </Link>
             </div>
 
@@ -142,6 +114,10 @@ export default function Privacy() {
                 label="Show online status"
                 className="clickable"
                 custom
+                checked={showOnlineStatus}
+                onClick={() =>
+                  setShowOnlineStatus((showOnlineStatus) => !showOnlineStatus)
+                }
               />
               <Form.Text className="text-muted">
                 Hiding your online status will also prevent you from seeing
@@ -155,6 +131,12 @@ export default function Privacy() {
                 label="Show subscriber count"
                 className="clickable"
                 custom
+                checked={showSubscriberCount}
+                onClick={() =>
+                  setShowSubscriberCount(
+                    (showSubscriberCount) => !showSubscriberCount
+                  )
+                }
               />
             </Form.Group>
 
@@ -164,6 +146,12 @@ export default function Privacy() {
                 label="Make account discoverable in search"
                 className="clickable"
                 custom
+                checked={makeAccountDiscoverable}
+                onClick={() =>
+                  setMakeAccountDiscoverable(
+                    (makeAccountDiscoverable) => !makeAccountDiscoverable
+                  )
+                }
               />
               <Form.Text className="text-muted">
                 Whether search results should include your account and your
@@ -177,6 +165,10 @@ export default function Privacy() {
                 label="Show media content count"
                 className="clickable"
                 custom
+                checked={showMediaCount}
+                onClick={() =>
+                  setShowMediaCount((showMediaCount) => !showMediaCount)
+                }
               />
               <Form.Text className="text-muted">
                 A short summary of all your pictures, audio, videos on your
@@ -184,32 +176,33 @@ export default function Privacy() {
               </Form.Text>
             </Form.Group>
 
-            <Form.Group>
-              {/* <Form.Label>Username</Form.Label> */}
-
-              <Form.Label className="bold-text">Username</Form.Label>
-              <InputGroup hasValidation>
-                <InputGroup.Text id="btnGroupAddon">@</InputGroup.Text>
-
-                <Form.Control
-                  type="text"
-                  placeholder="Username"
-                  ref={usernameRef}
-                  defaultValue={user?.displayName}
-                  // isInvalid={confirmPassError.length > 0}
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please choose a username.
-                </Form.Control.Feedback>
-              </InputGroup>
+            <Form.Group className="mb-3" controlId="formBasicCheckbox5">
+              <Form.Check
+                type="checkbox"
+                label='Show "last seen" date'
+                className="clickable"
+                custom
+                checked={showLastSeenDate}
+                onClick={() =>
+                  setShowLastSeenDate((showLastSeenDate) => !showLastSeenDate)
+                }
+              />
             </Form.Group>
 
             <div className="d-flex flex-row justify-content-end">
               <Button
-                disabled={loading}
+                disabled={
+                  loading ||
+                  (showOnlineStatus === userProfile.showOnlineStatus &&
+                    showSubscriberCount === userProfile.showSubscriberCount &&
+                    makeAccountDiscoverable ===
+                      userProfile.makeAccountDiscoverable &&
+                    showMediaCount === userProfile.showMediaCount &&
+                    showLastSeenDate === userProfile.showLastSeenDate)
+                }
                 variant="primary"
                 type="submit"
-                className="btn-sm inline-block bold-text"
+                className="btn-sm inline-block semi-bold-text"
                 style={{ letterSpacing: "0.82px" }}
               >
                 {loading ? (
@@ -225,50 +218,6 @@ export default function Privacy() {
             </div>
           </div>
         </Form>
-
-        <Modal
-          show={show}
-          onHide={handleClose}
-          backdrop="static"
-          keyboard={false}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Enter your current password</Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={handleReauthenticateUser}>
-            <Modal.Body>
-              <p>
-                Please enter your current password to complete the operation.
-              </p>
-              <Form.Group controlId="formBasicReAuthPassword">
-                {/* <Form.Label>Password</Form.Label> */}
-                <InputGroup hasValidation>
-                  <Form.Control
-                    type="password"
-                    isInvalid={reAuthError.length > 0}
-                    ref={reAuthPasswordRef}
-                    placeholder="Your current password"
-                  />
-                  <Form.Text id="passwordHelpBlock" muted></Form.Text>
-                  <Form.Control.Feedback
-                    type="invalid"
-                    style={{ fontSize: "0.86em" }}
-                  >
-                    {reAuthError}
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button variant="primary" type="submit">
-                Confirm
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
       </div>
     </>
   );

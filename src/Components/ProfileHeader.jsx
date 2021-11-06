@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { useRouteMatch } from "react-router-dom";
 import Resizer from "react-image-file-resizer";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
@@ -9,7 +7,6 @@ import Moment from "react-moment";
 import { useAuth } from "../contexts/AuthContext";
 
 import { Alert, AlertTitle } from "@material-ui/lab";
-import EmailOutlined from "@material-ui/icons/EmailOutlined";
 import Button from "@material-ui/core/Button";
 
 import Form from "react-bootstrap/Form";
@@ -20,7 +17,7 @@ import "./styles/ProfileHeader.css";
 import { projectFirestore, projectStorage } from "../firebase/config";
 import { useToasts } from "react-toast-notifications";
 
-import VerifiedUser from "@material-ui/icons/VerifiedUser";
+import AvatarComponent from "./AvatarComponent";
 
 const imageResizer = (file, size, imageType) =>
   new Promise((resolve) => {
@@ -45,8 +42,6 @@ export default function ProfileHeader({ userDetails }) {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const types = ["image/png", "image/jpeg"];
-
-  let { path } = useRouteMatch();
 
   async function handleSendEmailVerification() {
     await user.sendEmailVerification();
@@ -136,15 +131,24 @@ export default function ProfileHeader({ userDetails }) {
   }
 
   return (
-    <div>
-      <Form className="d-flex flex-row justify-content-between img-form pt-4 pb-0">
-        <div className="img-grid pt-2">
-          <div className="img-wrap border-50">
+    <div className="px-2 pt-5">
+      <Form className="d-flex flex-row justify-content-between img-form pt-0 pb-0">
+        <div className="img-grid p-0">
+          {/* <div className="img-wrap border-50">
             <div
               className="user-profile-img-wrap img"
               style={{ background: `url(${userDetails.photoURL})` }}
             ></div>
-          </div>
+          </div> */}
+
+          <AvatarComponent
+            imgSrc={userDetails.photoURL}
+            displayName={userDetails?.username?.toLocaleUpperCase()}
+            size="large"
+            showOnlineStatus={userDetails.showOnlineStatus}
+            avatarColour={userDetails.avatarColour}
+          />
+
           {/* <label
             disabled={true}
             style={{
@@ -172,28 +176,53 @@ export default function ProfileHeader({ userDetails }) {
           </Link>
         </div> */}
       </Form>
-      <div className="pt-4">
-        {userDetails.username && (
-          <p>
-            <span className="bold-text">@{userDetails.username}</span>
-            &nbsp;
-            {user.emailVerified && (
-              <span>
-                <VerifiedUser
-                  fontSize="small"
-                  style={{ color: "green", marginTop: "-4px" }}
-                />{" "}
-              </span>
-            )}
-            • &nbsp; Last seen{" "}
-            <Moment fromNow>{user?.metadata?.lastSignInTime}</Moment>
+      <div className="pt-2">
+        {userDetails.channelName && (
+          <p className="mt-2 mb-1">
+            <span className="bold-text">{userDetails.channelName}</span>
           </p>
         )}
 
-        {userDetails.username === user?.displayName && !user?.emailVerified && (
+        {userDetails.username && (
+          <p>
+            <span className="semi-bold-text">@{userDetails.username}</span>
+            &nbsp;
+            {user?.emailVerified ||
+              (true && (
+                <>
+                  {/* <span>
+                  <VerifiedUser />{" "}
+                </span> */}
+                  <span
+                    class="material-icons"
+                    style={{
+                      position: "relative",
+                      top: "4px",
+                      color: "green",
+                      fontSize: "1.2em",
+                    }}
+                  >
+                    verified
+                  </span>
+                  &nbsp;
+                </>
+              ))}
+            {userDetails.showLastSeenDate && (
+              <>
+                <span>•</span>
+                <Form.Text style={{ display: "inline" }}>
+                  &nbsp; Last seen{" "}
+                  <Moment fromNow>{user?.metadata?.lastSignInTime}</Moment>
+                  <br />
+                </Form.Text>
+              </>
+            )}
+          </p>
+        )}
+
+        {/* {userDetails.username === user?.displayName && !user?.emailVerified && (
           <Alert
-            severity="warning"
-            icon={<EmailOutlined fontSize="inherit" />}
+            severity="info"
             action={
               <Button
                 color="inherit"
@@ -203,11 +232,14 @@ export default function ProfileHeader({ userDetails }) {
                 Send Verification Email
               </Button>
             }
-            icon={<EmailOutlined fontSize="inherit" />}
             style={{ fontSize: "1em" }}
           >
             Verify your email address to begin posting.
           </Alert>
+        )} */}
+
+        {userDetails.bio && (
+          <p className="preformatted-text">{userDetails.bio}</p>
         )}
       </div>
 

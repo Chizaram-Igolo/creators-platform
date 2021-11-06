@@ -9,8 +9,6 @@ import {
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 
-import SendIcon from "@material-ui/icons/Send";
-
 import Button from "react-bootstrap/Button";
 
 import ProgressBar from "./ProgressBar";
@@ -34,8 +32,8 @@ const PostButtonsContainer = forwardRef(
         <div
           className={
             hasNoFileContent
-              ? "post-buttons-container mb-3"
-              : "post-buttons-container mb-3"
+              ? "post-buttons-container clearfix mb-3"
+              : "post-buttons-container clearfix mb-3"
           }
           id="postButtonsContainer"
         >
@@ -149,7 +147,8 @@ const PostButtonsContainer = forwardRef(
               variant="primary"
               type="submit"
               block={true.toString()}
-              className="inline-block  shadow-none post-buttons-3"
+              className="inline-block shadow-none post-buttons-3"
+              style={{ borderBottomRightRadius: "4px" }}
             >
               {loading ? (
                 <div className="box">
@@ -159,8 +158,7 @@ const PostButtonsContainer = forwardRef(
                 </div>
               ) : (
                 <>
-                  {/* <FontAwesomeIcon icon={faPaperPlane} color="white" /> */}
-                  <SendIcon style={{ fontSize: "1.4em" }} />
+                  <FontAwesomeIcon icon={faPaperPlane} color="white" />
                 </>
               )}
             </Button>
@@ -216,7 +214,7 @@ const PostButtonsContainer = forwardRef(
                       <div className="flex-auto px-4">
                         <code>*****868786d5</code>
                         <Alert.Heading
-                          className="restricted-heading mb-2 bold-text"
+                          className="restricted-heading mb-2 semi-bold-text"
                           style={{ fontWeight: 900 }}
                         >
                           Access Restriction
@@ -230,7 +228,7 @@ const PostButtonsContainer = forwardRef(
                             Jul 7, 2021
                           </relative-time>{" "}
                           by{" "}
-                          <span className="bold-text">
+                          <span className="semi-bold-text">
                             @{user?.displayName}
                           </span>
                         </p>

@@ -99,13 +99,16 @@ export default function Security() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Change Password</h5>
-              <Link to="/profile" className="text-decoration-none">
-                Back to profile
+              <Link
+                to={`/${user.displayName}`}
+                className="text-decoration-none"
+              >
+                Back to wall
               </Link>
             </div>
 
             <Form.Group controlId="formBasicOldPassword">
-              <Form.Label className="bold-text">Old password</Form.Label>
+              <Form.Label className="semi-bold-text">Old password</Form.Label>
               {/* <InputGroup hasValidation> */}
               <Form.Control
                 type="password"
@@ -121,7 +124,7 @@ export default function Security() {
             </Form.Group>
 
             <Form.Group controlId="formBasicPassword">
-              <Form.Label className="bold-text">New password</Form.Label>
+              <Form.Label className="semi-bold-text">New password</Form.Label>
               {/* <InputGroup hasValidation> */}
               <Form.Control
                 type="password"
@@ -142,7 +145,7 @@ export default function Security() {
 
             <Form.Group controlId="formBasicConfirmPassword">
               {/* <Form.Label>Confirm Password</Form.Label> */}
-              <Form.Label className="bold-text">
+              <Form.Label className="semi-bold-text">
                 Confirm new password
               </Form.Label>
               <InputGroup hasValidation>
@@ -174,7 +177,7 @@ export default function Security() {
                 }
                 variant="primary"
                 type="submit"
-                className="btn-sm inline-block bold-text"
+                className="btn-sm inline-block semi-bold-text"
                 style={{
                   letterSpacing: "0.82px",
                 }}
@@ -211,7 +214,7 @@ export default function Security() {
               disabled={loading}
               variant="primary"
               type="submit"
-              className="inline-block bold-text"
+              className="inline-block semi-bold-text"
               style={{ letterSpacing: "0.82px" }}
             >
               {loading ? (
@@ -242,7 +245,7 @@ export default function Security() {
               disabled={loading}
               variant="primary"
               type="submit"
-              className="inline-block bold-text"
+              className="inline-block semi-bold-text"
               style={{ letterSpacing: "0.82px" }}
             >
               {loading ? (

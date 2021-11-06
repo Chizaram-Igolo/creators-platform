@@ -120,15 +120,18 @@ function PaymentBilling() {
           <div className="pt-2 mb-5">
             <div className="d-flex flex-row justify-content-between pb-1 mb-4 border-bottom">
               <h5 className="mb-3">Payment Information</h5>
-              <Link to="/profile" className="text-decoration-none">
-                Back to profile
+              <Link
+                to={`/${user.displayName}`}
+                className="text-decoration-none"
+              >
+                Back to wall
               </Link>
             </div>
 
             <Form.Group>
               {/* <Form.Label>Username</Form.Label> */}
 
-              <Form.Label className="bold-text">Username</Form.Label>
+              <Form.Label className="semi-bold-text">Username</Form.Label>
               <InputGroup hasValidation>
                 <InputGroup.Text id="btnGroupAddon">@</InputGroup.Text>
 
@@ -146,7 +149,7 @@ function PaymentBilling() {
             </Form.Group>
 
             <Form.Group controlId="formBasicPassword">
-              <Form.Label className="bold-text">Password</Form.Label>
+              <Form.Label className="semi-bold-text">Password</Form.Label>
               {/* <InputGroup hasValidation> */}
               <Form.Control
                 type="password"
@@ -184,7 +187,7 @@ function PaymentBilling() {
                 disabled={loading}
                 variant="primary"
                 type="submit"
-                className="btn-sm inline-block bold-text rounded-lg"
+                className="btn-sm inline-block semi-bold-text rounded-lg"
                 style={{ letterSpacing: "0.82px" }}
               >
                 {loading ? (
@@ -213,7 +216,7 @@ function PaymentBilling() {
           <Form onSubmit={handleReauthenticateUser}>
             <Modal.Body>
               <p>
-                Please enter your current password to complete the operation.
+                Please enter your current password to confirm this operation.
               </p>
               <Form.Group controlId="formBasicReAuthPassword">
                 {/* <Form.Label>Password</Form.Label> */}

@@ -25,3 +25,17 @@
   position: relative;
   z-index: 1;
 }
+
+.profile-pic-upload-label {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.profile-pic-upload-btn {
+  position: absolute;
+  opacity: 0;
+  right: 0;
+  top: 0;
+}

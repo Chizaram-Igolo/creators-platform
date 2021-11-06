@@ -19,20 +19,38 @@ export default function AlertMessage({
   severity,
   isOpen,
   clearMessages,
+  keepOpen,
 }) {
   const classes = useStyles();
   const [open, setOpen] = useState(isOpen);
 
   useEffect(() => {
-    let timeOut = setTimeout(() => {
-      setOpen(false);
-      clearMessages();
-    }, 5000);
+    let timeOut;
+
+    if (!keepOpen) {
+      setTimeout(() => {
+        setOpen(false);
+      }, 5000);
+    }
 
     return () => {
       clearTimeout(timeOut);
+      //   clearMessages();
     };
-  }, []);
+  }, [keepOpen]);
+
+  useEffect(() => {
+    let timeOut = null;
+
+    if (!open) {
+      timeOut = setTimeout(() => {
+        clearMessages();
+      }, 2000);
+    }
+    return () => {
+      clearTimeout(timeOut);
+    };
+  }, [open, clearMessages]);
 
   return (
     <div className={classes.root}>

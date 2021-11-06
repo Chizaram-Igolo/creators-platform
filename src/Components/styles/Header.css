@@ -147,7 +147,7 @@ a {
   position: absolute;
   top: 58px;
   width: auto;
-  transform: translateX(-45%);
+  transform: translateX(-32%);
   /* background-color: var(--bg); */
   background-color: #fff;
   border: var(--border);

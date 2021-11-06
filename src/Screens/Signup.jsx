@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 
 import Button from "react-bootstrap/Button";
@@ -8,12 +8,16 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 
-import { AlertBox } from "../Components";
+import { AlertMessage } from "../Components";
 
 import { useAuth } from "../contexts/AuthContext";
 
 import "./styles/Signin.css";
-import { projectFirestore } from "../firebase/config";
+import {
+  dbTimestamp,
+  projectDatabase,
+  projectFirestore,
+} from "../firebase/config";
 
 function Signup() {
   const emailRef = useRef();
@@ -30,34 +34,79 @@ function Signup() {
   //   user.reauthenticateWithCredential()
   // }, []);
 
-  useEffect(() => {
-    async function checkIfUsernameAvailable() {
-      const snapshot = await projectFirestore
-        .collection("users")
-        .where("username", "==", username)
-        .get();
+  function clearMessages() {
+    // setError("");
+  }
 
-      if (snapshot.empty) {
-        console.log(username, "is available");
-      } else {
-        console.log(username, "is not available");
-      }
-    }
+  // useEffect(() => {
+  //   async function checkIfUsernameAvailable() {
+  //     const snapshot = await projectFirestore
+  //       .collection("users")
+  //       .where("username", "==", username)
+  //       .get();
 
-    if (username.length > 3) {
-      const timeout = setTimeout(() => {
-        checkIfUsernameAvailable();
-      }, 2000);
-      return () => {
-        clearTimeout(timeout);
-      };
-    }
-  }, [username]);
+  //     if (snapshot.empty) {
+  //       console.log(username, "is available");
+  //     } else {
+  //       console.log(username, "is not available");
+  //     }
+  //   }
 
-  function genRanHex(size) {
-    return [...Array(size)]
-      .map(() => Math.floor(Math.random() * 16).toString(16))
-      .join("");
+  //   if (username.length > 3) {
+  //     const timeout = setTimeout(() => {
+  //       checkIfUsernameAvailable();
+  //     }, 2000);
+  //     return () => {
+  //       clearTimeout(timeout);
+  //     };
+  //   }
+  // }, [username]);
+
+  // function genRanHex(size) {
+  //   return [...Array(size)]
+  //     .map(() => Math.floor(Math.random() * 16).toString(16))
+  //     .join("");
+  // }
+
+  const avatarColours = [
+    "#FF0000",
+    "#FF2400",
+    "#FF4500",
+    "#F62217",
+    "#F70D1A",
+    "#F62817",
+    "#E42217",
+    "#E41B17",
+    "#DC381F",
+    "#C24641",
+    "#C11B17",
+    "#B22222",
+    "#A52A2A",
+    "#A70D2A",
+    "#9F000F",
+    "#990012",
+    "#8B0000",
+    "#800000",
+    "#8C001A",
+    "#800517",
+    "#614051",
+    "#583759",
+    "#5E5A80",
+    "#4E5180",
+    "#6A5ACD",
+    "#6960EC",
+    "#736AFF",
+    "#7B68EE",
+    "#6C2DC7",
+    "#483D8B",
+    "#4E387E",
+    "#571B7E",
+    "orange",
+  ];
+
+  function chooseAvatarColour() {
+    var index = Math.floor(Math.random() * avatarColours.length);
+    return avatarColours[index];
   }
 
   async function handleSubmit(e) {
@@ -88,18 +137,26 @@ function Signup() {
         // await userCredential.user.sendEmailVerification();
         await userCredential.user.updateProfile({
           displayName: username,
-          photoURL:
-            `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
-            emailRef.current.value[0],
+          photoURL: "/profile/user.jpg",
+          // photoURL:
+          //   `https://ui-avatars.com/api/?background=${genRanHex(6)}&name=` +
+          //   emailRef.current.value[0],
         });
-        // await projectFirestore
-        //   .collection("users")
-        //   .doc(userCredential.user.uid)
-        //   .set({
-        //     username: user.displayName,
-        //     photoURL: user.photoURL,
-        //     subscriptions: [],
-        //   });
+
+        await projectDatabase.ref("users/" + user.uid).set({
+          email: user.email,
+          username: user.displayName,
+          photoURL: user.photoURL,
+          showOnlineStatus: true,
+          showSubscriberCount: true,
+          makeAccountDiscoverable: true,
+          showMediaCount: true,
+          showLastSeenDate: true,
+          creationDate: dbTimestamp,
+          avatarColour: chooseAvatarColour(),
+          channelName: "",
+          bio: "",
+        });
 
         history.push("/profile");
       } else {
@@ -118,15 +175,18 @@ function Signup() {
         <Row>
           <Col></Col>
           <Col xs={10} md={8} lg={6} xl={5}>
-            {/* {error && (
-              <Alert variant="danger" className="form-alert">
-                {error}
-              </Alert>
-            )} */}
             <Form className="vertical-center" onSubmit={handleSubmit}>
               <h3 className="mb-5 text-center">Sign Up</h3>
 
-              <AlertBox error={error} />
+              {error && (
+                <AlertMessage
+                  message={error}
+                  severity="error"
+                  isOpen={error.length > 0}
+                  clearMessages={clearMessages}
+                  keepOpen={true}
+                />
+              )}
 
               <p>Start earning with other creators today!</p>
               <Form.Group controlId="formBasicEmail">

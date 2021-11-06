@@ -29,7 +29,7 @@ export function useConnectivityListener() {
   useUpdateEffect(() => {
     const content = (
       <Fragment>
-        <span className="bold-text" style={{ fontSize: "1.1em" }}>
+        <span className="semi-bold-text" style={{ fontSize: "1.1em" }}>
           {isOnline ? "Online" : "Offline"}
         </span>
         <div style={{ fontSize: "1.1em" }}>

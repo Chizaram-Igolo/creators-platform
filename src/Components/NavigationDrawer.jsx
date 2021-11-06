@@ -20,13 +20,13 @@ const useStyles = makeStyles({
   },
 });
 
-export default function NavigationDrawer() {
+export default function NavigationDrawer(props) {
   const classes = useStyles();
   const [state, setState] = React.useState({
     top: false,
     left: false,
     bottom: false,
-    right: false,
+    right: props.right,
   });
 
   const toggleDrawer = (anchor, open) => (event) => {
@@ -75,20 +75,18 @@ export default function NavigationDrawer() {
   );
 
   return (
-    <div>
-      {["left", "right", "top", "bottom"].map((anchor) => (
-        <React.Fragment key={anchor}>
-          <Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
-          <SwipeableDrawer
-            anchor={anchor}
-            open={state[anchor]}
-            onClose={toggleDrawer(anchor, false)}
-            onOpen={toggleDrawer(anchor, true)}
-          >
-            {list(anchor)}
-          </SwipeableDrawer>
-        </React.Fragment>
-      ))}
+    <div style={{ position: "absolute" }}>
+      <React.Fragment>
+        <Button onClick={toggleDrawer("right", true)}>right</Button>
+        <SwipeableDrawer
+          anchor="right"
+          open={state["right"]}
+          onClose={toggleDrawer("right", false)}
+          onOpen={toggleDrawer("right", true)}
+        >
+          {list("right")}
+        </SwipeableDrawer>
+      </React.Fragment>
     </div>
   );
 }

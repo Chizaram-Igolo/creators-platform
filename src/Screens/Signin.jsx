@@ -9,8 +9,9 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 
-import { AlertBox } from "../Components";
+import { AlertMessage } from "../Components";
 import { useAuth } from "../contexts/AuthContext";
+
 import "./styles/Signin.css";
 
 function Signin(props) {
@@ -19,6 +20,8 @@ function Signin(props) {
   const { signin } = useAuth();
   const [error, setError] = useState("");
   const history = useHistory();
+
+  function clearMessages() {}
 
   async function handleSubmit(values) {
     try {
@@ -35,7 +38,7 @@ function Signin(props) {
       <Container>
         <Row>
           <Col></Col>
-          <Col xs={10} md={8} lg={6} xl={5}>
+          <Col xs={10} md={8} lg={6} xl={5} className="px-md-3">
             <Formik
               initialValues={{ email: "", password: "" }}
               validate={(values) => {
@@ -70,7 +73,15 @@ function Signin(props) {
                 <Form className="vertical-center" onSubmit={handleSubmit}>
                   <h3 className="mb-5 text-center">Welcome back</h3>
 
-                  <AlertBox error={error} />
+                  {error && (
+                    <AlertMessage
+                      message={error}
+                      severity="error"
+                      isOpen={error.length > 0}
+                      clearMessages={clearMessages}
+                      keepOpen={true}
+                    />
+                  )}
 
                   <p>Start earning with other creators today!</p>
 
@@ -139,21 +150,23 @@ function Signin(props) {
                     )}
                   </Button>
 
-                  <p className="mt-3 text-center">
-                    <Link
-                      to="/forgot-password"
-                      className="text-decoration-none"
-                    >
-                      Forgot password?
-                    </Link>
-                  </p>
-
-                  <p className="mt-3 text-center">
-                    Don't have an account?{" "}
-                    <Link to="/signup" className="text-decoration-none">
-                      Sign Up
-                    </Link>
-                  </p>
+                  <div className="mt-4 pt-2">
+                    <p className="mt-0 text-center">
+                      <Link to="/forgot-password">Forgot password?</Link>
+                      &nbsp;&nbsp;&nbsp;
+                      <span
+                        style={{
+                          fontSize: "1.2em",
+                          position: "relative",
+                          top: "2px",
+                        }}
+                      >
+                        •
+                      </span>
+                      &nbsp;&nbsp;&nbsp;
+                      <Link to="/signup">Sign Up</Link>
+                    </p>
+                  </div>
                 </Form>
               )}
             </Formik>
